@@ -4,6 +4,8 @@ import { Nav } from "@/components/nav";
 import { CourseCard } from "@/components/course-card";
 import { Category } from "@/types/course";
 
+export const dynamic = 'force-dynamic';
+
 async function buildResumeHref(
   courseId: string,
   categories: Category[]

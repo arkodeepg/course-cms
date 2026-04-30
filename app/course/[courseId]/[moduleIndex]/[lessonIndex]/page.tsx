@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
-import { getCourseEntry, getLesson, getLessonsFlat, parseLessonDescription } from "@/lib/courses";
+import { getCourseEntry, getLesson, getLessonsFlat, parseLessonDescription, getVideoFilePath } from "@/lib/courses";
 import { prisma } from "@/lib/db";
+
+export const dynamic = 'force-dynamic';
 import { Nav } from "@/components/nav";
 import { LessonSidebar } from "@/components/lesson-sidebar";
 import { VideoPlayer } from "@/components/video-player";
@@ -36,9 +38,8 @@ export default async function PlayerPage({ params }: Props) {
   const completedFiles = completedRows.map((r) => r.lessonFile);
 
   const totalLessons = getLessonsFlat(category).length;
-  const videoSrc = `/api/video/${entry.dir}/${category.folder}/${
-    category.sections.find((s) => s.lessons.some((l) => l.file === lesson.file))?.folder ?? ""
-  }/${lesson.file}`;
+  const videoAbsPath = getVideoFilePath(courseId, category, lesson);
+  const videoSrc = '/api/video' + videoAbsPath.split('/').map(s => encodeURIComponent(s)).join('/');
 
   const courseName = courseId
     .split("-")

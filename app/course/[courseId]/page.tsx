@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { Nav } from "@/components/nav";
 import { ModuleCard } from "@/components/module-card";
 
+export const dynamic = 'force-dynamic';
+
 interface Props {
   params: { courseId: string };
 }
