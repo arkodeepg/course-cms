@@ -21,9 +21,27 @@ A self-hosted, Kajabi-style course player for locally downloaded video courses. 
 | Database | Prisma 5 + SQLite |
 | Containerisation | Docker |
 
-## Course Data Format
+## Adding a Course
 
-Each course must have an `_index.json` at its root. Courses without this file are ignored.
+**A course will only appear in CourseVault if its folder contains an `_index.json` file.** Other folders (without `_index.json`) are silently ignored, even if they contain video files.
+
+### Required folder structure
+
+```
+/courses/
+  My Course Name/          ← folder name can be anything
+    _index.json            ← REQUIRED — this file makes the course appear
+    01 - Module One/
+      01 - Section/
+        01 - Lesson.mp4
+        02 - Another Lesson.mp4
+    02 - Module Two/
+      ...
+```
+
+### `_index.json` schema
+
+`_index.json` is the single source of truth for modules, sections, and lessons. The app reads this file exclusively — it does not scan the file system for videos. Only lessons listed in `_index.json` will appear in the UI.
 
 ```json
 {
@@ -34,21 +52,29 @@ Each course must have an `_index.json` at its root. Courses without this file ar
   "categories": [
     {
       "index": 1,
-      "name": "Introduction",
-      "folder": "01 - Introduction",
+      "name": "Module One",
+      "folder": "01 - Module One",
       "sections": [
         {
           "index": 1,
-          "name": "Introduction",
-          "folder": "01 - Introduction",
+          "name": "Section Name",
+          "folder": "01 - Section",
           "lessons": [
             {
               "index": 1,
-              "name": "Welcome",
+              "name": "Lesson Title",
               "url": "",
-              "file": "01 - Welcome.mp4",
+              "file": "01 - Lesson.mp4",
               "status": "downloaded",
               "has_description": false
+            },
+            {
+              "index": 2,
+              "name": "Lesson With Description\n\nThis text appears below the video.",
+              "url": "",
+              "file": "02 - Another Lesson.mp4",
+              "status": "downloaded",
+              "has_description": true
             }
           ]
         }
@@ -58,7 +84,21 @@ Each course must have an `_index.json` at its root. Courses without this file ar
 }
 ```
 
-Lesson descriptions are embedded in the `name` field when `has_description: true` — the text after the first newline is the description.
+**Key fields:**
+- `course` — URL-safe identifier (e.g., `my-course`). Used in all navigation URLs.
+- `categories` — top-level modules. Each maps to a numbered folder via `folder`.
+- `sections` — sub-groupings within a module. If a category has only one section, section headers are hidden in the sidebar.
+- `lessons[].file` — filename of the MP4. Must match the actual file on disk exactly (case-sensitive).
+- `has_description: true` — tells the app the `name` field contains a description after the first `\n`. URLs in descriptions are automatically turned into clickable links.
+
+### If a course folder is visible in the filesystem but not in the app
+
+Check that:
+1. `_index.json` exists at the root of the course folder (not inside a subfolder)
+2. The `course` field in `_index.json` is a valid URL slug (letters, numbers, hyphens only)
+3. The JSON is valid (no trailing commas, correct brackets)
+
+Note: extra folders without `_index.json` inside your courses directory are ignored. This is intentional — only properly indexed courses appear.
 
 ## Running with Docker
 

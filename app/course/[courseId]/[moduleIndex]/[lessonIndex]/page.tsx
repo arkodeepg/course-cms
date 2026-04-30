@@ -3,6 +3,30 @@ import { getCourseEntry, getLesson, getLessonsFlat, parseLessonDescription, getV
 import { prisma } from "@/lib/db";
 
 export const dynamic = 'force-dynamic';
+
+function linkify(text: string): React.ReactNode {
+  const urlRegex = /https?:\/\/[^\s)>\]"]+/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = urlRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) parts.push(text.slice(lastIndex, match.index));
+    parts.push(
+      <a
+        key={match.index}
+        href={match[0]}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-400 underline hover:text-blue-300 break-all"
+      >
+        {match[0]}
+      </a>
+    );
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) parts.push(text.slice(lastIndex));
+  return <>{parts}</>;
+}
 import { Nav } from "@/components/nav";
 import { LessonSidebar } from "@/components/lesson-sidebar";
 import { VideoPlayer } from "@/components/video-player";
@@ -54,8 +78,8 @@ export default async function PlayerPage({ params }: Props) {
           href: `/course/${courseId}`,
         }}
       />
-      <div className="flex flex-1 overflow-hidden">
-        <div className="flex flex-col flex-1 min-w-0">
+      <div className="flex flex-1">
+        <div className="flex flex-col flex-1 min-w-0 overflow-y-auto">
           <VideoPlayer
             courseId={courseId}
             moduleIndex={moduleIdx}
@@ -72,7 +96,7 @@ export default async function PlayerPage({ params }: Props) {
             <div className="text-base font-bold text-foreground mb-1">{title}</div>
             {description && (
               <p className="text-[0.72rem] text-muted-foreground leading-relaxed whitespace-pre-line">
-                {description}
+                {linkify(description)}
               </p>
             )}
           </div>

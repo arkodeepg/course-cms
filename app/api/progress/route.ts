@@ -10,7 +10,11 @@ export async function POST(req: NextRequest) {
 
   const progress = await prisma.progress.upsert({
     where: { courseId_lessonFile: { courseId, lessonFile } },
-    update: { positionSeconds: positionSeconds ?? 0, completed: completed ?? false },
+    // Never downgrade completed=true to false — once marked complete, it stays complete
+    update: {
+      positionSeconds: positionSeconds ?? 0,
+      ...(completed ? { completed: true } : {}),
+    },
     create: { courseId, lessonFile, positionSeconds: positionSeconds ?? 0, completed: completed ?? false },
   });
 

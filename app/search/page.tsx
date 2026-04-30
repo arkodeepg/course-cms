@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { LayoutList, LayoutGrid } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { SearchResult } from "@/app/api/search/route";
 import { discoverCourses, getLessonsFlat, parseLessonDescription } from "@/lib/courses";
 
 interface Props {
-  searchParams: { q?: string };
+  searchParams: { q?: string; view?: string };
 }
 
 function groupByModule(results: SearchResult[]): Map<string, SearchResult[]> {
@@ -51,6 +52,7 @@ async function search(q: string): Promise<SearchResult[]> {
 
 export default async function SearchPage({ searchParams }: Props) {
   const q = searchParams.q ?? "";
+  const view = searchParams.view === "grid" ? "grid" : "list";
   const results = q ? await search(q) : [];
   const grouped = groupByModule(results);
 
@@ -66,9 +68,27 @@ export default async function SearchPage({ searchParams }: Props) {
           </p>
         ) : (
           <>
-            <p className="text-[0.7rem] uppercase tracking-widest text-muted-foreground mb-4">
-              {results.length} result{results.length !== 1 ? "s" : ""} for &ldquo;{q}&rdquo;
-            </p>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-[0.7rem] uppercase tracking-widest text-muted-foreground">
+                {results.length} result{results.length !== 1 ? "s" : ""} for &ldquo;{q}&rdquo;
+              </p>
+              <div className="flex items-center gap-1">
+                <Link
+                  href={`/search?q=${encodeURIComponent(q)}&view=list`}
+                  className={`p-1.5 rounded transition-colors ${view === "list" ? "text-foreground bg-secondary" : "text-muted-foreground hover:text-foreground"}`}
+                  title="List view"
+                >
+                  <LayoutList className="h-3.5 w-3.5" />
+                </Link>
+                <Link
+                  href={`/search?q=${encodeURIComponent(q)}&view=grid`}
+                  className={`p-1.5 rounded transition-colors ${view === "grid" ? "text-foreground bg-secondary" : "text-muted-foreground hover:text-foreground"}`}
+                  title="Grid view"
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </div>
             <div className="flex flex-col gap-6">
               {Array.from(grouped.entries()).map(([key, group]) => {
                 const first = group[0];
@@ -82,7 +102,7 @@ export default async function SearchPage({ searchParams }: Props) {
                     <div className="text-xs font-semibold text-[#e53e3e] mb-1">
                       {courseName} · {first.categoryName}
                     </div>
-                    <div className="flex flex-col gap-1">
+                    <div className={view === "grid" ? "grid grid-cols-2 gap-2" : "flex flex-col gap-1"}>
                       {group.map((r) => (
                         <Link
                           key={r.lessonFile}

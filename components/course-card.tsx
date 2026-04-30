@@ -41,7 +41,12 @@ export function CourseCard({ courseId, index, completedCount, resumeHref }: Cour
   if (allDone) statusLabel = "Completed";
   else if (started) statusLabel = "In progress";
 
-  const actionHref = resumeHref ?? `/course/${courseId}`;
+  // Completed → module overview. In-progress → resume at saved position. New → skip module list, go to lesson 1.
+  const actionHref = allDone
+    ? `/course/${courseId}`
+    : started && resumeHref
+    ? resumeHref
+    : `/course/${courseId}/1/1`;
   const actionLabel = allDone ? "Completed" : started ? "Resume" : "Start Course";
 
   const courseName = index.course

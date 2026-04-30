@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Search, ChevronLeft } from "lucide-react";
@@ -12,11 +12,35 @@ interface NavProps {
 export function Nav({ breadcrumb }: NavProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     const q = inputRef.current?.value.trim();
     if (q) router.push(`/search?q=${encodeURIComponent(q)}`);
+  }
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const q = e.target.value.trim();
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (q.length >= 2) {
+      debounceRef.current = setTimeout(() => {
+        router.push(`/search?q=${encodeURIComponent(q)}`);
+      }, 400);
+    }
   }
 
   return (
@@ -42,7 +66,8 @@ export function Nav({ breadcrumb }: NavProps) {
             <input
               ref={inputRef}
               type="search"
-              placeholder="Search lessons, modules, courses…"
+              placeholder="Search lessons… (⌘K)"
+              onChange={handleInputChange}
               className="w-full rounded-md border border-border bg-[#252532] py-1.5 pl-8 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </div>

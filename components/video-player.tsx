@@ -26,10 +26,11 @@ export function VideoPlayer({
   const videoRef = useRef<HTMLVideoElement>(null);
   const seekRef = useRef<HTMLInputElement>(null);
   const timeRef = useRef<HTMLSpanElement>(null);
+  const completedRef = useRef(false);
   const router = useRouter();
 
   const saveProgress = useCallback(
-    async (completed = false) => {
+    async (completed: boolean) => {
       const video = videoRef.current;
       if (!video) return;
       try {
@@ -55,31 +56,62 @@ export function VideoPlayer({
     const seek = seekRef.current;
     if (!video || !seek) return;
 
+    completedRef.current = false;
+    let timer: NodeJS.Timeout | null = null;
+
     const onMeta = () => {
       if (initialPosition > 0) video.currentTime = initialPosition;
+      // Start periodic save only after video is ready — avoids saving position=0 on slow loads
+      timer = setInterval(() => saveProgress(completedRef.current), 10_000);
     };
 
     const onTime = () => {
       if (!video.duration) return;
       const pct = (video.currentTime / video.duration) * 100;
-      seek.value = String(pct);
+      if (seek) seek.value = String(pct);
       if (timeRef.current) {
         const fmt = (s: number) =>
-          `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+          `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(
+            Math.floor(s % 60)
+          ).padStart(2, "0")}`;
         timeRef.current.textContent = `${fmt(video.currentTime)} / ${fmt(video.duration)}`;
       }
-      if (pct >= 90) saveProgress(true);
+      if (!completedRef.current && pct >= 90) {
+        completedRef.current = true;
+        saveProgress(true);
+      }
     };
+
+    // Save immediately when user pauses — don't wait for the 10s timer
+    const onPause = () => saveProgress(completedRef.current);
 
     video.addEventListener("loadedmetadata", onMeta);
     video.addEventListener("timeupdate", onTime);
-
-    const timer = setInterval(() => saveProgress(false), 10_000);
+    video.addEventListener("pause", onPause);
 
     return () => {
+      if (timer) clearInterval(timer);
       video.removeEventListener("loadedmetadata", onMeta);
       video.removeEventListener("timeupdate", onTime);
-      clearInterval(timer);
+      video.removeEventListener("pause", onPause);
+
+      // Beacon-save on unmount so position is preserved on client-side navigation
+      if (video.currentTime > 1) {
+        const data = JSON.stringify({
+          courseId,
+          lessonFile,
+          positionSeconds: video.currentTime,
+          completed: completedRef.current,
+        });
+        try {
+          navigator.sendBeacon(
+            "/api/progress",
+            new Blob([data], { type: "application/json" })
+          );
+        } catch {
+          // sendBeacon unavailable in SSR / test environments
+        }
+      }
     };
   }, [initialPosition, saveProgress]);
 
@@ -90,7 +122,7 @@ export function VideoPlayer({
   }
 
   function goToLesson(idx: number) {
-    saveProgress(false);
+    saveProgress(completedRef.current);
     router.push(`/course/${courseId}/${moduleIndex}/${idx}`);
   }
 
@@ -105,7 +137,8 @@ export function VideoPlayer({
       <video
         ref={videoRef}
         src={videoSrc}
-        className="w-full aspect-video bg-black cursor-pointer"
+        className="w-full bg-black cursor-pointer"
+        style={{ maxHeight: "70vh" }}
         onClick={(e) => {
           const v = e.currentTarget;
           v.paused ? v.play() : v.pause();
@@ -153,7 +186,10 @@ export function VideoPlayer({
           className="flex-1 h-1 accent-[#e53e3e] cursor-pointer"
         />
 
-        <span ref={timeRef} className="text-[0.65rem] text-muted-foreground shrink-0 tabular-nums">
+        <span
+          ref={timeRef}
+          className="text-[0.65rem] text-muted-foreground shrink-0 tabular-nums"
+        >
           00:00 / 00:00
         </span>
 
