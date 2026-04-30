@@ -1,0 +1,14 @@
+services:
+  course-cms:
+    build: .
+    ports:
+      - "3004:3004"
+    volumes:
+      - /mnt/DATA/Archive/courses:/courses:ro
+      - ./data:/app/data
+    environment:
+      - DATABASE_URL=file:/app/data/course-cms.db
+      - COURSES_PATH=/courses
+      - PORT=3004
+      - HOSTNAME=0.0.0.0
+    restart: unless-stopped

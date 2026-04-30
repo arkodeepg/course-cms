@@ -1,64 +1,65 @@
-import Image from "next/image";
+import { discoverCourses, getLessonsFlat } from "@/lib/courses";
+import { prisma } from "@/lib/db";
+import { Nav } from "@/components/nav";
+import { CourseCard } from "@/components/course-card";
+import { Category } from "@/types/course";
 
-export default function Home() {
+async function buildResumeHref(
+  courseId: string,
+  categories: Category[]
+): Promise<string | null> {
+  const latest = await prisma.progress.findFirst({
+    where: { courseId },
+    orderBy: { updatedAt: "desc" },
+  });
+  if (!latest) return null;
+
+  for (let ci = 0; ci < categories.length; ci++) {
+    const flat = getLessonsFlat(categories[ci]);
+    const li = flat.findIndex((l) => l.file === latest.lessonFile);
+    if (li !== -1) {
+      return `/course/${courseId}/${ci + 1}/${li + 1}`;
+    }
+  }
+  return null;
+}
+
+export default async function LibraryPage() {
+  const courses = discoverCourses();
+
+  const courseData = await Promise.all(
+    courses.map(async ({ courseId, index }) => {
+      const allFiles = index.categories.flatMap((c) => getLessonsFlat(c)).map((l) => l.file);
+      const progressRows = await prisma.progress.findMany({
+        where: { courseId, completed: true },
+        select: { lessonFile: true },
+      });
+      const completedCount = progressRows.filter((r) => allFiles.includes(r.lessonFile)).length;
+      const resumeHref = await buildResumeHref(courseId, index.categories);
+
+      return { courseId, index, completedCount, resumeHref };
+    })
+  );
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="flex flex-col min-h-screen">
+      <Nav />
+      <main className="flex-1 px-6 py-6 max-w-3xl mx-auto w-full">
+        <p className="text-[0.7rem] uppercase tracking-widest text-muted-foreground mb-4">
+          My Courses
+        </p>
+        {courseData.length === 0 ? (
+          <p className="text-muted-foreground text-sm">
+            No courses found. Mount your courses folder and ensure each course has an{" "}
+            <code className="text-xs">_index.json</code>.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {courseData.map((d) => (
+              <CourseCard key={d.courseId} {...d} />
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
