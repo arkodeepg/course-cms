@@ -35,19 +35,20 @@ export function CourseCard({ courseId, index, completedCount, resumeHref }: Cour
   const pct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
 
   const allDone = pct === 100;
-  const started = completedCount > 0;
+  // Any saved position (even partial) counts as "in progress"
+  const hasProgress = resumeHref !== null;
 
   let statusLabel = "Not started";
   if (allDone) statusLabel = "Completed";
-  else if (started) statusLabel = "In progress";
+  else if (hasProgress) statusLabel = "In progress";
 
-  // Completed → module overview. In-progress → resume at saved position. New → skip module list, go to lesson 1.
+  // Completed → module overview. Any progress → resume at saved position. Fresh → first lesson directly.
   const actionHref = allDone
     ? `/course/${courseId}`
-    : started && resumeHref
-    ? resumeHref
+    : hasProgress
+    ? resumeHref!
     : `/course/${courseId}/1/1`;
-  const actionLabel = allDone ? "Completed" : started ? "Resume" : "Start Course";
+  const actionLabel = allDone ? "Completed" : hasProgress ? "Resume" : "Start Course";
 
   const courseName = index.course
     .split("-")
@@ -81,9 +82,9 @@ export function CourseCard({ courseId, index, completedCount, resumeHref }: Cour
 
       <Link
         href={actionHref}
-        className="shrink-0 rounded px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-80"
+        className="shrink-0 rounded px-3 py-1.5 text-xs font-semibold transition-opacity hover:opacity-80"
         style={{
-          background: allDone ? "#2d3a2d" : started ? "hsl(150 42% 30%)" : "hsl(0 72% 51%)",
+          background: allDone ? "#2d3a2d" : hasProgress ? "hsl(150 42% 30%)" : "hsl(0 72% 51%)",
           color: allDone ? "#6a9a6a" : "white",
         }}
       >

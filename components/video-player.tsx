@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { SkipBack, SkipForward, Maximize2 } from "lucide-react";
+import { SkipBack, SkipForward, Maximize2, Volume2, VolumeX } from "lucide-react";
 
 interface VideoPlayerProps {
   courseId: string;
@@ -27,6 +27,7 @@ export function VideoPlayer({
   const seekRef = useRef<HTMLInputElement>(null);
   const timeRef = useRef<HTMLSpanElement>(null);
   const completedRef = useRef(false);
+  const [muted, setMuted] = useState(false);
   const router = useRouter();
 
   const saveProgress = useCallback(
@@ -126,6 +127,13 @@ export function VideoPlayer({
     router.push(`/course/${courseId}/${moduleIndex}/${idx}`);
   }
 
+  function toggleMute() {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = !video.muted;
+    setMuted(video.muted);
+  }
+
   function toggleFullscreen() {
     const video = videoRef.current;
     if (!video) return;
@@ -192,6 +200,14 @@ export function VideoPlayer({
         >
           00:00 / 00:00
         </span>
+
+        <button
+          onClick={toggleMute}
+          className="text-muted-foreground hover:text-foreground transition-colors"
+          title={muted ? "Unmute" : "Mute"}
+        >
+          {muted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+        </button>
 
         <button
           onClick={toggleFullscreen}
