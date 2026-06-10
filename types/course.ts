@@ -5,6 +5,12 @@ export interface Lesson {
   file: string;
   status: string;
   has_description: boolean;
+  resources?: Resource[];
+}
+
+export interface Resource {
+  name: string;
+  file: string;
 }
 
 export interface Section {
@@ -23,6 +29,8 @@ export interface Category {
 
 export interface CourseIndex {
   course: string;
+  title?: string;
+  cover?: string;
   total_lessons: number;
   downloaded: number;
   missing: number;

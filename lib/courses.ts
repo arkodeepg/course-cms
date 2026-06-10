@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { Category, CourseIndex, Lesson } from '@/types/course';
+import { Category, CourseIndex, Lesson, Resource } from '@/types/course';
 
 export function getCoursesPath(): string {
   return process.env.COURSES_PATH || '/courses';
@@ -86,4 +86,22 @@ export function getVideoFilePath(courseId: string, category: Category, lesson: L
   }
 
   throw new Error(`Lesson file not found in course ${courseId}: ${lesson.file}`);
+}
+
+export function getResourceFilePath(
+  courseId: string,
+  category: Category,
+  lesson: Lesson,
+  resource: Resource
+): string {
+  const entry = getCourseEntry(courseId);
+  if (!entry) throw new Error(`Course not found: ${courseId}`);
+
+  for (const section of category.sections) {
+    if (section.lessons.some((l) => l.file === lesson.file)) {
+      return path.join(getCoursesPath(), entry.dir, category.folder, section.folder, resource.file);
+    }
+  }
+
+  throw new Error(`Resource file not found in course ${courseId}: ${resource.file}`);
 }

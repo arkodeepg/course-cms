@@ -98,7 +98,7 @@ export function Nav({ breadcrumb }: NavProps) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-[#16181f]">
-      <div className="flex items-center gap-4 px-6 py-3">
+      <div className="flex items-center gap-3 px-3 sm:px-6 py-3">
         <Link href="/" className="text-sm font-bold tracking-wide text-white shrink-0">
           CourseVault
         </Link>
@@ -106,10 +106,10 @@ export function Nav({ breadcrumb }: NavProps) {
         {breadcrumb && (
           <Link
             href={breadcrumb.href}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0"
+            className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors min-w-0"
           >
-            <ChevronLeft className="h-3 w-3" />
-            {breadcrumb.label}
+            <ChevronLeft className="h-3 w-3 shrink-0" />
+            <span className="truncate">{breadcrumb.label}</span>
           </Link>
         )}
 

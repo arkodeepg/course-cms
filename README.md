@@ -4,12 +4,16 @@ A self-hosted, Kajabi-style course player for locally downloaded video courses. 
 
 ## Features
 
-- Course library with progress bars and resume buttons
-- Module list with per-module progress
-- Video player with seek, auto-resume, and completion tracking (marks done at 90%)
-- Right sidebar with all lessons in the current module, section groupings, checkmarks
+- Course library sorted by most recent activity — courses you watch regularly float to the top automatically
+- Per-course progress bars and resume buttons on the library page
+- Module list with per-module progress tracking
+- Module detail page with section accordions — sections collapse by default, sections with in-progress lessons auto-expand
+- Video player with seek bar, volume slider, playback speed (1×–3×), auto-resume, and completion tracking (marks done at 90%)
+- Progress saved every 10 seconds, on pause, and via beacon on tab close — restored on revisit
+- Right sidebar on desktop with all course lessons, accordion by module, section groupings, checkmarks
+- Mobile lesson queue — inline list of the current module's lessons shown below the video, so you can tap the next lesson without opening a drawer
+- Mobile drawer (Contents button) for full cross-module navigation on small screens
 - Search across all lesson names and descriptions
-- Progress saved every 10 seconds and restored on revisit
 - Dark theme with red accent
 
 ## Tech Stack

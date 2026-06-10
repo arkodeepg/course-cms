@@ -2,7 +2,7 @@ services:
   course-cms:
     build: .
     ports:
-      - "3004:3004"
+      - "100.97.39.56:3004:3004"
     volumes:
       - /mnt/DATA/Archive/courses:/courses:ro
       - ./data:/app/data
