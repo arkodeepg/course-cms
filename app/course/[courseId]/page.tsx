@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
-import { getCourseEntry, getLessonsFlat } from "@/lib/courses";
+import { ChevronLeft, Download } from "lucide-react";
+import { getCourseEntry, getLessonsFlat, courseHasResources } from "@/lib/courses";
 import { courseTitle } from "@/lib/utils";
 import { prisma } from "@/lib/db";
 import { Nav } from "@/components/nav";
@@ -44,9 +44,20 @@ export default async function ModuleListPage({ params }: Props) {
           <ChevronLeft className="h-3 w-3" />
           All courses
         </Link>
-        <p className="text-[0.7rem] uppercase tracking-widest text-muted-foreground mb-4">
-          Modules · {index.categories.length} total
-        </p>
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <p className="text-[0.7rem] uppercase tracking-widest text-muted-foreground">
+            Modules · {index.categories.length} total
+          </p>
+          {courseHasResources(index) && (
+            <Link
+              href={`/course/${courseId}/resources`}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary/30 px-2.5 py-1.5 text-[0.68rem] font-medium text-foreground hover:bg-secondary/60 transition-colors shrink-0"
+            >
+              <Download className="h-3.5 w-3.5 text-[#e53e3e]" />
+              Resources
+            </Link>
+          )}
+        </div>
         <div className="flex flex-col gap-2">
           {index.categories.map((category) => {
             const lessons = getLessonsFlat(category);

@@ -11,6 +11,9 @@ export interface Lesson {
 export interface Resource {
   name: string;
   file: string;
+  // Path relative to the course directory. Use for module-level or course-level
+  // downloads that do not live inside a lesson's section folder. Falls back to `file`.
+  path?: string;
 }
 
 export interface Section {
@@ -25,6 +28,7 @@ export interface Category {
   name: string;
   folder: string;
   sections: Section[];
+  resources?: Resource[];
 }
 
 export interface CourseIndex {
@@ -35,4 +39,5 @@ export interface CourseIndex {
   downloaded: number;
   missing: number;
   categories: Category[];
+  resources?: Resource[];
 }

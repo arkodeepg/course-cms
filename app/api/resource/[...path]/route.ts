@@ -9,13 +9,27 @@ const CONTENT_TYPES: Record<string, string> = {
   '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   '.zip': 'application/zip',
   '.mp3': 'audio/mpeg',
+  '.txt': 'text/plain; charset=utf-8',
+  '.cube': 'application/octet-stream',
+  '.xmp': 'application/rdf+xml',
+  '.png': 'image/png',
 };
+
+function withinCoursesPath(filePath: string): boolean {
+  const root = path.resolve(process.env.COURSES_PATH || '/courses');
+  const resolved = path.resolve(filePath);
+  return resolved === root || resolved.startsWith(root + path.sep);
+}
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: { path: string[] } }
 ) {
   const filePath = path.join('/', ...params.path);
+
+  if (!withinCoursesPath(filePath)) {
+    return new NextResponse('Forbidden', { status: 403 });
+  }
 
   if (!fs.existsSync(filePath)) {
     return new NextResponse('Not found', { status: 404 });

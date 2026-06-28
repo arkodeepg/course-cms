@@ -2,11 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+function withinCoursesPath(filePath: string): boolean {
+  const root = path.resolve(process.env.COURSES_PATH || '/courses');
+  const resolved = path.resolve(filePath);
+  return resolved === root || resolved.startsWith(root + path.sep);
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { path: string[] } }
 ) {
   const filePath = path.join('/', ...params.path);
+
+  if (!withinCoursesPath(filePath)) {
+    return new NextResponse('Forbidden', { status: 403 });
+  }
 
   if (!fs.existsSync(filePath)) {
     return new NextResponse('Not found', { status: 404 });

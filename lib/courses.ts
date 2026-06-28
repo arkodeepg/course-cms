@@ -97,6 +97,11 @@ export function getResourceFilePath(
   const entry = getCourseEntry(courseId);
   if (!entry) throw new Error(`Course not found: ${courseId}`);
 
+  // A resource may carry an explicit path relative to the course directory.
+  if (resource.path) {
+    return path.join(getCoursesPath(), entry.dir, resource.path);
+  }
+
   for (const section of category.sections) {
     if (section.lessons.some((l) => l.file === lesson.file)) {
       return path.join(getCoursesPath(), entry.dir, category.folder, section.folder, resource.file);
@@ -104,4 +109,41 @@ export function getResourceFilePath(
   }
 
   throw new Error(`Resource file not found in course ${courseId}: ${resource.file}`);
+}
+
+// Resolves module-level and course-level resources, which live relative to the
+// course directory rather than inside a lesson's section folder.
+export function getResourceAbsPath(courseId: string, resource: Resource): string {
+  const entry = getCourseEntry(courseId);
+  if (!entry) throw new Error(`Course not found: ${courseId}`);
+  return path.join(getCoursesPath(), entry.dir, resource.path ?? resource.file);
+}
+
+// Builds the /api/resource href for an absolute on-disk path.
+export function resourceHref(absPath: string): string {
+  return '/api/resource' + absPath.split('/').map((s) => encodeURIComponent(s)).join('/');
+}
+
+export interface ResourceGroup {
+  label: string;
+  resources: Resource[];
+}
+
+// Course-level downloads first, then one group per module that has resources.
+export function collectResourceGroups(index: CourseIndex): ResourceGroup[] {
+  const groups: ResourceGroup[] = [];
+  if (index.resources && index.resources.length > 0) {
+    groups.push({ label: 'Course downloads', resources: index.resources });
+  }
+  for (const category of index.categories) {
+    if (category.resources && category.resources.length > 0) {
+      groups.push({ label: category.name, resources: category.resources });
+    }
+  }
+  return groups;
+}
+
+export function courseHasResources(index: CourseIndex): boolean {
+  if (index.resources && index.resources.length > 0) return true;
+  return index.categories.some((c) => c.resources && c.resources.length > 0);
 }

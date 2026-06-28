@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CheckIcon, ChevronDownIcon, ChevronRightIcon, X, BookOpen } from "lucide-react";
+import { CheckIcon, ChevronDownIcon, ChevronRightIcon, X, BookOpen, Download } from "lucide-react";
 import { CourseIndex, Category } from "@/types/course";
 
 function lessonsFlat(category: Category) {
@@ -28,6 +28,10 @@ export function LessonSidebar({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const completedSet = new Set(completedFiles);
+
+  const hasResources =
+    (courseIndex.resources?.length ?? 0) > 0 ||
+    courseIndex.categories.some((c) => (c.resources?.length ?? 0) > 0);
 
   return (
     <>
@@ -63,6 +67,17 @@ export function LessonSidebar({
         </button>
       </div>
       <div className="flex-1 overflow-y-auto">
+        {hasResources && (
+          <Link
+            href={`/course/${courseId}/resources`}
+            className="flex items-center gap-2 px-3 py-2.5 border-b border-border/60 hover:bg-[#1a1c26] transition-colors"
+          >
+            <Download className="h-3.5 w-3.5 shrink-0 text-[#e53e3e]" />
+            <span className="flex-1 text-[0.68rem] font-semibold text-muted-foreground">
+              Downloads &amp; Resources
+            </span>
+          </Link>
+        )}
         {courseIndex.categories.map((category) => {
           const lessons = lessonsFlat(category);
           const completedCount = lessons.filter((l) => completedSet.has(l.file)).length;
