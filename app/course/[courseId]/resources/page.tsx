@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import fs from "fs";
-import { ChevronLeft, Download, FileText } from "lucide-react";
+import path from "path";
+import { ChevronLeft } from "lucide-react";
 import {
   getCourseEntry,
   getResourceAbsPath,
@@ -10,6 +11,10 @@ import {
 } from "@/lib/courses";
 import { courseTitle } from "@/lib/utils";
 import { Nav } from "@/components/nav";
+import {
+  ResourceList,
+  type ResourceGroupView,
+} from "@/components/resource-list";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +43,31 @@ export default async function ResourcesPage({ params }: Props) {
   const groups = collectResourceGroups(index);
   const courseName = courseTitle(courseId, index);
 
+  const viewGroups: ResourceGroupView[] = groups.map((group) => ({
+    label: group.label,
+    items: group.resources.map((resource) => {
+      let size = "";
+      let exists = true;
+      let abs = "";
+      try {
+        abs = getResourceAbsPath(courseId, resource);
+        exists = fs.existsSync(abs);
+        if (exists) size = formatBytes(fs.statSync(abs).size);
+      } catch {
+        exists = false;
+      }
+      const href = abs ? resourceHref(abs) : "";
+      return {
+        name: resource.name,
+        href,
+        downloadHref: href ? `${href}?download=1` : "",
+        ext: path.extname(resource.file || resource.path || "").toLowerCase(),
+        size,
+        exists,
+      };
+    }),
+  }));
+
   return (
     <div className="flex flex-col min-h-screen">
       <Nav breadcrumb={{ label: courseName, href: `/course/${courseId}` }} />
@@ -53,62 +83,12 @@ export default async function ResourcesPage({ params }: Props) {
           Downloads &amp; Resources
         </p>
 
-        {groups.length === 0 ? (
+        {viewGroups.length === 0 ? (
           <p className="text-[0.8rem] text-muted-foreground">
             This course has no downloadable resources.
           </p>
         ) : (
-          <div className="flex flex-col gap-6">
-            {groups.map((group) => (
-              <section key={group.label}>
-                <h2 className="text-[0.7rem] font-semibold uppercase tracking-wide text-[#e53e3e] mb-2">
-                  {group.label}
-                </h2>
-                <div className="flex flex-col gap-2">
-                  {group.resources.map((resource) => {
-                    let size = "";
-                    let exists = true;
-                    try {
-                      const abs = getResourceAbsPath(courseId, resource);
-                      exists = fs.existsSync(abs);
-                      if (exists) size = formatBytes(fs.statSync(abs).size);
-                    } catch {
-                      exists = false;
-                    }
-                    const href = resourceHref(getResourceAbsPath(courseId, resource));
-                    return (
-                      <a
-                        key={resource.file}
-                        href={exists ? href : undefined}
-                        className={`flex items-center gap-3 rounded-md border border-border bg-secondary/20 px-3 py-2.5 transition-colors ${
-                          exists
-                            ? "hover:bg-secondary/50"
-                            : "opacity-50 pointer-events-none"
-                        }`}
-                      >
-                        <FileText className="h-4 w-4 shrink-0 text-[#e53e3e]" />
-                        <span className="flex-1 text-[0.78rem] font-medium text-foreground leading-snug">
-                          {resource.name}
-                        </span>
-                        {size && (
-                          <span className="text-[0.62rem] tabular-nums text-muted-foreground shrink-0">
-                            {size}
-                          </span>
-                        )}
-                        {exists ? (
-                          <Download className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                        ) : (
-                          <span className="text-[0.6rem] text-muted-foreground shrink-0">
-                            missing
-                          </span>
-                        )}
-                      </a>
-                    );
-                  })}
-                </div>
-              </section>
-            ))}
-          </div>
+          <ResourceList groups={viewGroups} />
         )}
       </main>
     </div>
