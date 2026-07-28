@@ -92,8 +92,21 @@ A self-hosted, Kajabi-style course player for locally downloaded video courses. 
 - `course` — URL-safe identifier (e.g., `my-course`). Used in all navigation URLs.
 - `categories` — top-level modules. Each maps to a numbered folder via `folder`.
 - `sections` — sub-groupings within a module. If a category has only one section, section headers are hidden in the sidebar.
-- `lessons[].file` — filename of the MP4. Must match the actual file on disk exactly (case-sensitive).
+- `lessons[].file` — filename of the lesson's own file. Must match the actual file on disk exactly (case-sensitive).
 - `has_description: true` — tells the app the `name` field contains a description after the first `\n`. URLs in descriptions are automatically turned into clickable links.
+
+### Video lessons and article lessons
+
+The lesson type is inferred from the extension of `lessons[].file`. There is no `type` field to set.
+
+| `file` ends in | Renders as |
+|----------------|------------|
+| `.md` | An article — the Markdown is parsed on the server and rendered as formatted text, with a prev/next + **Mark complete** toolbar in place of the player |
+| anything else | A video — the existing player, which marks the lesson complete at 90% watched |
+
+Article lessons exist for text-first courses (Skool and similar), where most lessons are written rather than filmed. A leading `# Heading` in the Markdown file is dropped on render, because the page already shows the lesson title.
+
+For a course saved as HTML pages, `execution/coursevault_skool_html_extract.py` in the AIW2 workspace extracts a sibling `.md` next to each `.html`; point `lessons[].file` at the `.md`.
 
 ### If a course folder is visible in the filesystem but not in the app
 
