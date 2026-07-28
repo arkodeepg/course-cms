@@ -75,7 +75,8 @@ export function parseLessonDescription(lesson: Lesson): { title: string; descrip
   };
 }
 
-export function getVideoFilePath(courseId: string, category: Category, lesson: Lesson): string {
+// Resolves the on-disk path of a lesson's own file, whether video or article.
+export function getLessonFilePath(courseId: string, category: Category, lesson: Lesson): string {
   const entry = getCourseEntry(courseId);
   if (!entry) throw new Error(`Course not found: ${courseId}`);
 
@@ -86,6 +87,26 @@ export function getVideoFilePath(courseId: string, category: Category, lesson: L
   }
 
   throw new Error(`Lesson file not found in course ${courseId}: ${lesson.file}`);
+}
+
+export const getVideoFilePath = getLessonFilePath;
+
+// A lesson is an article rather than a video when its file is Markdown. Courses
+// ripped from text-first platforms such as Skool are mostly these.
+export function isTextLesson(lesson: Lesson): boolean {
+  return path.extname(lesson.file).toLowerCase() === '.md';
+}
+
+// Reads an article lesson's Markdown, dropping the leading H1 — the page chrome
+// already renders the lesson title, so repeating it reads as a duplicate.
+export function readLessonMarkdown(courseId: string, category: Category, lesson: Lesson): string {
+  let raw: string;
+  try {
+    raw = fs.readFileSync(getLessonFilePath(courseId, category, lesson), 'utf-8');
+  } catch {
+    return '';
+  }
+  return raw.replace(/^\s*#\s+.*(\r?\n)+/, '').trim();
 }
 
 export function getResourceFilePath(

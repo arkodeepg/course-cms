@@ -2,8 +2,13 @@ import {
   getLessonsFlat,
   parseLessonDescription,
   getLesson,
+  isTextLesson,
 } from '@/lib/courses';
-import { Category, CourseIndex } from '@/types/course';
+import { Category, CourseIndex, Lesson } from '@/types/course';
+
+function fileLesson(file: string): Lesson {
+  return { index: 1, name: 'x', url: '', file, status: 'downloaded', has_description: false };
+}
 
 const mockCategory: Category = {
   index: 1,
@@ -36,6 +41,18 @@ describe('getLessonsFlat', () => {
     expect(result).toHaveLength(2);
     expect(result[0].name).toBe('Welcome: Start Here');
     expect(result[1].file).toBe('02 - Mindset.mp4');
+  });
+});
+
+describe('isTextLesson', () => {
+  it('treats Markdown lesson files as articles', () => {
+    expect(isTextLesson(fileLesson('4 Decide Main Service.md'))).toBe(true);
+    expect(isTextLesson(fileLesson('4 Decide Main Service.MD'))).toBe(true);
+  });
+
+  it('treats video lesson files as videos', () => {
+    expect(isTextLesson(fileLesson('01 - Welcome.mp4'))).toBe(false);
+    expect(isTextLesson(fileLesson('notes.md.mp4'))).toBe(false);
   });
 });
 

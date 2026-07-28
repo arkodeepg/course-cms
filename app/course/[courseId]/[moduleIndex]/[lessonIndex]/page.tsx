@@ -1,7 +1,16 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, FileText, PlayCircle } from "lucide-react";
-import { getCourseEntry, getLesson, getLessonsFlat, parseLessonDescription, getResourceFilePath, getVideoFilePath } from "@/lib/courses";
+import {
+  getCourseEntry,
+  getLesson,
+  getLessonsFlat,
+  parseLessonDescription,
+  getResourceFilePath,
+  getLessonFilePath,
+  isTextLesson,
+  readLessonMarkdown,
+} from "@/lib/courses";
 import { courseTitle } from "@/lib/utils";
 import { prisma } from "@/lib/db";
 
@@ -33,6 +42,8 @@ function linkify(text: string): React.ReactNode {
 import { Nav } from "@/components/nav";
 import { LessonSidebar } from "@/components/lesson-sidebar";
 import { VideoPlayer } from "@/components/video-player";
+import { LessonArticle } from "@/components/lesson-article";
+import { LessonToolbar } from "@/components/lesson-toolbar";
 
 interface Props {
   params: { courseId: string; moduleIndex: string; lessonIndex: string };
@@ -67,8 +78,12 @@ export default async function PlayerPage({ params }: Props) {
 
   const flatLessons = getLessonsFlat(category);
   const totalLessons = flatLessons.length;
-  const videoAbsPath = getVideoFilePath(courseId, category, lesson);
-  const videoSrc = '/api/video' + videoAbsPath.split('/').map(s => encodeURIComponent(s)).join('/');
+  const isArticle = isTextLesson(lesson);
+  const markdown = isArticle ? readLessonMarkdown(courseId, category, lesson) : "";
+  const videoAbsPath = isArticle ? "" : getLessonFilePath(courseId, category, lesson);
+  const videoSrc = videoAbsPath
+    ? '/api/video' + videoAbsPath.split('/').map(s => encodeURIComponent(s)).join('/')
+    : "";
 
   const courseName = courseTitle(courseId, entry.index);
 
@@ -82,27 +97,49 @@ export default async function PlayerPage({ params }: Props) {
       />
       <div className="flex flex-col md:flex-row md:flex-1 md:min-h-0">
         <div className="flex flex-col min-w-0 md:flex-1 md:overflow-y-auto">
-          <VideoPlayer
-            courseId={courseId}
-            moduleIndex={moduleIdx}
-            lessonIndex={lessonIdx}
-            totalLessons={totalLessons}
-            lessonFile={lesson.file}
-            videoSrc={videoSrc}
-            initialPosition={progressRow?.positionSeconds ?? 0}
-          />
+          {isArticle ? (
+            <LessonToolbar
+              courseId={courseId}
+              moduleIndex={moduleIdx}
+              lessonIndex={lessonIdx}
+              totalLessons={totalLessons}
+              lessonFile={lesson.file}
+              initialCompleted={progressRow?.completed ?? false}
+            />
+          ) : (
+            <VideoPlayer
+              courseId={courseId}
+              moduleIndex={moduleIdx}
+              lessonIndex={lessonIdx}
+              totalLessons={totalLessons}
+              lessonFile={lesson.file}
+              videoSrc={videoSrc}
+              initialPosition={progressRow?.positionSeconds ?? 0}
+            />
+          )}
+          {/* The divider spans the pane while the article stays at reading width. */}
           <div className="px-4 py-4 border-b border-border">
+            <div className={isArticle ? "max-w-3xl" : ""}>
             <div className="text-[0.7rem] font-semibold text-[#e53e3e] mb-1 uppercase tracking-wide">
               {category.name}
             </div>
-            <div className="text-base font-bold text-foreground mb-2">{title}</div>
+            <div
+              className={
+                isArticle
+                  ? "text-xl font-bold text-foreground mb-4 leading-snug"
+                  : "text-base font-bold text-foreground mb-2"
+              }
+            >
+              {title}
+            </div>
             {description && (
               <p className="text-[0.72rem] text-muted-foreground leading-relaxed whitespace-pre-line">
                 {linkify(description)}
               </p>
             )}
+            {isArticle && <LessonArticle markdown={markdown} />}
             {lesson.resources && lesson.resources.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-5 flex flex-wrap gap-2">
                 {lesson.resources.map((resource) => {
                   const resourceAbsPath = getResourceFilePath(courseId, category, lesson, resource);
                   const resourceHref = '/api/resource' + resourceAbsPath.split('/').map((s) => encodeURIComponent(s)).join('/');
@@ -119,6 +156,7 @@ export default async function PlayerPage({ params }: Props) {
                 })}
               </div>
             )}
+            </div>
           </div>
 
           {/* Mobile-only inline lesson queue for current module */}
