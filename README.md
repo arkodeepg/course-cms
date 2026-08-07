@@ -9,6 +9,7 @@ A self-hosted, Kajabi-style course player for locally downloaded video courses. 
 - Module list with per-module progress tracking
 - Module detail page with section accordions — sections collapse by default, sections with in-progress lessons auto-expand
 - Video player with seek bar, volume slider, playback speed (1×–3×), auto-resume, and completion tracking (marks done at 90%)
+- Timestamp deep links — `?t=` in the URL jumps to a moment in a lesson, plus a copy-link button that stamps the current time
 - Progress saved every 10 seconds, on pause, and via beacon on tab close — restored on revisit
 - Right sidebar on desktop with all course lessons, accordion by module, section groupings, checkmarks
 - Mobile lesson queue — inline list of the current module's lessons shown below the video, so you can tap the next lesson without opening a drawer
@@ -116,6 +117,30 @@ Check that:
 3. The JSON is valid (no trailing commas, correct brackets)
 
 Note: extra folders without `_index.json` inside your courses directory are ignored. This is intentional — only properly indexed courses appear.
+
+## Timestamp Deep Links
+
+A lesson URL accepts a `?t=` parameter that seeks the video to that point, the way YouTube does.
+
+```
+/course/my-course/2/5?t=90       plain seconds
+/course/my-course/2/5?t=1m30s    unit form, also 90s and 1h2m3s
+/course/my-course/2/5?t=1:30     clock form, also 1:02:30
+```
+
+To produce one without doing arithmetic, pause where you want and click the link icon in the player toolbar, left of fullscreen. It copies the current URL with the current time appended and flashes a green check. The button emits plain seconds.
+
+Rules:
+
+- An explicit `?t=` beats saved progress. Without it, playback resumes wherever you left off, unchanged.
+- An unparseable or negative `t` is ignored rather than throwing you to the start, so a mangled link still resumes normally.
+- The page seeks but does not autoplay. Browsers block unmuted autoplay without a user gesture, so a pasted link would otherwise fail silently.
+- Article lessons ignore `t`.
+- The address bar is not rewritten as you watch. `?t=` only appears when you arrived via a timestamp link.
+
+Parsing lives in `lib/timestamp.ts` (`parseTimestamp`, `resolveStartPosition`, `formatTimestampParam`), covered by `__tests__/timestamp.test.ts`.
+
+**Why the copy button has a clipboard fallback:** CourseVault is normally served over plain HTTP on a LAN or tailnet address, which is not a secure context, so `navigator.clipboard` is undefined there. The button falls back to a hidden textarea plus `document.execCommand("copy")`. Remove that fallback and the button silently does nothing on every non-localhost deployment.
 
 ## Running with Docker
 

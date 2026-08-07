@@ -12,6 +12,7 @@ import {
   readLessonMarkdown,
 } from "@/lib/courses";
 import { courseTitle } from "@/lib/utils";
+import { resolveStartPosition } from "@/lib/timestamp";
 import { prisma } from "@/lib/db";
 
 export const dynamic = 'force-dynamic';
@@ -47,9 +48,10 @@ import { LessonToolbar } from "@/components/lesson-toolbar";
 
 interface Props {
   params: { courseId: string; moduleIndex: string; lessonIndex: string };
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export default async function PlayerPage({ params }: Props) {
+export default async function PlayerPage({ params, searchParams }: Props) {
   const { courseId } = params;
   const moduleIdx = parseInt(params.moduleIndex, 10);
   const lessonIdx = parseInt(params.lessonIndex, 10);
@@ -87,8 +89,9 @@ export default async function PlayerPage({ params }: Props) {
 
   const courseName = courseTitle(courseId, entry.index);
 
+  // Desktop pins to the viewport so each pane scrolls on its own; mobile keeps page scroll.
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen md:h-screen md:min-h-0 md:overflow-hidden">
       <Nav
         breadcrumb={{
           label: `${courseName} · ${category.name}`,
@@ -96,7 +99,7 @@ export default async function PlayerPage({ params }: Props) {
         }}
       />
       <div className="flex flex-col md:flex-row md:flex-1 md:min-h-0">
-        <div className="flex flex-col min-w-0 md:flex-1 md:overflow-y-auto">
+        <div className="flex flex-col min-w-0 md:flex-1 md:overflow-y-auto md:overscroll-contain">
           {isArticle ? (
             <LessonToolbar
               courseId={courseId}
@@ -114,7 +117,10 @@ export default async function PlayerPage({ params }: Props) {
               totalLessons={totalLessons}
               lessonFile={lesson.file}
               videoSrc={videoSrc}
-              initialPosition={progressRow?.positionSeconds ?? 0}
+              initialPosition={resolveStartPosition(
+                searchParams.t,
+                progressRow?.positionSeconds
+              )}
             />
           )}
           {/* The divider spans the pane while the article stays at reading width. */}

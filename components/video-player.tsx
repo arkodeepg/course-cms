@@ -1,8 +1,40 @@
 "use client";
 
 import { useEffect, useRef, useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
-import { SkipBack, SkipForward, Maximize2, Volume2, Volume1, VolumeX } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import { SkipBack, SkipForward, Maximize2, Volume2, Volume1, VolumeX, Link2, Check } from "lucide-react";
+import { formatTimestampParam } from "@/lib/timestamp";
+
+/**
+ * CourseVault is served over plain HTTP on the LAN / tailnet, which is not a
+ * secure context, so `navigator.clipboard` is undefined there. Fall back to the
+ * legacy textarea trick rather than failing silently.
+ */
+async function copyText(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // fall through to the legacy path
+  }
+
+  try {
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(area);
+    return ok;
+  } catch {
+    return false;
+  }
+}
 
 interface VideoPlayerProps {
   courseId: string;
@@ -32,7 +64,9 @@ export function VideoPlayer({
   const [volumeOpen, setVolumeOpen] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [speedOpen, setSpeedOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   const SPEEDS = [1, 1.5, 2, 2.5, 3];
 
@@ -184,6 +218,17 @@ export function VideoPlayer({
     router.push(`/course/${courseId}/${moduleIndex}/${idx}`);
   }
 
+  async function copyLinkAtCurrentTime() {
+    const video = videoRef.current;
+    if (!video) return;
+    const t = formatTimestampParam(video.currentTime);
+    const url = `${window.location.origin}${pathname}?t=${t}`;
+    if (await copyText(url)) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
+  }
+
   function toggleFullscreen() {
     const video = videoRef.current;
     if (!video) return;
@@ -323,6 +368,18 @@ export function VideoPlayer({
             </>
           )}
         </div>
+
+        <button
+          onClick={copyLinkAtCurrentTime}
+          className="p-2 text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          title="Copy link at current time"
+        >
+          {copied ? (
+            <Check className="h-4 w-4 text-emerald-500" />
+          ) : (
+            <Link2 className="h-4 w-4" />
+          )}
+        </button>
 
         <button
           onClick={toggleFullscreen}
