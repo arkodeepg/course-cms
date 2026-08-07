@@ -66,7 +66,7 @@ export function LessonSidebar({
           <X className="h-4 w-4" />
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto overscroll-contain">
         {hasResources && (
           <Link
             href={`/course/${courseId}/resources`}

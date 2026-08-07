@@ -97,7 +97,7 @@ export function Nav({ breadcrumb }: NavProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-[#16181f]">
+    <header className="sticky top-0 z-50 shrink-0 border-b border-border bg-[#16181f]">
       <div className="flex items-center gap-3 px-3 sm:px-6 py-3">
         <Link href="/" className="text-sm font-bold tracking-wide text-white shrink-0">
           CourseVault
