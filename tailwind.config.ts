@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
   darkMode: ["class"],
@@ -68,7 +69,17 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("@tailwindcss/typography")],
+  plugins: [
+    require("@tailwindcss/typography"),
+    // `coarse:` targets touch screens (phones, tablets) so tap targets can grow
+    // there without changing desktop density. Plugin variants sort before the
+    // screen variants, so `sm:` beats `coarse:`; where a compact desktop value
+    // must not reach touch tablets, write it as `sm:fine:`.
+    plugin(({ addVariant }) => {
+      addVariant("coarse", "@media (pointer: coarse)");
+      addVariant("fine", "@media (pointer: fine)");
+    }),
+  ],
 };
 
 export default config;

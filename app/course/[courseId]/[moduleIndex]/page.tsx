@@ -7,6 +7,7 @@ import { prisma } from "@/lib/db";
 import { Nav } from "@/components/nav";
 import { categoryDurationSeconds, formatClock, formatDuration, plural } from "@/lib/format";
 import { sectionsToOpen } from "@/lib/sections";
+import { ExpandableText } from "@/components/expandable-text";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -55,6 +56,10 @@ export default async function ModuleDetailPage({ params }: Props) {
   const allDone = firstIncomplete === -1;
 
   const courseName = courseTitle(courseId, index);
+  // Some scrapes append the module blurb to its name after a newline.
+  const [nameLine, ...nameRest] = category.name.split("\n");
+  const moduleTitle = nameLine.trim() || category.name.trim();
+  const moduleBlurb = nameRest.join("\n").trim();
 
   const completedCount = flatLessons.filter((l) => completedFiles.has(l.file)).length;
   const pct = flatLessons.length > 0 ? Math.round((completedCount / flatLessons.length) * 100) : 0;
@@ -82,15 +87,20 @@ export default async function ModuleDetailPage({ params }: Props) {
         <div className="mb-5">
           <Link
             href={`/course/${courseId}`}
-            className="inline-flex items-center gap-1 text-[0.7rem] text-muted-foreground hover:text-foreground transition-colors mb-3"
+            className="inline-flex items-center gap-1 text-[0.7rem] coarse:text-xs text-muted-foreground hover:text-foreground transition-colors mb-3 coarse:min-h-11 coarse:-mt-3 coarse:mb-0 coarse:pr-3"
           >
-            <ChevronLeft className="h-3 w-3" />
+            <ChevronLeft className="h-3 w-3 coarse:h-4 coarse:w-4" />
             Back to modules
           </Link>
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-snug">
-            {String(category.index).padStart(2, "0")} · {category.name}
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-snug break-words">
+            {String(category.index).padStart(2, "0")} · {moduleTitle}
           </h1>
-          <div className="flex items-center gap-3 mt-2">
+          {moduleBlurb && (
+            <p className="text-[0.8125rem] text-muted-foreground mt-2 whitespace-pre-line [overflow-wrap:anywhere]">
+              {moduleBlurb}
+            </p>
+          )}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
             <span className="text-[0.72rem] text-muted-foreground">
               {completedCount} of {plural(flatLessons.length, "lesson")} complete
               {moduleDuration && <> · {moduleDuration}</>}
@@ -108,7 +118,7 @@ export default async function ModuleDetailPage({ params }: Props) {
         {/* Continue / Start button */}
         <Link
           href={`/course/${courseId}/${moduleIndex}/${resumeIdx}`}
-          className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-85 mb-7 ${
+          className={`inline-flex items-center gap-2 rounded-md px-4 py-2 coarse:min-h-11 text-sm font-semibold text-white transition-opacity hover:opacity-85 mb-7 ${
             allDone ? "bg-progress-done" : "bg-accent"
           }`}
         >
@@ -117,7 +127,7 @@ export default async function ModuleDetailPage({ params }: Props) {
         </Link>
 
         {/* Sections and lessons */}
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 coarse:gap-2">
           {sectionsWithOffset.map(({ section, startIdx, pos }) => {
             const lessonsJSX = section.lessons.map((lesson, li) => {
               const idx = startIdx + li;
@@ -128,11 +138,14 @@ export default async function ModuleDetailPage({ params }: Props) {
               const clock = formatClock(lesson.duration_seconds);
 
               return (
-                <Link
+                // The link is the row's top line (a full-width target); the
+                // description sits below it, outside the link, so "more" can
+                // open it without nesting a button inside a link.
+                <div
                   key={lesson.file}
-                  href={href}
-                  className="flex items-start gap-3 px-4 py-3 hover:bg-secondary/30 transition-colors border-b border-border/50 last:border-0"
+                  className="hover:bg-secondary/30 transition-colors border-b border-border/50 last:border-0"
                 >
+                <Link href={href} className="flex items-start gap-3 px-4 py-3 coarse:min-h-11">
                   <div className="shrink-0 mt-0.5">
                     {done ? (
                       <CheckCircle2 className="h-4 w-4 text-emerald-500" />
@@ -148,18 +161,13 @@ export default async function ModuleDetailPage({ params }: Props) {
                         {String(idx).padStart(2, "0")}
                       </span>
                       <span
-                        className={`text-sm font-medium leading-snug ${
+                        className={`text-sm font-medium leading-snug break-words min-w-0 ${
                           done ? "text-muted-foreground" : "text-foreground"
                         }`}
                       >
                         {title}
                       </span>
                     </div>
-                    {description && (
-                      <p className="text-[0.68rem] text-muted-foreground mt-0.5 line-clamp-2 ml-5">
-                        {description}
-                      </p>
-                    )}
                   </div>
                   {lesson.archived && (
                     <span
@@ -185,6 +193,13 @@ export default async function ModuleDetailPage({ params }: Props) {
                     </span>
                   )}
                 </Link>
+                {description && (
+                  <ExpandableText
+                    text={description}
+                    className="-mt-2.5 pb-3 pl-16 pr-4 text-[0.8125rem] leading-snug text-muted-foreground"
+                  />
+                )}
+                </div>
               );
             });
 
@@ -195,7 +210,7 @@ export default async function ModuleDetailPage({ params }: Props) {
                   open={openSections.has(pos)}
                   className="group"
                 >
-                  <summary className="flex items-center gap-2 cursor-pointer list-none select-none px-1 py-2.5 rounded hover:bg-secondary/20 transition-colors">
+                  <summary className="flex items-center gap-2 cursor-pointer list-none select-none px-1 py-2.5 coarse:min-h-11 rounded hover:bg-secondary/20 transition-colors">
                     <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50 group-open:rotate-90 transition-transform duration-200" />
                     <span className="text-[0.7rem] uppercase tracking-widest text-muted-foreground font-semibold flex-1">
                       {section.name}

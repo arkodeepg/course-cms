@@ -49,7 +49,7 @@ export function CourseGridCard({ course }: CourseGridCardProps) {
         <Link
           href={m.href}
           title={m.title}
-          className="stretched-link text-[0.82rem] font-semibold text-foreground leading-snug line-clamp-2"
+          className="stretched-link text-[0.82rem] font-semibold text-foreground leading-snug line-clamp-3 sm:line-clamp-2 break-words"
         >
           {m.title}
         </Link>
@@ -62,7 +62,7 @@ export function CourseGridCard({ course }: CourseGridCardProps) {
         <Link
           href={m.actionHref}
           aria-label={`${m.actionLabel} ${m.title}`}
-          className={`relative z-10 block w-full text-center rounded py-1.5 text-xs font-semibold transition-opacity hover:opacity-80 ${m.actionClass}`}
+          className={`relative z-10 block w-full text-center rounded py-1.5 coarse:py-3 text-xs font-semibold transition-opacity hover:opacity-80 ${m.actionClass}`}
         >
           {m.actionLabel}
         </Link>

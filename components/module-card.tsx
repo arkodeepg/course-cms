@@ -17,6 +17,10 @@ export function ModuleCard({ courseId, category, completedCount, startedCount }:
   const startedPct = total > 0 ? Math.round((startedCount / total) * 100) : 0;
   const allDone = completedPct === 100;
   const duration = formatDuration(categoryDurationSeconds(category));
+  // Some scrapes put the module blurb after the title, separated by newlines.
+  const [titleLine, ...rest] = category.name.split("\n");
+  const title = titleLine.trim() || category.name.trim();
+  const blurb = rest.join(" ").replace(/\s+/g, " ").trim();
 
   let statusText = "Not started";
   if (allDone) statusText = "Completed";
@@ -30,15 +34,24 @@ export function ModuleCard({ courseId, category, completedCount, startedCount }:
     >
       <div
         aria-hidden="true"
-        className="h-9 w-16 shrink-0 rounded flex items-center justify-center text-sm font-bold tabular-nums bg-gradient-to-br from-brand/10 to-brand/25 text-brand"
+        className="h-9 w-12 sm:w-16 shrink-0 rounded flex items-center justify-center text-sm font-bold tabular-nums bg-gradient-to-br from-brand/10 to-brand/25 text-brand"
       >
         {String(category.index).padStart(2, "0")}
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="text-[0.82rem] font-semibold text-foreground line-clamp-2" title={category.name}>
-          {category.name}
+        <div
+          className="text-[0.82rem] font-semibold text-foreground leading-snug line-clamp-3 sm:line-clamp-2 break-words"
+          title={category.name}
+          data-module-title
+        >
+          {title}
         </div>
+        {blurb && (
+          <div className="text-[0.72rem] text-muted-foreground mt-0.5 line-clamp-1" title={blurb}>
+            {blurb}
+          </div>
+        )}
         <div className="text-[0.68rem] text-muted-foreground mt-0.5">{statusText}</div>
         <div className="mt-1 h-[2px] w-full max-w-[144px] rounded-full bg-secondary relative overflow-hidden">
           {/* in-progress layer (behind completed) */}

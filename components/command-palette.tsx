@@ -116,6 +116,23 @@ export function CommandPalette() {
   const backRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
+  // Visible viewport while open, so the on-screen keyboard never hides results.
+  const [viewport, setViewport] = useState<{ top: number; height: number } | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => setViewport({ top: vv.offsetTop, height: vv.height });
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+      setViewport(null);
+    };
+  }, [open]);
 
   const openPalette = useCallback(() => {
     returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -359,7 +376,8 @@ export function CommandPalette() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center bg-black/60 px-3 pt-[10vh] sm:pt-[14vh]"
+      className="fixed inset-0 z-[100] flex items-start justify-center bg-black/60 px-3 pt-3 pb-3 sm:pb-0 sm:pt-[14vh]"
+      style={viewport ? { top: viewport.top, height: viewport.height, bottom: "auto" } : undefined}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) close();
       }}
@@ -374,7 +392,7 @@ export function CommandPalette() {
           // Clicking empty space would blur the input and lose the key handling.
           if (!(e.target as HTMLElement).closest("input, button")) e.preventDefault();
         }}
-        className="flex w-full max-w-xl max-h-[75vh] flex-col overflow-hidden rounded-lg border border-border bg-surface-toolbar shadow-2xl"
+        className="flex w-full max-w-xl max-h-full sm:max-h-[75vh] flex-col overflow-hidden rounded-lg border border-border bg-surface-toolbar shadow-2xl"
       >
         <div className="flex items-center gap-2 border-b border-border px-3">
           <Search className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
@@ -394,8 +412,15 @@ export function CommandPalette() {
             placeholder="Search courses, lessons, resources, pages, actions…"
             spellCheck={false}
             autoComplete="off"
-            className="flex-1 bg-transparent py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+            className="min-w-0 flex-1 bg-transparent py-3 text-base sm:fine:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
+          <button
+            type="button"
+            onClick={close}
+            className="-mr-1 inline-flex sm:fine:hidden h-11 shrink-0 items-center rounded-md px-2 text-sm font-medium text-brand hover:bg-secondary"
+          >
+            Cancel
+          </button>
           <kbd className="hidden sm:inline rounded border border-border bg-surface-field px-1.5 py-0.5 text-[0.65rem] text-muted-foreground">
             Esc
           </kbd>
@@ -411,7 +436,7 @@ export function CommandPalette() {
                   setHelp(false);
                   inputRef.current?.focus();
                 }}
-                className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[0.7rem] text-muted-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 coarse:min-h-10 coarse:px-2.5 text-[0.7rem] text-muted-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
                 Back
@@ -475,7 +500,7 @@ export function CommandPalette() {
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={(e) => pick(item, e.metaKey || e.ctrlKey)}
                       className={cn(
-                        "mx-1.5 flex cursor-pointer items-center gap-3 rounded-md px-2.5 py-2",
+                        "mx-1.5 flex cursor-pointer items-center gap-3 rounded-md px-2.5 py-2 coarse:min-h-11",
                         selected
                           ? "bg-secondary text-foreground ring-1 ring-inset ring-brand/60"
                           : "text-foreground/90"

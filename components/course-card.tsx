@@ -44,7 +44,7 @@ export function CourseCard({ course }: CourseCardProps) {
         <Link
           href={m.href}
           title={m.title}
-          className="stretched-link text-sm font-semibold text-foreground leading-snug line-clamp-2"
+          className="stretched-link text-sm font-semibold text-foreground leading-snug line-clamp-3 sm:line-clamp-2 break-words"
         >
           {m.title}
         </Link>
@@ -56,7 +56,7 @@ export function CourseCard({ course }: CourseCardProps) {
       <Link
         href={m.actionHref}
         aria-label={`${m.actionLabel} ${m.title}`}
-        className={`relative z-10 shrink-0 rounded px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition-opacity hover:opacity-80 ${m.actionClass}`}
+        className={`relative z-10 shrink-0 inline-flex items-center justify-center rounded px-2.5 sm:px-3 py-1.5 coarse:min-h-10 coarse:min-w-[4.5rem] text-xs font-semibold transition-opacity hover:opacity-80 ${m.actionClass}`}
       >
         {m.actionLabel}
       </Link>
