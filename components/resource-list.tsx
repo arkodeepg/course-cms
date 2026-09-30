@@ -225,8 +225,56 @@ function ViewerModal({ item, onClose }: { item: ResourceItem; onClose: () => voi
   );
 }
 
+// Decoded on-disk path behind an /api/resource href.
+function hrefPath(href: string): string {
+  try {
+    return href
+      .replace(/^\/api\/resource/, "")
+      .split("/")
+      .map((s) => decodeURIComponent(s))
+      .join("/");
+  } catch {
+    return "";
+  }
+}
+
+// `?view=<course-relative path>` opens that item's viewer on arrival (used by
+// the command palette).
+function findViewTarget(groups: ResourceGroupView[], view: string): ResourceItem | null {
+  const wanted = "/" + view.replace(/^\/+/, "");
+  for (const group of groups) {
+    for (const item of group.items) {
+      if (!item.exists || !item.href || !isViewable(item.ext)) continue;
+      if (hrefPath(item.href).endsWith(wanted)) return item;
+    }
+  }
+  return null;
+}
+
 export function ResourceList({ groups }: { groups: ResourceGroupView[] }) {
   const [active, setActive] = useState<ResourceItem | null>(null);
+  const [fromUrl, setFromUrl] = useState(false);
+
+  useEffect(() => {
+    const view = new URLSearchParams(window.location.search).get("view");
+    if (!view) return;
+    const target = findViewTarget(groups, view);
+    if (target) {
+      setActive(target);
+      setFromUrl(true);
+    }
+  }, [groups]);
+
+  function closeViewer() {
+    setActive(null);
+    if (fromUrl) {
+      // Drop ?view= so a refresh does not reopen the viewer.
+      const url = new URL(window.location.href);
+      url.searchParams.delete("view");
+      window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+      setFromUrl(false);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -283,7 +331,7 @@ export function ResourceList({ groups }: { groups: ResourceGroupView[] }) {
           </div>
         </section>
       ))}
-      {active && <ViewerModal item={active} onClose={() => setActive(null)} />}
+      {active && <ViewerModal item={active} onClose={closeViewer} />}
     </div>
   );
 }
