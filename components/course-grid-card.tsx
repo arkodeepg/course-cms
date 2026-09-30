@@ -54,7 +54,7 @@ export function CourseGridCard({ course }: CourseGridCardProps) {
           {m.title}
         </Link>
         <CardMeta m={m} />
-        <div className="text-[0.65rem] text-muted-foreground mt-0.5">{m.statusLabel}</div>
+        <div className="text-[0.65rem] coarse:text-xs text-muted-foreground mt-0.5">{m.statusLabel}</div>
         <CardProgress m={m} className="mt-2" />
       </div>
 

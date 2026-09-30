@@ -49,7 +49,7 @@ export function CourseCard({ course }: CourseCardProps) {
           {m.title}
         </Link>
         <CardMeta m={m} />
-        <div className="text-[0.68rem] text-muted-foreground">{m.statusLabel}</div>
+        <div className="text-[0.68rem] coarse:text-xs text-muted-foreground">{m.statusLabel}</div>
         <CardProgress m={m} className="mt-1.5" />
       </div>
 

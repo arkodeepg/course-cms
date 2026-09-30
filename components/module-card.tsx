@@ -48,11 +48,11 @@ export function ModuleCard({ courseId, category, completedCount, startedCount }:
           {title}
         </div>
         {blurb && (
-          <div className="text-[0.72rem] text-muted-foreground mt-0.5 line-clamp-1" title={blurb}>
+          <div className="text-[0.72rem] coarse:text-xs text-muted-foreground mt-0.5 line-clamp-1" title={blurb}>
             {blurb}
           </div>
         )}
-        <div className="text-[0.68rem] text-muted-foreground mt-0.5">{statusText}</div>
+        <div className="text-[0.68rem] coarse:text-xs text-muted-foreground mt-0.5">{statusText}</div>
         <div className="mt-1 h-[2px] w-full max-w-[144px] rounded-full bg-secondary relative overflow-hidden">
           {/* in-progress layer (behind completed) */}
           {startedPct > 0 && (
@@ -69,7 +69,7 @@ export function ModuleCard({ courseId, category, completedCount, startedCount }:
         </div>
       </div>
 
-      <div className="text-[0.68rem] text-muted-foreground shrink-0 text-right">
+      <div className="text-[0.68rem] coarse:text-xs text-muted-foreground shrink-0 text-right">
         <div>{plural(total, "lesson")}</div>
         {duration && <div className="tabular-nums">{duration}</div>}
       </div>

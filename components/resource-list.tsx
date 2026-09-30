@@ -589,16 +589,16 @@ export function ResourceList({ groups }: { groups: ResourceGroupView[] }) {
                   <span className="flex-1 min-w-0 text-[0.78rem] coarse:text-[0.8125rem] font-medium text-foreground leading-snug [overflow-wrap:anywhere]">
                     {item.name}
                   </span>
-                  <span className="hidden sm:inline text-[0.65rem] uppercase tracking-wide text-muted-foreground shrink-0">
+                  <span className="hidden sm:inline text-[0.65rem] coarse:text-xs uppercase tracking-wide text-muted-foreground shrink-0">
                     {KIND_LABEL[k]}
                   </span>
                   {item.size && (
-                    <span className="text-[0.65rem] tabular-nums text-muted-foreground shrink-0">
+                    <span className="text-[0.65rem] coarse:text-xs tabular-nums text-muted-foreground shrink-0">
                       {item.size}
                     </span>
                   )}
                   {!item.exists ? (
-                    <span className="text-[0.65rem] text-muted-foreground shrink-0">missing</span>
+                    <span className="text-[0.65rem] coarse:text-xs text-muted-foreground shrink-0">missing</span>
                   ) : (
                     <>
                       {viewable && (

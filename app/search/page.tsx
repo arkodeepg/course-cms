@@ -69,7 +69,7 @@ export default async function SearchPage({ searchParams }: Props) {
         ) : (
           <>
             <div className="flex items-center justify-between gap-3 mb-4">
-              <p className="text-[0.7rem] uppercase tracking-widest text-muted-foreground">
+              <p className="text-[0.7rem] coarse:text-xs uppercase tracking-widest text-muted-foreground">
                 {total > results.length ? `Top ${results.length} of ${total}` : total}{" "}
                 {plural(total, "result", "results", false)} for &ldquo;{q}&rdquo;
               </p>

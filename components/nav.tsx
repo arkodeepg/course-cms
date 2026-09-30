@@ -24,8 +24,8 @@ export function Nav({ breadcrumb, mobileBack }: NavProps) {
 
   return (
     <header className="sticky top-0 z-50 shrink-0 border-b border-border bg-surface-nav">
-      <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-1.5 sm:py-3">
-        <Link href="/" className="text-sm font-bold tracking-wide text-white shrink-0">
+      <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-1.5 sm:fine:py-3">
+        <Link href="/" className="text-sm font-bold tracking-wide text-white shrink-0 coarse:inline-flex coarse:min-h-11 coarse:items-center">
           CourseVault
         </Link>
 
@@ -44,7 +44,7 @@ export function Nav({ breadcrumb, mobileBack }: NavProps) {
         {breadcrumb && (
           <Link
             href={breadcrumb.href}
-            className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors min-w-0"
+            className="hidden sm:flex items-center gap-1 coarse:min-h-11 coarse:pr-2 text-xs text-muted-foreground hover:text-foreground transition-colors min-w-0"
           >
             <ChevronLeft className="h-3 w-3 shrink-0" />
             <span className="truncate">{breadcrumb.label}</span>
@@ -57,7 +57,7 @@ export function Nav({ breadcrumb, mobileBack }: NavProps) {
           onClick={openCommandPalette}
           aria-haspopup="dialog"
           aria-keyshortcuts="Control+K Meta+K"
-          className="hidden sm:flex flex-1 max-w-sm ml-auto items-center gap-2 rounded-md border border-border bg-surface-field py-1.5 pl-2.5 pr-2 text-xs text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="hidden sm:flex flex-1 max-w-sm ml-auto items-center gap-2 rounded-md border border-border bg-surface-field py-1.5 coarse:min-h-11 pl-2.5 pr-2 text-xs text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
           <Search className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1 text-left truncate">Search lessons, pages, tools…</span>

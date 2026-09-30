@@ -56,13 +56,13 @@ export default async function ModuleListPage({ params }: Props) {
           All courses
         </Link>
         <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-snug">{courseName}</h1>
-        <p className="text-[0.72rem] text-muted-foreground mt-1 mb-5">
+        <p className="text-[0.72rem] coarse:text-xs text-muted-foreground mt-1 mb-5">
           {plural(lessonTotal, "lesson")}
           {totalDuration && <> · {totalDuration}</>}
           {completedTotal > 0 && <> · {completedTotal} complete</>}
         </p>
         <div className="flex items-center justify-between gap-3 mb-4">
-          <h2 className="text-[0.7rem] uppercase tracking-widest text-muted-foreground">
+          <h2 className="text-[0.7rem] coarse:text-xs uppercase tracking-widest text-muted-foreground">
             Modules · {index.categories.length} total
           </h2>
           {courseHasResources(index) && (

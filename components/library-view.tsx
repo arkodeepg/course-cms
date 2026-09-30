@@ -107,7 +107,7 @@ export function LibraryView({ courses, now }: LibraryViewProps) {
       {/* Header */}
       <div className="mb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-snug">My Courses</h1>
-        <p className="text-[0.72rem] text-muted-foreground mt-1" data-testid="library-stats">
+        <p className="text-[0.72rem] coarse:text-xs text-muted-foreground mt-1" data-testid="library-stats">
           {plural(stats.courses, "course")} · {plural(stats.lessons, "lesson")}
           {hours && <> · {hours} of video</>} · {stats.percentComplete}% complete
         </p>
@@ -118,7 +118,7 @@ export function LibraryView({ courses, now }: LibraryViewProps) {
         <section aria-labelledby="continue-heading" className="mb-6">
           <h2
             id="continue-heading"
-            className="text-[0.7rem] uppercase tracking-widest text-muted-foreground mb-2"
+            className="text-[0.7rem] coarse:text-xs uppercase tracking-widest text-muted-foreground mb-2"
           >
             Continue where you left off
           </h2>
@@ -142,14 +142,14 @@ export function LibraryView({ courses, now }: LibraryViewProps) {
                     </span>
                     {c.resumeLessonTitle && (
                       <span
-                        className="block text-[0.68rem] text-muted-foreground truncate"
+                        className="block text-[0.68rem] coarse:text-xs text-muted-foreground truncate"
                         title={c.resumeLessonTitle}
                       >
                         {c.resumeLessonTitle}
                       </span>
                     )}
                     {when && (
-                      <span className="block text-[0.65rem] text-muted-foreground mt-0.5">{when}</span>
+                      <span className="block text-[0.65rem] coarse:text-xs text-muted-foreground mt-0.5">{when}</span>
                     )}
                   </span>
                 </Link>
@@ -186,7 +186,7 @@ export function LibraryView({ courses, now }: LibraryViewProps) {
           )}
         </div>
 
-        <label className="flex items-center gap-1.5 text-[0.7rem] text-muted-foreground">
+        <label className="flex items-center gap-1.5 text-[0.7rem] coarse:text-xs text-muted-foreground">
           Sort
           <select
             value={sort}
@@ -230,7 +230,7 @@ export function LibraryView({ courses, now }: LibraryViewProps) {
       </div>
 
       {filter && (
-        <p className="text-[0.68rem] text-muted-foreground mb-2" aria-live="polite">
+        <p className="text-[0.68rem] coarse:text-xs text-muted-foreground mb-2" aria-live="polite">
           {visible.length} of {plural(courses.length, "course")} match
         </p>
       )}

@@ -98,7 +98,7 @@ export function LessonToolbar({
       <button
         onClick={() => go(prevHref)}
         disabled={!prevHref}
-        className="p-2 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
+        className="p-2 coarse:p-3.5 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
         title="Previous lesson (P)"
       >
         <SkipBack className="h-4 w-4" />
@@ -106,13 +106,14 @@ export function LessonToolbar({
       <button
         onClick={() => go(nextHref)}
         disabled={!nextHref}
-        className="p-2 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
+        className="p-2 coarse:p-3.5 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
         title="Next lesson (N)"
       >
         <SkipForward className="h-4 w-4" />
       </button>
 
-      <span className="text-xs lg:text-[0.65rem] text-muted-foreground tabular-nums ml-1">
+      {/* Hidden below 360 px so the 44 px buttons fit on one row. */}
+      <span className="max-[359px]:hidden text-xs lg:text-[0.65rem] text-muted-foreground tabular-nums ml-1">
         {lessonIndex} / {totalLessons}
       </span>
 
@@ -121,7 +122,7 @@ export function LessonToolbar({
       <button
         onClick={markComplete}
         disabled={completed || saving}
-        className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs lg:text-[0.68rem] font-medium transition-colors ${
+        className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 coarse:min-h-11 whitespace-nowrap text-xs lg:text-[0.68rem] font-medium transition-colors ${
           completed
             ? "text-emerald-500 cursor-default"
             : "border border-border bg-secondary/30 text-foreground hover:bg-secondary/60"
@@ -134,7 +135,7 @@ export function LessonToolbar({
       {nextHref && (
         <button
           onClick={() => go(nextHref)}
-          className="inline-flex items-center gap-1.5 rounded-md bg-brand px-2.5 py-1.5 text-xs lg:text-[0.68rem] font-semibold text-white hover:bg-brand-hover transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-md bg-brand px-2.5 py-1.5 coarse:min-h-11 whitespace-nowrap text-xs lg:text-[0.68rem] font-semibold text-white hover:bg-brand-hover transition-colors"
         >
           Next
           <SkipForward className="h-3.5 w-3.5" />

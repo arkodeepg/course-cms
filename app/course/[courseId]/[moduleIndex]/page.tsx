@@ -101,7 +101,7 @@ export default async function ModuleDetailPage({ params }: Props) {
             </p>
           )}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
-            <span className="text-[0.72rem] text-muted-foreground">
+            <span className="text-[0.72rem] coarse:text-xs text-muted-foreground">
               {completedCount} of {plural(flatLessons.length, "lesson")} complete
               {moduleDuration && <> · {moduleDuration}</>}
             </span>
@@ -111,7 +111,7 @@ export default async function ModuleDetailPage({ params }: Props) {
                 style={{ width: `${pct}%` }}
               />
             </div>
-            <span className="text-[0.65rem] tabular-nums text-muted-foreground">{pct}%</span>
+            <span className="text-[0.65rem] coarse:text-xs tabular-nums text-muted-foreground">{pct}%</span>
           </div>
         </div>
 
@@ -157,7 +157,7 @@ export default async function ModuleDetailPage({ params }: Props) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-[0.65rem] text-muted-foreground shrink-0 tabular-nums">
+                      <span className="text-[0.65rem] coarse:text-xs text-muted-foreground shrink-0 tabular-nums">
                         {String(idx).padStart(2, "0")}
                       </span>
                       <span
@@ -171,24 +171,24 @@ export default async function ModuleDetailPage({ params }: Props) {
                   </div>
                   {lesson.archived && (
                     <span
-                      className="shrink-0 mt-0.5 rounded border border-amber-500/40 px-1 text-[0.65rem] uppercase tracking-wide text-amber-400"
+                      className="shrink-0 mt-0.5 rounded border border-amber-500/40 px-1 text-[0.65rem] coarse:text-xs uppercase tracking-wide text-amber-400"
                       title="Archived lesson"
                     >
                       archived
                     </span>
                   )}
                   {clock && (
-                    <span className="shrink-0 mt-0.5 text-[0.68rem] tabular-nums text-muted-foreground">
+                    <span className="shrink-0 mt-0.5 text-[0.68rem] coarse:text-xs tabular-nums text-muted-foreground">
                       {clock}
                     </span>
                   )}
                   {done && (
-                    <span className="shrink-0 text-[0.65rem] text-emerald-500 font-medium mt-0.5">
+                    <span className="shrink-0 text-[0.65rem] coarse:text-xs text-emerald-500 font-medium mt-0.5">
                       Done
                     </span>
                   )}
                   {inProgress && (
-                    <span className="shrink-0 text-[0.65rem] text-brand font-medium mt-0.5">
+                    <span className="shrink-0 text-[0.65rem] coarse:text-xs text-brand font-medium mt-0.5">
                       In progress
                     </span>
                   )}
@@ -212,10 +212,10 @@ export default async function ModuleDetailPage({ params }: Props) {
                 >
                   <summary className="flex items-center gap-2 cursor-pointer list-none select-none px-1 py-2.5 coarse:min-h-11 rounded hover:bg-secondary/20 transition-colors">
                     <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50 group-open:rotate-90 transition-transform duration-200" />
-                    <span className="text-[0.7rem] uppercase tracking-widest text-muted-foreground font-semibold flex-1">
+                    <span className="text-[0.7rem] coarse:text-xs uppercase tracking-widest text-muted-foreground font-semibold flex-1">
                       {section.name}
                     </span>
-                    <span className="text-[0.65rem] text-muted-foreground tabular-nums">
+                    <span className="text-[0.65rem] coarse:text-xs text-muted-foreground tabular-nums">
                       {section.lessons.length}
                       {formatDuration(section.duration_seconds) && <> · {formatDuration(section.duration_seconds)}</>}
                     </span>

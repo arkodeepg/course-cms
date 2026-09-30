@@ -33,6 +33,41 @@ export function LessonSidebar({
   const fabRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const wasOpenRef = useRef(false);
+  // True while the Contents button would sit on top of the video player's seek and
+  // control rows (landscape phones at scroll 0, or the bar passing under it).
+  const [fabOverPlayer, setFabOverPlayer] = useState(false);
+
+  useEffect(() => {
+    const bar = document.querySelector<HTMLElement>("[data-player-bar]");
+    const fab = fabRef.current;
+    if (!bar || !fab) {
+      setFabOverPlayer(false);
+      return;
+    }
+    let frame = 0;
+    const check = () => {
+      frame = 0;
+      const f = fab.getBoundingClientRect();
+      const b = bar.getBoundingClientRect();
+      const overlaps =
+        f.width > 0 && f.left < b.right && f.right > b.left && f.top < b.bottom && f.bottom > b.top;
+      setFabOverPlayer(overlaps);
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(check);
+    };
+    check();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(schedule) : null;
+    ro?.observe(bar);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      ro?.disconnect();
+    };
+  }, [activeModuleIdx, activeLessonIdx]);
 
   // Navigating to another lesson from the drawer closes it.
   useEffect(() => setMobileOpen(false), [activeModuleIdx, activeLessonIdx]);
@@ -132,7 +167,9 @@ export function LessonSidebar({
       <button
         ref={fabRef}
         onClick={() => setMobileOpen(true)}
-        className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-40 lg:hidden flex items-center gap-1.5 min-h-11 bg-brand text-white rounded-full px-4 text-sm font-semibold shadow-lg"
+        className={`fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-40 lg:hidden flex items-center gap-1.5 min-h-11 bg-brand text-white rounded-full px-4 text-sm font-semibold shadow-lg ${
+          fabOverPlayer && !mobileOpen ? "invisible" : ""
+        }`}
         aria-label="Open course contents"
         aria-haspopup="dialog"
         aria-expanded={mobileOpen}
@@ -181,7 +218,7 @@ export function LessonSidebar({
         {hasResources && (
           <Link
             href={`/course/${courseId}/resources`}
-            className="flex items-center gap-2 px-3 py-2.5 border-b border-border/60 hover:bg-surface-toolbar transition-colors"
+            className="flex items-center gap-2 px-3 py-2.5 coarse:min-h-11 border-b border-border/60 hover:bg-surface-toolbar transition-colors"
           >
             <Download className="h-3.5 w-3.5 shrink-0 text-brand" />
             <span className="flex-1 text-sm lg:text-[0.68rem] font-semibold text-muted-foreground">
@@ -203,7 +240,7 @@ export function LessonSidebar({
               {/* Module header: accordion toggle only */}
               <button
                 onClick={() => setOpenModule(isOpen ? -1 : category.index)}
-                className={`w-full flex items-center gap-2 px-3 py-3 lg:py-2.5 text-left transition-colors ${
+                className={`w-full flex items-center gap-2 px-3 py-3 lg:py-2.5 coarse:min-h-11 text-left transition-colors ${
                   isOpen ? "bg-surface-toolbar" : "hover:bg-surface-toolbar"
                 }`}
               >
@@ -252,7 +289,7 @@ export function LessonSidebar({
                             href={`/course/${courseId}/${moduleIdx}/${thisIdx}`}
                             title={label}
                             aria-current={isActive ? "page" : undefined}
-                            className={`flex items-start gap-2 px-4 py-3 lg:py-2 border-b border-surface-toolbar cursor-pointer transition-colors ${
+                            className={`flex items-start gap-2 px-4 py-3 lg:py-2 coarse:min-h-11 border-b border-surface-toolbar cursor-pointer transition-colors ${
                               isActive ? "bg-surface-active" : "hover:bg-surface-toolbar"
                             }`}
                           >

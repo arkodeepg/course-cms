@@ -194,6 +194,8 @@ export function VideoPlayer({
   const videoRef = useRef<HTMLVideoElement>(null);
   const seekRef = useRef<HTMLInputElement>(null);
   const timeRef = useRef<HTMLSpanElement>(null);
+  const timeCurRef = useRef<HTMLSpanElement>(null);
+  const timeDurRef = useRef<HTMLSpanElement>(null);
   const completedRef = useRef(false);
   // Last position seen on timeupdate for the CURRENT src. The unmount beacon
   // reads this, because by cleanup time React has already swapped `src`.
@@ -458,7 +460,8 @@ export function VideoPlayer({
         paintSeek(pct);
       }
       if (timeRef.current) {
-        timeRef.current.textContent = `${fmtTime(video.currentTime)} / ${fmtTime(video.duration)}`;
+        if (timeCurRef.current) timeCurRef.current.textContent = fmtTime(video.currentTime);
+        if (timeDurRef.current) timeDurRef.current.textContent = fmtTime(video.duration);
       }
       if (!completedRef.current && pct >= 90) {
         completedRef.current = true;
@@ -820,7 +823,8 @@ export function VideoPlayer({
     video.currentTime = (pct / 100) * video.duration;
     paintSeek(pct);
     if (timeRef.current) {
-      timeRef.current.textContent = `${fmtTime(video.currentTime)} / ${fmtTime(video.duration)}`;
+      if (timeCurRef.current) timeCurRef.current.textContent = fmtTime(video.currentTime);
+      if (timeDurRef.current) timeDurRef.current.textContent = fmtTime(video.duration);
     }
   }
 
@@ -846,7 +850,8 @@ export function VideoPlayer({
   // returns focus to the More button.
   useEffect(() => {
     if (!moreOpen) return;
-    moreMenuRef.current?.querySelector<HTMLElement>("button, input")?.focus();
+    const items = moreMenuRef.current?.querySelectorAll<HTMLElement>("button:not([disabled]), input");
+    [...(items ?? [])].find((el) => el.getClientRects().length > 0)?.focus();
     const onEsc = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       e.preventDefault();
@@ -884,7 +889,14 @@ export function VideoPlayer({
           preload={preload}
           playsInline
           className={`block w-full bg-black cursor-pointer ${isFullscreen ? "h-full object-contain" : ""}`}
-          style={isFullscreen ? undefined : { maxHeight: "70vh" }}
+          // Reserve a 16:9 box before metadata arrives (no layout shift); other ratios
+          // letterbox on the black background. On short viewports (landscape phones)
+          // the cap leaves room for the nav, the seek row and the control row.
+          style={
+            isFullscreen
+              ? undefined
+              : { aspectRatio: "16 / 9", maxHeight: "min(70vh, calc(100dvh - 10rem))" }
+          }
           onClick={togglePlay}
         />
 
@@ -945,12 +957,12 @@ export function VideoPlayer({
           from lg up everything sits on one row. */}
       <div
         data-player-bar
-        className="flex flex-wrap lg:flex-nowrap items-center gap-x-1 lg:gap-2 bg-surface-toolbar border-b border-border px-2 lg:px-3 min-h-[44px] shrink-0"
+        className="flex flex-wrap lg:flex-nowrap items-center gap-x-0 sm:gap-x-1 lg:gap-2 bg-surface-toolbar border-b border-border px-2 lg:px-3 min-h-[44px] shrink-0"
       >
         <button
           onClick={() => goTo(prevHref)}
           disabled={!prevHref}
-          className="p-2 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
+          className="hidden min-[360px]:block p-2 coarse:p-3.5 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
           title="Previous lesson (P)"
         >
           <SkipBack className="h-4 w-4" />
@@ -958,7 +970,7 @@ export function VideoPlayer({
 
         <button
           onClick={togglePlay}
-          className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+          className="p-2 coarse:p-3.5 text-muted-foreground hover:text-foreground transition-colors"
           title="Play / Pause (Space or K)"
           aria-label={playing ? "Pause" : "Play"}
         >
@@ -968,7 +980,7 @@ export function VideoPlayer({
         <button
           onClick={() => goTo(nextHref)}
           disabled={!nextHref}
-          className="p-2 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
+          className="hidden min-[360px]:block p-2 coarse:p-3.5 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
           title="Next lesson (N)"
         >
           <SkipForward className="h-4 w-4" />
@@ -992,7 +1004,12 @@ export function VideoPlayer({
           ref={timeRef}
           className="text-xs lg:text-[0.65rem] text-muted-foreground shrink-0 tabular-nums mr-auto pl-1 lg:mr-0 lg:pl-0 whitespace-nowrap"
         >
-          00:00 / 00:00
+          <span ref={timeCurRef}>00:00</span>
+          {/* Below 390 px only the current time shows, so the full control row fits. */}
+          <span className="max-[389px]:hidden">
+            {" / "}
+            <span ref={timeDurRef}>00:00</span>
+          </span>
         </span>
 
         {/* Speed picker: a bottom sheet below lg (the player sits right under the sticky
@@ -1001,7 +1018,7 @@ export function VideoPlayer({
           <button
             ref={speedButtonRef}
             onClick={() => { setSpeedOpen((o) => !o); setVolumeOpen(false); setMoreOpen(false); }}
-            className="text-xs lg:text-[0.65rem] font-semibold tabular-nums min-w-9 h-9 px-1 flex items-center justify-center rounded transition-colors hover:text-foreground"
+            className="text-xs lg:text-[0.65rem] font-semibold tabular-nums min-w-9 h-9 coarse:min-w-11 coarse:h-11 px-1 flex items-center justify-center rounded transition-colors hover:text-foreground"
             style={{ color: speed !== 1 ? "hsl(var(--accent))" : "hsl(var(--muted-foreground))" }}
             title="Playback speed (< and >)"
             aria-haspopup="true"
@@ -1046,7 +1063,7 @@ export function VideoPlayer({
           <button
             onClick={() => { setVolumeOpen((o) => !o); setSpeedOpen(false); setMoreOpen(false); }}
             onDoubleClick={toggleMute}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="p-2 coarse:p-3.5 text-muted-foreground hover:text-foreground transition-colors"
             title="Volume (double-click or M to mute)"
           >
             <VolumeIcon className="h-4 w-4" />
@@ -1111,12 +1128,12 @@ export function VideoPlayer({
           </button>
         )}
 
-        {/* More menu below lg: Auto next, Copy link, PiP, and volume below sm */}
+        {/* More menu below lg: Auto next, Copy link, PiP; volume below sm; lesson skip below 360 px */}
         <div className="relative shrink-0 lg:hidden">
           <button
             ref={moreButtonRef}
             onClick={() => { setMoreOpen((o) => !o); setSpeedOpen(false); setVolumeOpen(false); }}
-            className={`p-2 transition-colors ${moreOpen ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            className={`p-2 coarse:p-3.5 transition-colors ${moreOpen ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
             title="More controls"
             aria-label="More controls"
             aria-haspopup="true"
@@ -1127,14 +1144,35 @@ export function VideoPlayer({
           </button>
           {moreOpen && (
             <>
-              <div className="fixed inset-0 z-10" onClick={() => setMoreOpen(false)} />
+              {/* Below sm a bottom sheet (like the speed picker). Below 360 px it also holds
+                  the lesson skip buttons, which leave the bar there so it fits at 320 px. */}
+              <div
+                className="fixed inset-0 z-[60] bg-black/50 sm:z-10 sm:bg-transparent"
+                onClick={() => setMoreOpen(false)}
+              />
               <div
                 ref={moreMenuRef}
                 id="player-more-menu"
                 role="group"
                 aria-label="More player controls"
-                className="absolute bottom-full mb-1 right-0 z-20 w-60 max-w-[calc(100vw-1rem)] bg-surface-active border border-border rounded-lg shadow-lg py-1"
+                className="fixed inset-x-0 bottom-0 z-[61] max-h-[70dvh] overflow-y-auto overscroll-contain rounded-t-xl border-t border-border bg-surface-active pt-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-lg sm:absolute sm:inset-x-auto sm:bottom-full sm:right-0 sm:z-20 sm:mb-1 sm:w-60 sm:max-w-[calc(100vw-1rem)] sm:max-h-none sm:overflow-visible sm:rounded-lg sm:border sm:py-1"
               >
+                <button
+                  onClick={() => { setMoreOpen(false); goTo(prevHref); }}
+                  disabled={!prevHref}
+                  className={`min-[360px]:hidden w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-surface-field disabled:opacity-40 transition-colors ${menuRow}`}
+                >
+                  <SkipBack className="h-4 w-4" />
+                  <span>Previous lesson</span>
+                </button>
+                <button
+                  onClick={() => { setMoreOpen(false); goTo(nextHref); }}
+                  disabled={!nextHref}
+                  className={`min-[360px]:hidden w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-surface-field disabled:opacity-40 transition-colors border-b border-border mb-1 ${menuRow}`}
+                >
+                  <SkipForward className="h-4 w-4" />
+                  <span>Next lesson</span>
+                </button>
                 <button
                   onClick={toggleAutoplayNext}
                   role="switch"
@@ -1166,7 +1204,7 @@ export function VideoPlayer({
                 <div className="sm:hidden border-t border-border mt-1 px-3 pt-2 pb-1.5 flex items-center gap-2">
                   <button
                     onClick={toggleMute}
-                    className="shrink-0 p-1 -ml-1 text-muted-foreground hover:text-foreground transition-colors [@media(pointer:coarse)]:p-2.5 [@media(pointer:coarse)]:-ml-2.5"
+                    className="shrink-0 p-1 -ml-1 text-muted-foreground hover:text-foreground transition-colors [@media(pointer:coarse)]:p-3.5 [@media(pointer:coarse)]:-ml-3.5"
                     aria-label={muted || volume === 0 ? "Unmute" : "Mute"}
                     title={muted || volume === 0 ? "Unmute" : "Mute"}
                   >
@@ -1193,7 +1231,7 @@ export function VideoPlayer({
 
         <button
           onClick={toggleFullscreen}
-          className="p-2 text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          className="p-2 coarse:p-3.5 text-muted-foreground hover:text-foreground transition-colors shrink-0"
           title="Fullscreen (F)"
           aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
         >

@@ -27,7 +27,7 @@ export default function RouteError({
           being rewritten. Try again, or head back to your library.
         </p>
         {error.digest && (
-          <p className="text-[0.65rem] text-muted-foreground tabular-nums">Error id: {error.digest}</p>
+          <p className="text-[0.65rem] coarse:text-xs text-muted-foreground tabular-nums">Error id: {error.digest}</p>
         )}
         <div className="mt-2 flex gap-2">
           <button

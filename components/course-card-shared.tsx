@@ -50,7 +50,7 @@ export type CardModel = ReturnType<typeof cardModel>;
 
 export function CardMeta({ m }: { m: CardModel }) {
   return (
-    <div className="text-[0.68rem] text-muted-foreground mt-0.5 flex flex-wrap gap-x-1.5">
+    <div className="text-[0.68rem] coarse:text-xs text-muted-foreground mt-0.5 flex flex-wrap gap-x-1.5">
       <span>{m.lessonsLabel}</span>
       {m.duration && <span>· {m.duration}</span>}
       {m.missingCount > 0 && (
@@ -86,7 +86,7 @@ export function CardProgress({ m, className = "" }: { m: CardModel; className?: 
           style={{ width: `${m.completedPct}%` }}
         />
       </div>
-      <span className="text-[0.65rem] tabular-nums text-muted-foreground shrink-0">
+      <span className="text-[0.65rem] coarse:text-xs tabular-nums text-muted-foreground shrink-0">
         {m.completedPct}%
       </span>
     </div>
