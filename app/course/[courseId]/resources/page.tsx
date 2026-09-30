@@ -82,10 +82,10 @@ export default async function ResourcesPage({ params }: Props) {
       <main className="flex-1 px-4 sm:px-6 py-6 max-w-3xl mx-auto w-full">
         <Link
           href={`/course/${courseId}`}
-          className="inline-flex items-center gap-1 text-[0.7rem] text-muted-foreground hover:text-foreground transition-colors mb-4"
+          className="inline-flex items-center gap-1 text-[0.7rem] coarse:text-xs text-muted-foreground hover:text-foreground transition-colors mb-4 coarse:min-h-11 coarse:-mt-3 coarse:mb-1 coarse:pr-3 max-w-full"
         >
-          <ChevronLeft className="h-3 w-3" />
-          {courseName}
+          <ChevronLeft className="h-3 w-3 coarse:h-4 coarse:w-4 shrink-0" />
+          <span className="truncate">{courseName}</span>
         </Link>
         <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-snug mb-4">
           Downloads &amp; Resources

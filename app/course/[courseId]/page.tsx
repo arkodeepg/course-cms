@@ -50,9 +50,9 @@ export default async function ModuleListPage({ params }: Props) {
       <main className="flex-1 px-4 sm:px-6 py-6 max-w-3xl mx-auto w-full">
         <Link
           href="/"
-          className="inline-flex items-center gap-1 text-[0.7rem] text-muted-foreground hover:text-foreground transition-colors mb-4"
+          className="inline-flex items-center gap-1 text-[0.7rem] coarse:text-xs text-muted-foreground hover:text-foreground transition-colors mb-4 coarse:min-h-11 coarse:-mt-3 coarse:mb-1 coarse:pr-3"
         >
-          <ChevronLeft className="h-3 w-3" />
+          <ChevronLeft className="h-3 w-3 coarse:h-4 coarse:w-4" />
           All courses
         </Link>
         <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-snug">{courseName}</h1>
@@ -68,7 +68,7 @@ export default async function ModuleListPage({ params }: Props) {
           {courseHasResources(index) && (
             <Link
               href={`/course/${courseId}/resources`}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary/30 px-2.5 py-1.5 text-[0.68rem] font-medium text-foreground hover:bg-secondary/60 transition-colors shrink-0"
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary/30 px-2.5 py-1.5 coarse:min-h-10 coarse:px-3 text-[0.68rem] coarse:text-xs font-medium text-foreground hover:bg-secondary/60 transition-colors shrink-0"
             >
               <Download className="h-3.5 w-3.5 text-brand" />
               Resources

@@ -115,3 +115,40 @@
     outline-offset: -2px;
   }
 }
+
+/* iOS Safari zooms the page when a focused field is under 16px. On phones and
+   touch tablets every text field is at least 16px, whatever its utility
+   classes say. Unlayered and
+   !important so it beats utilities like text-xs; checkboxes, radios and range
+   sliders have no text and are left alone. */
+@media (max-width: 639px), (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Horizontal scroll rows (chips, the Continue strip) without a visible bar. */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Markdown shown in the resource viewer: LessonArticle is tuned for the lesson
+   column (prose-sm, 13px body, ~11px code and tables). In the viewer every
+   text element is at least 14px so it reads on a phone without zooming. */
+.resource-md article :is(p, li, td, th, blockquote, dd, dt) {
+  font-size: 15px;
+}
+.resource-md article :is(code, pre, pre code, kbd, small, figcaption, sup, sub) {
+  font-size: 14px;
+}
+.resource-md article h3 {
+  font-size: 16px;
+}
+.resource-md article :is(h4, h5, h6) {
+  font-size: 15px;
+}

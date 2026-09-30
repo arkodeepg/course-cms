@@ -98,7 +98,7 @@ export function LibraryView({ courses, now }: LibraryViewProps) {
   const hours = formatHours(stats.durationSeconds);
 
   const toggleClass = (active: boolean) =>
-    `p-1.5 rounded transition-colors ${
+    `inline-flex items-center justify-center h-[26px] w-[26px] coarse:h-10 coarse:w-10 rounded transition-colors ${
       active ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
     }`;
 
@@ -122,18 +122,22 @@ export function LibraryView({ courses, now }: LibraryViewProps) {
           >
             Continue where you left off
           </h2>
-          <div className="grid gap-2 sm:grid-cols-3">
+          {/* Phones: one swipeable row so the course list starts high on screen. */}
+          <div
+            className="-mx-4 px-4 flex gap-2 overflow-x-auto snap-x snap-mandatory scroll-px-4 scrollbar-none sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 sm:overflow-visible"
+            data-testid="continue-strip"
+          >
             {recent.map((c) => {
               const when = relativeTime(c.lastActiveAt, now);
               return (
                 <Link
                   key={c.courseId}
                   href={c.resumeHref!}
-                  className="flex items-start gap-2.5 rounded-lg border border-border bg-card px-3 py-2.5 hover:bg-secondary/40 transition-colors min-w-0"
+                  className="flex items-start gap-2.5 rounded-lg border border-border bg-card px-3 py-2.5 hover:bg-secondary/40 transition-colors min-w-0 w-[78%] max-w-[300px] shrink-0 snap-start sm:w-auto sm:max-w-none"
                 >
                   <PlayCircle className="h-4 w-4 shrink-0 text-brand mt-0.5" aria-hidden="true" />
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[0.78rem] font-semibold text-foreground truncate" title={c.title}>
+                    <span className="block text-[0.78rem] font-semibold text-foreground line-clamp-2 sm:line-clamp-1 break-words" title={c.title}>
                       {c.title}
                     </span>
                     {c.resumeLessonTitle && (
@@ -168,14 +172,14 @@ export function LibraryView({ courses, now }: LibraryViewProps) {
             onChange={(e) => changeFilter(e.target.value)}
             placeholder="Filter by title"
             aria-label="Filter courses by title"
-            className="w-full rounded-md border border-border bg-surface-field/60 py-1.5 pl-7 pr-7 text-xs text-foreground placeholder:text-muted-foreground"
+            className="w-full rounded-md border border-border bg-surface-field/60 py-1.5 coarse:h-10 pl-7 pr-7 coarse:pr-10 text-base sm:fine:text-xs text-foreground placeholder:text-muted-foreground"
           />
           {filter && (
             <button
               type="button"
               onClick={() => changeFilter("")}
               aria-label="Clear filter"
-              className="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+              className="absolute right-1 coarse:right-0 top-1/2 -translate-y-1/2 inline-flex items-center justify-center p-1 coarse:h-10 coarse:w-10 text-muted-foreground hover:text-foreground"
             >
               <X className="h-3 w-3" />
             </button>
@@ -187,7 +191,7 @@ export function LibraryView({ courses, now }: LibraryViewProps) {
           <select
             value={sort}
             onChange={(e) => changeSort(e.target.value)}
-            className="rounded-md border border-border bg-surface-field/60 px-2 py-1.5 text-xs text-foreground"
+            className="rounded-md border border-border bg-surface-field/60 px-2 py-1.5 coarse:h-10 text-base sm:fine:text-xs text-foreground"
           >
             {LIBRARY_SORTS.map((s) => (
               <option key={s.value} value={s.value}>
@@ -198,7 +202,7 @@ export function LibraryView({ courses, now }: LibraryViewProps) {
         </label>
 
         <div
-          className="ml-auto flex items-center gap-1 bg-secondary/50 rounded p-0.5"
+          className="ml-auto flex items-center gap-1 coarse:gap-2 bg-secondary/50 rounded p-0.5"
           role="group"
           aria-label="Layout"
         >
