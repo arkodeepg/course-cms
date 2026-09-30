@@ -21,43 +21,152 @@ function withCover(index: CourseIndex, dir: string): CourseIndex {
   return index;
 }
 
-export function discoverCourses(): Array<{ courseId: string; index: CourseIndex; dir: string }> {
-  const coursesPath = getCoursesPath();
-  const entries = fs.readdirSync(coursesPath, { withFileTypes: true });
-  const results: Array<{ courseId: string; index: CourseIndex; dir: string }> = [];
+export interface CourseEntry {
+  courseId: string;
+  index: CourseIndex;
+  dir: string;
+}
 
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
-    const indexPath = path.join(coursesPath, entry.name, '_index.json');
-    if (!fs.existsSync(indexPath)) continue;
-    try {
-      const index: CourseIndex = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
-      results.push({ courseId: index.course, index: withCover(index, entry.name), dir: entry.name });
-    } catch {
-      // skip malformed _index.json
+// ---------------------------------------------------------------------------
+// Course cache
+//
+// Every page used to re-read and JSON-parse every _index.json (about 1.6 MB)
+// and probe for cover files on each request. The parsed library is now kept in
+// memory and validated on each call by statting the courses root, every course
+// directory (a new cover.<ext> or _index.json changes it) and every known
+// _index.json (mtimeMs + size). Only a changed course is re-parsed.
+//
+// Cached objects are shared across requests: callers must treat them as
+// read-only. Outside production they are deep-frozen so a mutation throws.
+// ---------------------------------------------------------------------------
+
+interface FileSig {
+  mtimeMs: number;
+  size: number;
+}
+
+interface DirState {
+  name: string;
+  dirMtimeMs: number;
+  indexSig: FileSig | null;
+  entry: CourseEntry | null;
+}
+
+interface CourseCache {
+  root: string;
+  rootMtimeMs: number;
+  dirs: DirState[];
+  entries: CourseEntry[];
+  byId: Map<string, CourseEntry>;
+  generation: number;
+}
+
+let cache: CourseCache | null = null;
+let generationCounter = 0;
+
+function statSig(p: string): FileSig | null {
+  const st = fs.statSync(p, { throwIfNoEntry: false });
+  if (!st || !st.isFile()) return null;
+  return { mtimeMs: st.mtimeMs, size: st.size };
+}
+
+function sameSig(a: FileSig | null, b: FileSig | null): boolean {
+  if (a === null || b === null) return a === b;
+  return a.mtimeMs === b.mtimeMs && a.size === b.size;
+}
+
+function deepFreeze<T>(obj: T): T {
+  if (obj && typeof obj === 'object' && !Object.isFrozen(obj)) {
+    Object.freeze(obj);
+    for (const v of Object.values(obj as Record<string, unknown>)) deepFreeze(v);
+  }
+  return obj;
+}
+
+function isValid(c: CourseCache, root: string): boolean {
+  if (c.root !== root) return false;
+  const rootSt = fs.statSync(root, { throwIfNoEntry: false });
+  if (!rootSt || rootSt.mtimeMs !== c.rootMtimeMs) return false;
+  for (const d of c.dirs) {
+    const dirPath = path.join(root, d.name);
+    const st = fs.statSync(dirPath, { throwIfNoEntry: false });
+    if (!st || st.mtimeMs !== d.dirMtimeMs) return false;
+    if (!sameSig(statSig(path.join(dirPath, '_index.json')), d.indexSig)) return false;
+  }
+  return true;
+}
+
+function buildCache(root: string, prev: CourseCache | null): CourseCache {
+  const rootMtimeMs = fs.statSync(root).mtimeMs;
+  const prevDirs = new Map<string, DirState>();
+  if (prev && prev.root === root) for (const d of prev.dirs) prevDirs.set(d.name, d);
+
+  const dirs: DirState[] = [];
+  const entries: CourseEntry[] = [];
+  const byId = new Map<string, CourseEntry>();
+  const freeze = process.env.NODE_ENV !== 'production';
+
+  for (const dirent of fs.readdirSync(root, { withFileTypes: true })) {
+    if (!dirent.isDirectory()) continue;
+    const dirPath = path.join(root, dirent.name);
+    const dirSt = fs.statSync(dirPath, { throwIfNoEntry: false });
+    if (!dirSt) continue;
+    const indexSig = statSig(path.join(dirPath, '_index.json'));
+    let entry: CourseEntry | null = null;
+
+    const old = prevDirs.get(dirent.name);
+    if (old && old.dirMtimeMs === dirSt.mtimeMs && sameSig(old.indexSig, indexSig)) {
+      entry = old.entry;
+    } else if (indexSig) {
+      try {
+        const index: CourseIndex = JSON.parse(
+          fs.readFileSync(path.join(dirPath, '_index.json'), 'utf-8')
+        );
+        entry = { courseId: index.course, index: withCover(index, dirent.name), dir: dirent.name };
+        if (freeze) deepFreeze(entry);
+      } catch {
+        // skip malformed _index.json
+      }
+    }
+
+    dirs.push({ name: dirent.name, dirMtimeMs: dirSt.mtimeMs, indexSig, entry });
+    if (entry) {
+      entries.push(entry);
+      // First directory wins on a duplicate course id, as the old linear scan did.
+      if (!byId.has(entry.courseId)) byId.set(entry.courseId, entry);
     }
   }
 
-  return results;
+  generationCounter += 1;
+  return { root, rootMtimeMs, dirs, entries, byId, generation: generationCounter };
+}
+
+function loadCache(): CourseCache {
+  const root = getCoursesPath();
+  if (cache && isValid(cache, root)) return cache;
+  cache = buildCache(root, cache);
+  return cache;
+}
+
+// The validated library plus a generation number that changes whenever the
+// library is rebuilt, so derived structures (the search index) can key on it.
+export function getCourseLibrary(): { generation: number; entries: readonly CourseEntry[] } {
+  const c = loadCache();
+  return { generation: c.generation, entries: c.entries };
+}
+
+// Test hook: drop the in-memory library.
+export function resetCourseCache(): void {
+  cache = null;
+}
+
+export function discoverCourses(): CourseEntry[] {
+  // A fresh array so a caller sorting or filtering it cannot disturb the cache.
+  return loadCache().entries.slice();
 }
 
 export function getCourseEntry(courseId: string): { index: CourseIndex; dir: string } | null {
-  const coursesPath = getCoursesPath();
-  const entries = fs.readdirSync(coursesPath, { withFileTypes: true });
-
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
-    const indexPath = path.join(coursesPath, entry.name, '_index.json');
-    if (!fs.existsSync(indexPath)) continue;
-    try {
-      const index: CourseIndex = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
-      if (index.course === courseId) return { index: withCover(index, entry.name), dir: entry.name };
-    } catch {
-      continue;
-    }
-  }
-
-  return null;
+  return loadCache().byId.get(courseId) ?? null;
 }
 
 export function getLessonsFlat(category: Category): Lesson[] {

@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { LayoutList, LayoutGrid } from "lucide-react";
 import { Nav } from "@/components/nav";
-import { SearchResult } from "@/app/api/search/route";
-import { discoverCourses, getLessonsFlat, parseLessonDescription } from "@/lib/courses";
+import { MAX_LIMIT, SearchResult, searchLibrary } from "@/lib/search";
 
 interface Props {
   searchParams: { q?: string; view?: string };
@@ -18,42 +17,10 @@ function groupByModule(results: SearchResult[]): Map<string, SearchResult[]> {
   return map;
 }
 
-async function search(q: string): Promise<SearchResult[]> {
-  const lower = q.toLowerCase().trim();
-  if (lower.length < 2) return [];
-
-  const courses = discoverCourses();
-  const results: SearchResult[] = [];
-
-  for (const { courseId, index } of courses) {
-    for (const category of index.categories) {
-      const flat = getLessonsFlat(category);
-      flat.forEach((lesson, idx) => {
-        const { title, description } = parseLessonDescription(lesson);
-        const searchText = `${title} ${description}`.toLowerCase();
-        if (searchText.includes(lower)) {
-          results.push({
-            courseId,
-            courseDir: index.course,
-            categoryName: category.name,
-            moduleIndex: category.index,
-            lessonIndex: idx + 1,
-            lessonTitle: title,
-            lessonDescription: description,
-            lessonFile: lesson.file,
-          });
-        }
-      });
-    }
-  }
-
-  return results;
-}
-
 export default async function SearchPage({ searchParams }: Props) {
   const q = searchParams.q ?? "";
   const view = searchParams.view === "grid" ? "grid" : "list";
-  const results = q ? await search(q) : [];
+  const { results, total } = q ? searchLibrary(q, MAX_LIMIT) : { results: [], total: 0 };
   const grouped = groupByModule(results);
 
   return (
@@ -70,7 +37,8 @@ export default async function SearchPage({ searchParams }: Props) {
           <>
             <div className="flex items-center justify-between mb-4">
               <p className="text-[0.7rem] uppercase tracking-widest text-muted-foreground">
-                {results.length} result{results.length !== 1 ? "s" : ""} for &ldquo;{q}&rdquo;
+                {total > results.length ? `Top ${results.length} of ${total}` : total} result
+                {total !== 1 ? "s" : ""} for &ldquo;{q}&rdquo;
               </p>
               <div className="flex items-center gap-1">
                 <Link
@@ -106,7 +74,7 @@ export default async function SearchPage({ searchParams }: Props) {
                       {group.map((r) => (
                         <Link
                           key={r.lessonFile}
-                          href={`/course/${r.courseId}/${r.moduleIndex}/${r.lessonIndex}`}
+                          href={r.href}
                           className="flex flex-col rounded-md border border-border bg-card px-3 py-2 hover:bg-card/80 transition-colors"
                         >
                           <span className="text-sm font-medium text-foreground">

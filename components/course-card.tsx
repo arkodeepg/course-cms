@@ -1,15 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { CourseIndex } from "@/types/course";
-import { courseTitle, lessonsFlat } from "@/lib/utils";
+import { CourseSummary } from "@/types/course";
 
 interface CourseCardProps {
-  courseId: string;
-  index: CourseIndex;
-  completedCount: number;
-  startedCount: number;
-  resumeHref: string | null;
+  course: CourseSummary;
 }
 
 function courseInitials(title: string): string {
@@ -33,9 +28,9 @@ function thumbTextColor(courseId: string): string {
   return `hsl(${hue} 70% 55%)`;
 }
 
-export function CourseCard({ courseId, index, completedCount, startedCount, resumeHref }: CourseCardProps) {
-  const totalLessons = index.categories.flatMap((c) => lessonsFlat(c)).length;
-  const moduleCount = index.categories.length;
+export function CourseCard({ course }: CourseCardProps) {
+  const { courseId, title: name, totalLessons, moduleCount, completedCount, startedCount, resumeHref } =
+    course;
   const completedPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
   const startedPct = totalLessons > 0 ? Math.round((startedCount / totalLessons) * 100) : 0;
 
@@ -53,8 +48,6 @@ export function CourseCard({ courseId, index, completedCount, startedCount, resu
     ? resumeHref!
     : `/course/${courseId}/1/1`;
   const actionLabel = allDone ? "Rewatch" : hasProgress ? "Resume" : "Start";
-
-  const name = courseTitle(courseId, index);
 
   return (
     <Link

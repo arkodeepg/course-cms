@@ -17,4 +17,5 @@ model Progress {
   updatedAt       DateTime @updatedAt
 
   @@unique([courseId, lessonFile])
+  @@index([courseId, updatedAt])
 }
