@@ -7,7 +7,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "CourseVault",
+  title: { default: "CourseVault", template: "%s | CourseVault" },
   description: "Self-hosted course player",
 };
 

@@ -6,11 +6,18 @@ import { courseTitle } from "@/lib/utils";
 import { prisma } from "@/lib/db";
 import { Nav } from "@/components/nav";
 import { ModuleCard } from "@/components/module-card";
+import { formatDuration } from "@/lib/format";
+import type { Metadata } from "next";
 
 export const dynamic = 'force-dynamic';
 
 interface Props {
   params: { courseId: string };
+}
+
+export function generateMetadata({ params }: Props): Metadata {
+  const entry = getCourseEntry(params.courseId);
+  return { title: entry ? courseTitle(params.courseId, entry.index) : "Course not found" };
 }
 
 export default async function ModuleListPage({ params }: Props) {
@@ -32,6 +39,10 @@ export default async function ModuleListPage({ params }: Props) {
   );
 
   const courseName = courseTitle(courseId, index);
+  const allLessons = index.categories.flatMap((c) => getLessonsFlat(c));
+  const lessonTotal = allLessons.length;
+  const completedTotal = allLessons.filter((l) => completedFiles.has(l.file)).length;
+  const totalDuration = formatDuration(index.duration_seconds);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -44,16 +55,22 @@ export default async function ModuleListPage({ params }: Props) {
           <ChevronLeft className="h-3 w-3" />
           All courses
         </Link>
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-snug">{courseName}</h1>
+        <p className="text-[0.72rem] text-muted-foreground mt-1 mb-5">
+          {lessonTotal} lessons
+          {totalDuration && <> · {totalDuration}</>}
+          {completedTotal > 0 && <> · {completedTotal} complete</>}
+        </p>
         <div className="flex items-center justify-between gap-3 mb-4">
-          <p className="text-[0.7rem] uppercase tracking-widest text-muted-foreground">
+          <h2 className="text-[0.7rem] uppercase tracking-widest text-muted-foreground">
             Modules · {index.categories.length} total
-          </p>
+          </h2>
           {courseHasResources(index) && (
             <Link
               href={`/course/${courseId}/resources`}
               className="inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary/30 px-2.5 py-1.5 text-[0.68rem] font-medium text-foreground hover:bg-secondary/60 transition-colors shrink-0"
             >
-              <Download className="h-3.5 w-3.5 text-[#e53e3e]" />
+              <Download className="h-3.5 w-3.5 text-brand" />
               Resources
             </Link>
           )}

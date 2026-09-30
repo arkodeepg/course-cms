@@ -11,6 +11,7 @@ import {
 } from "@/lib/courses";
 import { courseTitle } from "@/lib/utils";
 import { Nav } from "@/components/nav";
+import type { Metadata } from "next";
 import {
   ResourceList,
   type ResourceGroupView,
@@ -20,6 +21,13 @@ export const dynamic = "force-dynamic";
 
 interface Props {
   params: { courseId: string };
+}
+
+export function generateMetadata({ params }: Props): Metadata {
+  const entry = getCourseEntry(params.courseId);
+  return {
+    title: entry ? `Resources · ${courseTitle(params.courseId, entry.index)}` : "Course not found",
+  };
 }
 
 function formatBytes(bytes: number): string {
@@ -79,9 +87,9 @@ export default async function ResourcesPage({ params }: Props) {
           <ChevronLeft className="h-3 w-3" />
           {courseName}
         </Link>
-        <p className="text-[0.7rem] uppercase tracking-widest text-muted-foreground mb-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-snug mb-4">
           Downloads &amp; Resources
-        </p>
+        </h1>
 
         {viewGroups.length === 0 ? (
           <p className="text-[0.8rem] text-muted-foreground">

@@ -2,6 +2,7 @@
 // Client safe (no fs, no Prisma). The server half lives in lib/palette-index.ts.
 
 import { normalize, rank, type Field } from "@/lib/fuzzy";
+import { isViewable } from "@/lib/resource-kinds";
 
 // ---------------------------------------------------------------------------
 // Payload served by /api/palette. Indexed tuples keep it small.
@@ -23,16 +24,9 @@ export interface PaletteIndex {
   recent: RecentRow[];
 }
 
-// Mirrors the viewable kinds in components/resource-list.tsx.
-const VIEWABLE_EXTS = [
-  ".pdf", ".csv", ".txt",
-  ".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg",
-  ".mp4", ".webm", ".mov",
-  ".mp3", ".wav", ".m4a",
-];
-
+// Same viewable kinds as the resources page viewer (lib/resource-kinds.ts).
 export function isViewableExt(ext: string): boolean {
-  return VIEWABLE_EXTS.includes(ext.toLowerCase());
+  return isViewable(ext.toLowerCase());
 }
 
 // ---------------------------------------------------------------------------

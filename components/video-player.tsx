@@ -15,6 +15,8 @@ import {
   Check,
   Download,
   FileWarning,
+  Play,
+  Pause,
 } from "lucide-react";
 import { formatTimestampParam } from "@/lib/timestamp";
 import { PLAYBACK_SPEEDS, resolveResumePosition, stepSpeed } from "@/lib/playback";
@@ -183,6 +185,8 @@ export function VideoPlayer({
   const [error, setError] = useState<string | null>(null);
   const [autoplayNext, setAutoplayNext] = useState(true);
   const [upNext, setUpNext] = useState<number | null>(null); // seconds left, null = hidden
+  // Mirrors the element's paused state for the play/pause button icon only.
+  const [playing, setPlaying] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -322,7 +326,7 @@ export function VideoPlayer({
     }
     const p = Math.max(0, Math.min(100, playedPct));
     const buf = Math.max(p, Math.min(100, bufferedPct));
-    seek.style.background = `linear-gradient(to right, #e53e3e 0%, #e53e3e ${p}%, rgba(255,255,255,0.38) ${p}%, rgba(255,255,255,0.38) ${buf}%, rgba(255,255,255,0.12) ${buf}%, rgba(255,255,255,0.12) 100%)`;
+    seek.style.background = `linear-gradient(to right, hsl(var(--brand)) 0%, hsl(var(--brand)) ${p}%, rgba(255,255,255,0.38) ${p}%, rgba(255,255,255,0.38) ${buf}%, rgba(255,255,255,0.12) ${buf}%, rgba(255,255,255,0.12) 100%)`;
   }, []);
 
   useEffect(() => {
@@ -546,6 +550,21 @@ export function VideoPlayer({
   }, []);
 
   // ---- actions ---------------------------------------------------------------
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const sync = () => setPlaying(!video.paused);
+    sync();
+    video.addEventListener("play", sync);
+    video.addEventListener("pause", sync);
+    video.addEventListener("emptied", sync);
+    return () => {
+      video.removeEventListener("play", sync);
+      video.removeEventListener("pause", sync);
+      video.removeEventListener("emptied", sync);
+    };
+  }, [videoSrc]);
 
   const togglePlay = useCallback(() => {
     const v = videoRef.current;
@@ -779,7 +798,7 @@ export function VideoPlayer({
 
         {error && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/90 px-6 text-center">
-            <FileWarning className="h-7 w-7 text-[#e53e3e]" />
+            <FileWarning className="h-7 w-7 text-brand" />
             <p className="text-[0.85rem] font-semibold text-foreground">{error}</p>
             <p className="text-[0.7rem] text-muted-foreground max-w-md leading-relaxed">
               Download the file and open it in a desktop player such as VLC.
@@ -798,7 +817,7 @@ export function VideoPlayer({
         {upNext !== null && nextHref && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/80 px-6">
             <div className="flex max-w-md flex-col items-center gap-3 text-center">
-              <span className="text-[0.6rem] font-semibold uppercase tracking-widest text-muted-foreground">
+              <span className="text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
                 Playing in {upNext}s
               </span>
               <p className="text-[0.95rem] font-semibold leading-snug text-foreground line-clamp-2">
@@ -813,7 +832,7 @@ export function VideoPlayer({
                 </button>
                 <button
                   onClick={() => goTo(nextHref, { autoplay: true })}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-[#e53e3e] px-3 py-1.5 text-[0.72rem] font-semibold text-white hover:bg-[#c53030]"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-brand px-3 py-1.5 text-[0.72rem] font-semibold text-white hover:bg-brand-hover"
                 >
                   Play now
                   <SkipForward className="h-3.5 w-3.5" />
@@ -824,7 +843,7 @@ export function VideoPlayer({
         )}
       </div>
 
-      <div className="flex items-center gap-1 sm:gap-2 bg-[#1a1c26] border-b border-border px-2 sm:px-3 min-h-[44px] shrink-0">
+      <div className="flex items-center gap-1 sm:gap-2 bg-surface-toolbar border-b border-border px-2 sm:px-3 min-h-[44px] shrink-0">
         <button
           onClick={() => goTo(prevHref)}
           disabled={!prevHref}
@@ -838,8 +857,9 @@ export function VideoPlayer({
           onClick={togglePlay}
           className="p-2 text-muted-foreground hover:text-foreground transition-colors"
           title="Play / Pause (Space or K)"
+          aria-label={playing ? "Pause" : "Play"}
         >
-          <span className="text-sm leading-none">⏯</span>
+          {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
         </button>
 
         <button
@@ -861,7 +881,7 @@ export function VideoPlayer({
           onChange={handleSeek}
           onPointerDown={startScrub}
           aria-label="Seek"
-          className="flex-1 h-1 rounded-full cursor-pointer appearance-none bg-white/10 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#e53e3e] [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-[#e53e3e]"
+          className="flex-1 h-1 rounded-full cursor-pointer appearance-none bg-white/10 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-brand"
         />
 
         <span
@@ -876,7 +896,7 @@ export function VideoPlayer({
           <button
             onClick={() => { setSpeedOpen((o) => !o); setVolumeOpen(false); }}
             className="text-[0.65rem] font-semibold tabular-nums w-9 h-9 flex items-center justify-center rounded transition-colors hover:text-foreground"
-            style={{ color: speed !== 1 ? "hsl(0 72% 51%)" : "hsl(var(--muted-foreground))" }}
+            style={{ color: speed !== 1 ? "hsl(var(--accent))" : "hsl(var(--muted-foreground))" }}
             title="Playback speed (< and >)"
           >
             {speed}×
@@ -884,13 +904,13 @@ export function VideoPlayer({
           {speedOpen && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setSpeedOpen(false)} />
-              <div className="absolute bottom-full mb-1 right-0 z-20 bg-[#1e2030] border border-border rounded shadow-lg py-1 min-w-[64px]">
+              <div className="absolute bottom-full mb-1 right-0 z-20 bg-surface-active border border-border rounded shadow-lg py-1 min-w-[64px]">
                 {PLAYBACK_SPEEDS.map((s) => (
                   <button
                     key={s}
                     onClick={() => applySpeed(s, false)}
-                    className={`w-full text-left px-3 py-2 text-[0.7rem] transition-colors hover:bg-[#2a2d3e] ${
-                      s === speed ? "text-[#e53e3e] font-semibold" : "text-muted-foreground"
+                    className={`w-full text-left px-3 py-2 text-[0.7rem] transition-colors hover:bg-surface-field ${
+                      s === speed ? "text-brand font-semibold" : "text-muted-foreground"
                     }`}
                   >
                     {s}×
@@ -914,9 +934,9 @@ export function VideoPlayer({
           {volumeOpen && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setVolumeOpen(false)} />
-              <div className="absolute bottom-full mb-1 right-0 z-20 bg-[#1e2030] border border-border rounded-lg shadow-lg px-3 py-3 flex flex-col gap-2 w-32">
+              <div className="absolute bottom-full mb-1 right-0 z-20 bg-surface-active border border-border rounded-lg shadow-lg px-3 py-3 flex flex-col gap-2 w-32">
                 <div className="flex items-center justify-between">
-                  <span className="text-[0.6rem] uppercase tracking-widest text-muted-foreground font-semibold">Volume</span>
+                  <span className="text-[0.65rem] uppercase tracking-widest text-muted-foreground font-semibold">Volume</span>
                   <span className="text-[0.65rem] text-muted-foreground tabular-nums">
                     {Math.round(effectiveVolume * 100)}%
                   </span>
@@ -928,7 +948,7 @@ export function VideoPlayer({
                   step={0.02}
                   value={effectiveVolume}
                   onChange={handleVolumeChange}
-                  className="w-full h-1 accent-[#e53e3e] cursor-pointer"
+                  className="w-full h-1 accent-brand cursor-pointer"
                 />
                 <button
                   onClick={toggleMute}
@@ -944,8 +964,8 @@ export function VideoPlayer({
         <button
           onClick={toggleAutoplayNext}
           aria-pressed={autoplayNext}
-          className={`hidden sm:inline-flex shrink-0 items-center rounded px-1.5 py-1 text-[0.6rem] font-semibold uppercase tracking-wide transition-colors ${
-            autoplayNext ? "text-[#e53e3e]" : "text-muted-foreground/60 hover:text-foreground"
+          className={`hidden sm:inline-flex shrink-0 items-center rounded px-1.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide transition-colors ${
+            autoplayNext ? "text-brand" : "text-muted-foreground/60 hover:text-foreground"
           }`}
           title={autoplayNext ? "Autoplay next lesson: on" : "Autoplay next lesson: off"}
         >
@@ -963,7 +983,7 @@ export function VideoPlayer({
         {pipSupported && (
           <button
             onClick={togglePip}
-            className={`p-2 transition-colors shrink-0 ${isPip ? "text-[#e53e3e]" : "text-muted-foreground hover:text-foreground"}`}
+            className={`p-2 transition-colors shrink-0 ${isPip ? "text-brand" : "text-muted-foreground hover:text-foreground"}`}
             title="Picture-in-picture"
           >
             <PictureInPicture2 className="h-4 w-4" />

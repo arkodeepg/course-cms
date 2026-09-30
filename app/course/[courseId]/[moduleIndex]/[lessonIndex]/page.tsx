@@ -19,6 +19,7 @@ import { parseTimestamp, resolveStartPosition } from "@/lib/timestamp";
 import { computeLessonNav } from "@/lib/lesson-nav";
 import { hasUnplayableExtension } from "@/lib/playback";
 import { prisma } from "@/lib/db";
+import type { Metadata } from "next";
 
 export const dynamic = 'force-dynamic';
 
@@ -54,6 +55,16 @@ import { LessonToolbar } from "@/components/lesson-toolbar";
 interface Props {
   params: { courseId: string; moduleIndex: string; lessonIndex: string };
   searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export function generateMetadata({ params }: Props): Metadata {
+  const entry = getCourseEntry(params.courseId);
+  const result = entry
+    ? getLesson(entry.index, parseInt(params.moduleIndex, 10), parseInt(params.lessonIndex, 10))
+    : null;
+  if (!entry || !result) return { title: "Lesson not found" };
+  const { title } = parseLessonDescription(result.lesson);
+  return { title: `${title} · ${courseTitle(params.courseId, entry.index)}` };
 }
 
 export default async function PlayerPage({ params, searchParams }: Props) {
@@ -128,8 +139,10 @@ export default async function PlayerPage({ params, searchParams }: Props) {
       <div className="flex flex-col md:flex-row md:flex-1 md:min-h-0">
         <div className="flex flex-col min-w-0 md:flex-1 md:overflow-y-auto md:overscroll-contain">
           {isMissing ? (
+            <>
+            {toolbar}
             <div className="flex flex-col items-center justify-center gap-2 bg-black aspect-video w-full px-6 text-center">
-              <FileWarning className="h-7 w-7 text-[#e53e3e]" />
+              <FileWarning className="h-7 w-7 text-brand" />
               <p className="text-[0.85rem] font-semibold text-foreground">
                 This lesson was never downloaded
               </p>
@@ -138,11 +151,12 @@ export default async function PlayerPage({ params, searchParams }: Props) {
                 play. It is listed here so the module keeps its real running order.
               </p>
             </div>
+            </>
           ) : isUnplayable ? (
             <>
               {toolbar}
               <div className="flex flex-col items-center justify-center gap-2 bg-black aspect-video w-full px-6 text-center">
-                <FileWarning className="h-7 w-7 text-[#e53e3e]" />
+                <FileWarning className="h-7 w-7 text-brand" />
                 <p className="text-[0.85rem] font-semibold text-foreground">
                   This video format cannot play in a browser
                 </p>
@@ -190,10 +204,10 @@ export default async function PlayerPage({ params, searchParams }: Props) {
           {/* The divider spans the pane while the article stays at reading width. */}
           <div className="px-4 py-4 border-b border-border">
             <div className={isArticle ? "max-w-3xl" : ""}>
-            <div className="text-[0.7rem] font-semibold text-[#e53e3e] mb-1 uppercase tracking-wide">
+            <div className="text-[0.7rem] font-semibold text-brand mb-1 uppercase tracking-wide">
               {category.name}
             </div>
-            <div
+            <h1
               className={
                 isArticle
                   ? "text-xl font-bold text-foreground mb-4 leading-snug"
@@ -201,7 +215,7 @@ export default async function PlayerPage({ params, searchParams }: Props) {
               }
             >
               {title}
-            </div>
+            </h1>
             {description && (
               <p className="text-[0.72rem] text-muted-foreground leading-relaxed whitespace-pre-line">
                 {linkify(description)}
@@ -219,7 +233,7 @@ export default async function PlayerPage({ params, searchParams }: Props) {
                       href={resourceHref}
                       className="inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary/30 px-2.5 py-1.5 text-[0.68rem] font-medium text-foreground hover:bg-secondary/60"
                     >
-                      <FileText className="h-3.5 w-3.5 text-[#e53e3e]" />
+                      <FileText className="h-3.5 w-3.5 text-brand" />
                       {resource.name}
                     </a>
                   );
@@ -247,10 +261,10 @@ export default async function PlayerPage({ params, searchParams }: Props) {
                     key={l.file}
                     href={`/course/${courseId}/${moduleIdx}/${idx}`}
                     className={`flex items-center gap-3 px-4 py-3 border-b border-border/20 transition-colors ${
-                      isActive ? "bg-[#1e2030]" : "hover:bg-secondary/20"
+                      isActive ? "bg-surface-active" : "hover:bg-secondary/20"
                     }`}
                   >
-                    <span className="text-[0.58rem] tabular-nums text-muted-foreground/40 shrink-0 w-5 text-right">
+                    <span className="text-[0.65rem] tabular-nums text-muted-foreground/40 shrink-0 w-5 text-right">
                       {String(idx).padStart(2, "0")}
                     </span>
                     <span
@@ -266,7 +280,7 @@ export default async function PlayerPage({ params, searchParams }: Props) {
                     </span>
                     {done && <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-500" />}
                     {isActive && !done && (
-                      <PlayCircle className="h-3.5 w-3.5 shrink-0 text-[#e53e3e]" />
+                      <PlayCircle className="h-3.5 w-3.5 shrink-0 text-brand" />
                     )}
                   </Link>
                 );

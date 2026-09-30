@@ -1,5 +1,5 @@
 import { Category, CourseSummary } from '@/types/course';
-import { CourseEntry, getLessonsFlat, isMissingLesson } from '@/lib/courses';
+import { CourseEntry, getLessonsFlat, isMissingLesson, parseLessonDescription } from '@/lib/courses';
 import { courseTitle } from '@/lib/utils';
 
 // One Progress row as the library page selects it.
@@ -67,6 +67,9 @@ export function summarizeCourse(entry: CourseEntry, rows: ProgressRow[]): Course
   }
 
   const latest = latestRow(rows);
+  const resumeHref = resumeHrefFor(courseId, index.categories, latest ? latest.lessonFile : null);
+  const resumeLesson =
+    resumeHref !== null && latest ? lessons.find((l) => l.file === latest.lessonFile) : undefined;
 
   return {
     courseId,
@@ -77,7 +80,8 @@ export function summarizeCourse(entry: CourseEntry, rows: ProgressRow[]): Course
     completedCount,
     startedCount,
     missingCount: lessons.filter(isMissingLesson).length,
-    resumeHref: resumeHrefFor(courseId, index.categories, latest ? latest.lessonFile : null),
+    resumeHref,
+    resumeLessonTitle: resumeLesson ? parseLessonDescription(resumeLesson).title || null : null,
     lastActiveAt: latest ? latest.updatedAt.toISOString() : null,
     durationSeconds: typeof index.duration_seconds === 'number' ? index.duration_seconds : null,
   };

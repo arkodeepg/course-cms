@@ -15,7 +15,7 @@
     --secondary: 222 15% 14%;
     --secondary-foreground: 210 20% 89%;
     --muted: 222 15% 14%;
-    --muted-foreground: 215 10% 50%;
+    --muted-foreground: 215 10% 58%;
     --accent: 0 72% 51%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 72% 51%;
@@ -23,6 +23,18 @@
     --border: 222 15% 17%;
     --input: 222 15% 14%;
     --ring: 0 72% 51%;
+    /* Brand and surface tokens that used to be hardcoded hex values. */
+    --brand: 0 76.3% 57.1%; /* #e53e3e */
+    --brand-hover: 0 60.8% 48%; /* #c53030 */
+    --surface-nav: 226.7 17% 10.4%; /* #16181f */
+    --surface-toolbar: 230 18.8% 12.5%; /* #1a1c26 */
+    --surface-sidebar: 229.1 22.4% 9.6%; /* #13151e */
+    --surface-inset: 225 21.1% 7.5%; /* #0f1117 */
+    --surface-active: 233.3 23.1% 15.3%; /* #1e2030 */
+    --surface-field: 240 14.9% 17.1%; /* #252532 */
+    --success: 153.4 40.4% 29.6%; /* #2d6a4f */
+    --progress-done: 150 42% 30%;
+    --progress-started: 0 72% 30%;
     --radius: 0.5rem;
   }
 
@@ -38,7 +50,7 @@
     --secondary: 222 15% 14%;
     --secondary-foreground: 210 20% 89%;
     --muted: 222 15% 14%;
-    --muted-foreground: 215 10% 50%;
+    --muted-foreground: 215 10% 58%;
     --accent: 0 72% 51%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 72% 51%;
@@ -46,6 +58,18 @@
     --border: 222 15% 17%;
     --input: 222 15% 14%;
     --ring: 0 72% 51%;
+    /* Brand and surface tokens that used to be hardcoded hex values. */
+    --brand: 0 76.3% 57.1%; /* #e53e3e */
+    --brand-hover: 0 60.8% 48%; /* #c53030 */
+    --surface-nav: 226.7 17% 10.4%; /* #16181f */
+    --surface-toolbar: 230 18.8% 12.5%; /* #1a1c26 */
+    --surface-sidebar: 229.1 22.4% 9.6%; /* #13151e */
+    --surface-inset: 225 21.1% 7.5%; /* #0f1117 */
+    --surface-active: 233.3 23.1% 15.3%; /* #1e2030 */
+    --surface-field: 240 14.9% 17.1%; /* #252532 */
+    --success: 153.4 40.4% 29.6%; /* #2d6a4f */
+    --progress-done: 150 42% 30%;
+    --progress-started: 0 72% 30%;
   }
 }
 
@@ -55,5 +79,39 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* One visible focus ring for keyboard users; mouse clicks do not show it. */
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  /* Stretched link: the card's primary link covers the whole card via ::after,
+     so the card is clickable anywhere without nesting <a> inside <a>. Siblings
+     that must stay clickable (the action link) sit above it with z-10. */
+  .stretched-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+  }
+  .stretched-link:focus-visible {
+    outline: none;
+  }
+  .stretched-link:focus-visible::after {
+    /* Inset so cards with overflow-hidden do not clip it. */
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: -2px;
   }
 }

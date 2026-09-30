@@ -62,10 +62,10 @@ export function LessonSidebar({
 
   return (
     <>
-      {/* Mobile toggle — fixed bottom-right button */}
+      {/* Mobile toggle: fixed bottom-right button */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="fixed bottom-4 right-4 z-40 md:hidden flex items-center gap-1.5 bg-[#e53e3e] text-white rounded-full px-4 py-2.5 text-xs font-semibold shadow-lg"
+        className="fixed bottom-4 right-4 z-40 md:hidden flex items-center gap-1.5 bg-brand text-white rounded-full px-4 py-2.5 text-xs font-semibold shadow-lg"
         aria-label="Open course contents"
       >
         <BookOpen className="h-3.5 w-3.5" />
@@ -80,7 +80,7 @@ export function LessonSidebar({
         />
       )}
 
-      <aside className={`w-64 shrink-0 border-l border-border bg-[#13151e] flex-col overflow-hidden ${mobileOpen ? "fixed inset-y-0 right-0 z-50 flex" : "hidden md:flex"}`}>
+      <aside className={`w-64 shrink-0 border-l border-border bg-surface-sidebar flex-col overflow-hidden ${mobileOpen ? "fixed inset-y-0 right-0 z-50 flex" : "hidden md:flex"}`}>
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-border shrink-0">
         <span className="text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
           Course Content
@@ -97,9 +97,9 @@ export function LessonSidebar({
         {hasResources && (
           <Link
             href={`/course/${courseId}/resources`}
-            className="flex items-center gap-2 px-3 py-2.5 border-b border-border/60 hover:bg-[#1a1c26] transition-colors"
+            className="flex items-center gap-2 px-3 py-2.5 border-b border-border/60 hover:bg-surface-toolbar transition-colors"
           >
-            <Download className="h-3.5 w-3.5 shrink-0 text-[#e53e3e]" />
+            <Download className="h-3.5 w-3.5 shrink-0 text-brand" />
             <span className="flex-1 text-[0.68rem] font-semibold text-muted-foreground">
               Downloads &amp; Resources
             </span>
@@ -116,11 +116,11 @@ export function LessonSidebar({
 
           return (
             <div key={category.index} className="border-b border-border/60">
-              {/* Module header — accordion toggle only */}
+              {/* Module header: accordion toggle only */}
               <button
                 onClick={() => setOpenModule(isOpen ? -1 : category.index)}
                 className={`w-full flex items-center gap-2 px-3 py-2.5 text-left transition-colors ${
-                  isOpen ? "bg-[#1a1c26]" : "hover:bg-[#1a1c26]"
+                  isOpen ? "bg-surface-toolbar" : "hover:bg-surface-toolbar"
                 }`}
               >
                 <span className="shrink-0 text-muted-foreground/50">
@@ -137,18 +137,18 @@ export function LessonSidebar({
                 >
                   {category.name}
                 </span>
-                <span className="shrink-0 text-[0.6rem] text-muted-foreground/50 tabular-nums">
+                <span className="shrink-0 text-[0.65rem] text-muted-foreground/50 tabular-nums">
                   {completedCount}/{lessons.length}
                 </span>
               </button>
 
-              {/* Lesson list — shown when module is open */}
+              {/* Lesson list: shown when module is open */}
               {isOpen && (
-                <div className="bg-[#0f1117]">
+                <div className="bg-surface-inset">
                   {category.sections.map((section) => (
                     <div key={section.index}>
                       {showSectionHeaders && (
-                        <div className="px-4 py-1 text-[0.58rem] uppercase tracking-widest text-muted-foreground/40 border-b border-border/30">
+                        <div className="px-4 py-1 text-[0.65rem] uppercase tracking-widest text-muted-foreground/40 border-b border-border/30">
                           {section.name}
                         </div>
                       )}
@@ -168,13 +168,13 @@ export function LessonSidebar({
                             href={`/course/${courseId}/${moduleIdx}/${thisIdx}`}
                             title={label}
                             aria-current={isActive ? "page" : undefined}
-                            className={`flex items-start gap-2 px-4 py-2 border-b border-[#1a1c26] cursor-pointer transition-colors ${
-                              isActive ? "bg-[#1e2030]" : "hover:bg-[#1a1c26]"
+                            className={`flex items-start gap-2 px-4 py-2 border-b border-surface-toolbar cursor-pointer transition-colors ${
+                              isActive ? "bg-surface-active" : "hover:bg-surface-toolbar"
                             }`}
                           >
                             <span
-                              className={`text-[0.58rem] shrink-0 pt-0.5 tabular-nums ${
-                                isDone ? "text-[#2d6a4f]" : "text-muted-foreground/40"
+                              className={`text-[0.65rem] shrink-0 pt-0.5 tabular-nums ${
+                                isDone ? "text-success" : "text-muted-foreground/40"
                               }`}
                             >
                               {thisIdx}
@@ -189,17 +189,17 @@ export function LessonSidebar({
                               {label}
                             </span>
                             {isMissing && (
-                              <span className="shrink-0 mt-0.5 text-[0.52rem] uppercase tracking-wide text-muted-foreground/50">
+                              <span className="shrink-0 mt-0.5 text-[0.65rem] uppercase tracking-wide text-muted-foreground/50">
                                 missing
                               </span>
                             )}
                             {lesson.archived && (
-                              <span className="shrink-0 mt-0.5 text-[0.52rem] uppercase tracking-wide text-amber-500/70">
+                              <span className="shrink-0 mt-0.5 text-[0.65rem] uppercase tracking-wide text-amber-500/70">
                                 archived
                               </span>
                             )}
                             {isDone && (
-                              <CheckIcon className="h-3 w-3 shrink-0 text-[#2d6a4f] mt-0.5" />
+                              <CheckIcon className="h-3 w-3 shrink-0 text-success mt-0.5" />
                             )}
                           </Link>
                         );

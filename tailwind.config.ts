@@ -43,6 +43,23 @@ const config: Config = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        brand: {
+          DEFAULT: "hsl(var(--brand) / <alpha-value>)",
+          hover: "hsl(var(--brand-hover) / <alpha-value>)",
+        },
+        surface: {
+          nav: "hsl(var(--surface-nav) / <alpha-value>)",
+          toolbar: "hsl(var(--surface-toolbar) / <alpha-value>)",
+          sidebar: "hsl(var(--surface-sidebar) / <alpha-value>)",
+          inset: "hsl(var(--surface-inset) / <alpha-value>)",
+          active: "hsl(var(--surface-active) / <alpha-value>)",
+          field: "hsl(var(--surface-field) / <alpha-value>)",
+        },
+        success: "hsl(var(--success) / <alpha-value>)",
+        progress: {
+          done: "hsl(var(--progress-done) / <alpha-value>)",
+          started: "hsl(var(--progress-started) / <alpha-value>)",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -94,7 +94,7 @@ export function LessonToolbar({
   }, []);
 
   return (
-    <div className="flex items-center gap-1 sm:gap-2 bg-[#1a1c26] border-b border-border px-2 sm:px-3 min-h-[44px]">
+    <div className="flex items-center gap-1 sm:gap-2 bg-surface-toolbar border-b border-border px-2 sm:px-3 min-h-[44px]">
       <button
         onClick={() => go(prevHref)}
         disabled={!prevHref}
@@ -134,7 +134,7 @@ export function LessonToolbar({
       {nextHref && (
         <button
           onClick={() => go(nextHref)}
-          className="inline-flex items-center gap-1.5 rounded-md bg-[#e53e3e] px-2.5 py-1.5 text-[0.68rem] font-semibold text-white hover:bg-[#c53030] transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-md bg-brand px-2.5 py-1.5 text-[0.68rem] font-semibold text-white hover:bg-brand-hover transition-colors"
         >
           Next
           <SkipForward className="h-3.5 w-3.5" />

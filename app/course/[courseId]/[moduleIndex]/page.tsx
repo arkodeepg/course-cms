@@ -5,11 +5,22 @@ import { getCourseEntry, getLessonsFlat, parseLessonDescription } from "@/lib/co
 import { courseTitle } from "@/lib/utils";
 import { prisma } from "@/lib/db";
 import { Nav } from "@/components/nav";
+import { categoryDurationSeconds, formatClock, formatDuration } from "@/lib/format";
+import { sectionsToOpen } from "@/lib/sections";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
 interface Props {
   params: { courseId: string; moduleIndex: string };
+}
+
+export function generateMetadata({ params }: Props): Metadata {
+  const entry = getCourseEntry(params.courseId);
+  const category = entry?.index.categories[parseInt(params.moduleIndex, 10) - 1];
+  if (!entry || !category) return { title: "Module not found" };
+  const moduleName = category.name.split("\n")[0].trim();
+  return { title: `${moduleName} · ${courseTitle(params.courseId, entry.index)}` };
 }
 
 export default async function ModuleDetailPage({ params }: Props) {
@@ -49,13 +60,18 @@ export default async function ModuleDetailPage({ params }: Props) {
   const pct = flatLessons.length > 0 ? Math.round((completedCount / flatLessons.length) * 100) : 0;
 
   const multiSection = category.sections.length > 1;
+  const openSections = sectionsToOpen(
+    category.sections,
+    (file) => completedFiles.has(file) || inProgressFiles.has(file)
+  );
+  const moduleDuration = formatDuration(categoryDurationSeconds(category));
 
   // Pre-compute lesson start index per section so we avoid mutating a counter inside JSX
   let offset = 0;
-  const sectionsWithOffset = category.sections.map((section) => {
+  const sectionsWithOffset = category.sections.map((section, pos) => {
     const startIdx = offset + 1;
     offset += section.lessons.length;
-    return { section, startIdx };
+    return { section, startIdx, pos };
   });
 
   return (
@@ -77,24 +93,24 @@ export default async function ModuleDetailPage({ params }: Props) {
           <div className="flex items-center gap-3 mt-2">
             <span className="text-[0.72rem] text-muted-foreground">
               {completedCount} of {flatLessons.length} lessons complete
+              {moduleDuration && <> · {moduleDuration}</>}
             </span>
             <div className="h-[3px] w-32 rounded-full bg-secondary">
               <div
-                className="h-full rounded-full transition-all"
-                style={{
-                  width: `${pct}%`,
-                  background: allDone ? "hsl(150 42% 30%)" : "hsl(0 72% 51%)",
-                }}
+                className={`h-full rounded-full transition-all ${allDone ? "bg-progress-done" : "bg-accent"}`}
+                style={{ width: `${pct}%` }}
               />
             </div>
+            <span className="text-[0.65rem] tabular-nums text-muted-foreground">{pct}%</span>
           </div>
         </div>
 
         {/* Continue / Start button */}
         <Link
           href={`/course/${courseId}/${moduleIndex}/${resumeIdx}`}
-          className="inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-85 mb-7"
-          style={{ background: allDone ? "hsl(150 42% 30%)" : "hsl(0 72% 51%)" }}
+          className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-85 mb-7 ${
+            allDone ? "bg-progress-done" : "bg-accent"
+          }`}
         >
           <PlayCircle className="h-4 w-4" />
           {allDone ? "Rewatch Module" : completedCount > 0 ? "Continue Module" : "Start Module"}
@@ -102,17 +118,14 @@ export default async function ModuleDetailPage({ params }: Props) {
 
         {/* Sections and lessons */}
         <div className="flex flex-col gap-1">
-          {sectionsWithOffset.map(({ section, startIdx }) => {
-            const sectionHasActivity = section.lessons.some(
-              (l) => completedFiles.has(l.file) || inProgressFiles.has(l.file)
-            );
-
+          {sectionsWithOffset.map(({ section, startIdx, pos }) => {
             const lessonsJSX = section.lessons.map((lesson, li) => {
               const idx = startIdx + li;
               const { title, description } = parseLessonDescription(lesson);
               const done = completedFiles.has(lesson.file);
               const inProgress = !done && inProgressFiles.has(lesson.file);
               const href = `/course/${courseId}/${moduleIndex}/${idx}`;
+              const clock = formatClock(lesson.duration_seconds);
 
               return (
                 <Link
@@ -124,7 +137,7 @@ export default async function ModuleDetailPage({ params }: Props) {
                     {done ? (
                       <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                     ) : inProgress ? (
-                      <PlayCircle className="h-4 w-4 text-[#e53e3e]" />
+                      <PlayCircle className="h-4 w-4 text-brand" />
                     ) : (
                       <Circle className="h-4 w-4 text-muted-foreground/40" />
                     )}
@@ -148,13 +161,26 @@ export default async function ModuleDetailPage({ params }: Props) {
                       </p>
                     )}
                   </div>
+                  {lesson.archived && (
+                    <span
+                      className="shrink-0 mt-0.5 rounded border border-amber-500/40 px-1 text-[0.65rem] uppercase tracking-wide text-amber-400"
+                      title="Archived lesson"
+                    >
+                      archived
+                    </span>
+                  )}
+                  {clock && (
+                    <span className="shrink-0 mt-0.5 text-[0.68rem] tabular-nums text-muted-foreground">
+                      {clock}
+                    </span>
+                  )}
                   {done && (
-                    <span className="shrink-0 text-[0.6rem] text-emerald-600 font-medium mt-0.5">
+                    <span className="shrink-0 text-[0.65rem] text-emerald-500 font-medium mt-0.5">
                       Done
                     </span>
                   )}
                   {inProgress && (
-                    <span className="shrink-0 text-[0.6rem] text-[#e53e3e] font-medium mt-0.5">
+                    <span className="shrink-0 text-[0.65rem] text-brand font-medium mt-0.5">
                       In progress
                     </span>
                   )}
@@ -166,7 +192,7 @@ export default async function ModuleDetailPage({ params }: Props) {
               return (
                 <details
                   key={section.index}
-                  open={sectionHasActivity || section.index === 1}
+                  open={openSections.has(pos)}
                   className="group"
                 >
                   <summary className="flex items-center gap-2 cursor-pointer list-none select-none px-1 py-2.5 rounded hover:bg-secondary/20 transition-colors">
@@ -174,8 +200,9 @@ export default async function ModuleDetailPage({ params }: Props) {
                     <span className="text-[0.7rem] uppercase tracking-widest text-muted-foreground font-semibold flex-1">
                       {section.name}
                     </span>
-                    <span className="text-[0.65rem] text-muted-foreground/40 tabular-nums">
+                    <span className="text-[0.65rem] text-muted-foreground tabular-nums">
                       {section.lessons.length}
+                      {formatDuration(section.duration_seconds) && <> · {formatDuration(section.duration_seconds)}</>}
                     </span>
                   </summary>
                   <div className="flex flex-col rounded-lg border border-border overflow-hidden mt-1 mb-2">
