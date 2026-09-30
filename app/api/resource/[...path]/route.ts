@@ -1,30 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
 import path from 'path';
-
-const CONTENT_TYPES: Record<string, string> = {
-  '.pdf': 'application/pdf',
-  '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  '.zip': 'application/zip',
-  '.mp3': 'audio/mpeg',
-  '.wav': 'audio/wav',
-  '.m4a': 'audio/mp4',
-  '.mp4': 'video/mp4',
-  '.webm': 'video/webm',
-  '.mov': 'video/quicktime',
-  '.txt': 'text/plain; charset=utf-8',
-  '.csv': 'text/csv; charset=utf-8',
-  '.cube': 'application/octet-stream',
-  '.xmp': 'application/rdf+xml',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.webp': 'image/webp',
-  '.svg': 'image/svg+xml',
-};
+import { contentTypeFor } from '@/lib/content-types';
+import { parseRange } from '@/lib/http-range';
+import {
+  OPEN_RANGE_BYTES,
+  etagMatches,
+  resolveArchivePath,
+  statFile,
+  streamFile,
+  validatorHeaders,
+} from '@/lib/file-serve';
 
 // Types the browser can render inline. Anything else is sent as a download.
 const INLINE_EXTS = new Set([
@@ -45,30 +30,25 @@ const INLINE_EXTS = new Set([
   '.csv',
 ]);
 
-function withinCoursesPath(filePath: string): boolean {
-  const root = path.resolve(process.env.COURSES_PATH || '/courses');
-  const resolved = path.resolve(filePath);
-  return resolved === root || resolved.startsWith(root + path.sep);
-}
+// Archive files never change in place. See the video route.
+const CACHE_CONTROL = 'private, max-age=31536000, immutable';
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { path: string[] } }
 ) {
-  const filePath = path.join('/', ...params.path);
-
-  if (!withinCoursesPath(filePath)) {
+  const filePath = resolveArchivePath(path.join('/', ...params.path));
+  if (!filePath) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
-  if (!fs.existsSync(filePath)) {
+  const stat = await statFile(filePath);
+  if (!stat) {
     return new NextResponse('Not found', { status: 404 });
   }
 
-  const stat = fs.statSync(filePath);
   const fileSize = stat.size;
   const ext = path.extname(filePath).toLowerCase();
-  const contentType = CONTENT_TYPES[ext] || 'application/octet-stream';
 
   // `?download=1` always forces a download. Otherwise viewable types open
   // inline in the browser; non-viewable types still download.
@@ -77,38 +57,41 @@ export async function GET(
     forceDownload || !INLINE_EXTS.has(ext) ? 'attachment' : 'inline';
   const dispositionHeader = `${disposition}; filename="${path.basename(filePath)}"`;
 
+  const headers: Record<string, string> = {
+    ...validatorHeaders(stat),
+    'Cache-Control': CACHE_CONTROL,
+    'Content-Type': contentTypeFor(filePath),
+    'Accept-Ranges': 'bytes',
+    'Content-Disposition': dispositionHeader,
+  };
   const rangeHeader = req.headers.get('range');
+
+  if (!rangeHeader && etagMatches(req, headers.ETag)) {
+    return new NextResponse(null, { status: 304, headers });
+  }
 
   // Range support so inline audio/video can seek and stream.
   if (rangeHeader) {
-    const [startStr, endStr] = rangeHeader.replace('bytes=', '').split('-');
-    const start = parseInt(startStr, 10);
-    const end = endStr
-      ? parseInt(endStr, 10)
-      : Math.min(start + 1024 * 1024, fileSize - 1);
-    const chunkSize = end - start + 1;
-    const stream = fs.createReadStream(filePath, { start, end });
+    const range = parseRange(rangeHeader, fileSize, OPEN_RANGE_BYTES);
+    if (!range) {
+      return new NextResponse(null, {
+        status: 416,
+        headers: { ...headers, 'Content-Range': `bytes */${fileSize}` },
+      });
+    }
 
-    return new NextResponse(stream as unknown as ReadableStream, {
+    const { start, end } = range;
+    return new NextResponse(streamFile(filePath, req, { start, end }), {
       status: 206,
       headers: {
-        'Content-Type': contentType,
+        ...headers,
         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-        'Accept-Ranges': 'bytes',
-        'Content-Length': String(chunkSize),
-        'Content-Disposition': dispositionHeader,
+        'Content-Length': String(end - start + 1),
       },
     });
   }
 
-  const stream = fs.createReadStream(filePath);
-
-  return new NextResponse(stream as unknown as ReadableStream, {
-    headers: {
-      'Content-Type': contentType,
-      'Content-Length': String(fileSize),
-      'Accept-Ranges': 'bytes',
-      'Content-Disposition': dispositionHeader,
-    },
+  return new NextResponse(streamFile(filePath, req), {
+    headers: { ...headers, 'Content-Length': String(fileSize) },
   });
 }

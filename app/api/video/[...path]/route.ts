@@ -1,56 +1,66 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
 import path from 'path';
+import { contentTypeFor } from '@/lib/content-types';
+import { parseRange } from '@/lib/http-range';
+import {
+  OPEN_RANGE_BYTES,
+  etagMatches,
+  resolveArchivePath,
+  statFile,
+  streamFile,
+  validatorHeaders,
+} from '@/lib/file-serve';
 
-function withinCoursesPath(filePath: string): boolean {
-  const root = path.resolve(process.env.COURSES_PATH || '/courses');
-  const resolved = path.resolve(filePath);
-  return resolved === root || resolved.startsWith(root + path.sep);
-}
+// Archive files never change in place, so they can be cached hard. `private`
+// rather than `public`: this is a personal library behind Tailscale and there is
+// no proxy that should be holding copies of it.
+const CACHE_CONTROL = 'private, max-age=31536000, immutable';
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { path: string[] } }
-) {
-  const filePath = path.join('/', ...params.path);
-
-  if (!withinCoursesPath(filePath)) {
+export async function GET(req: NextRequest, { params }: { params: { path: string[] } }) {
+  const filePath = resolveArchivePath(path.join('/', ...params.path));
+  if (!filePath) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
-  if (!fs.existsSync(filePath)) {
+  const stat = await statFile(filePath);
+  if (!stat) {
     return new NextResponse('Not found', { status: 404 });
   }
 
-  const stat = fs.statSync(filePath);
   const fileSize = stat.size;
+  const headers: Record<string, string> = {
+    ...validatorHeaders(stat),
+    'Cache-Control': CACHE_CONTROL,
+    'Content-Type': contentTypeFor(filePath, 'video/mp4'),
+    'Accept-Ranges': 'bytes',
+  };
   const rangeHeader = req.headers.get('range');
 
+  if (!rangeHeader && etagMatches(req, headers.ETag)) {
+    return new NextResponse(null, { status: 304, headers });
+  }
+
   if (!rangeHeader) {
-    const stream = fs.createReadStream(filePath);
-    return new NextResponse(stream as unknown as ReadableStream, {
-      headers: {
-        'Content-Type': 'video/mp4',
-        'Content-Length': String(fileSize),
-        'Accept-Ranges': 'bytes',
-      },
+    return new NextResponse(streamFile(filePath, req), {
+      headers: { ...headers, 'Content-Length': String(fileSize) },
     });
   }
 
-  const [startStr, endStr] = rangeHeader.replace('bytes=', '').split('-');
-  const start = parseInt(startStr, 10);
-  const end = endStr ? parseInt(endStr, 10) : Math.min(start + 1024 * 1024, fileSize - 1);
-  const chunkSize = end - start + 1;
+  const range = parseRange(rangeHeader, fileSize, OPEN_RANGE_BYTES);
+  if (!range) {
+    return new NextResponse(null, {
+      status: 416,
+      headers: { ...headers, 'Content-Range': `bytes */${fileSize}` },
+    });
+  }
 
-  const stream = fs.createReadStream(filePath, { start, end });
-
-  return new NextResponse(stream as unknown as ReadableStream, {
+  const { start, end } = range;
+  return new NextResponse(streamFile(filePath, req, { start, end }), {
     status: 206,
     headers: {
+      ...headers,
       'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-      'Accept-Ranges': 'bytes',
-      'Content-Length': String(chunkSize),
-      'Content-Type': 'video/mp4',
+      'Content-Length': String(end - start + 1),
     },
   });
 }
