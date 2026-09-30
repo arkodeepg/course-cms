@@ -29,6 +29,72 @@ export function LessonSidebar({
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLAnchorElement>(null);
   const hasScrolledRef = useRef(false);
+  const asideRef = useRef<HTMLElement>(null);
+  const fabRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const wasOpenRef = useRef(false);
+
+  // Navigating to another lesson from the drawer closes it.
+  useEffect(() => setMobileOpen(false), [activeModuleIdx, activeLessonIdx]);
+
+  // Mobile drawer as a modal dialog: lock page scroll (iOS ignores body overflow
+  // alone, so html too), focus the close button, trap Tab, Esc closes, and
+  // focus returns to the Contents button afterwards.
+  useEffect(() => {
+    if (!mobileOpen) {
+      if (wasOpenRef.current) {
+        wasOpenRef.current = false;
+        fabRef.current?.focus();
+      }
+      return;
+    }
+    wasOpenRef.current = true;
+    const html = document.documentElement;
+    const body = document.body;
+    const prev = { html: html.style.overflow, body: body.style.overflow };
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    closeRef.current?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        setMobileOpen(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const aside = asideRef.current;
+      if (!aside) return;
+      const items = [...aside.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')].filter(
+        (el) => el.offsetParent !== null
+      );
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || !aside.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (active === last || !aside.contains(active))) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    // The drawer only exists below lg; growing past it (rotation, resize) drops the modal state.
+    const wide = window.matchMedia("(min-width: 1024px)");
+    const onWide = () => {
+      if (wide.matches) setMobileOpen(false);
+    };
+    document.addEventListener("keydown", onKey, true);
+    wide.addEventListener?.("change", onWide);
+    return () => {
+      html.style.overflow = prev.html;
+      body.style.overflow = prev.body;
+      document.removeEventListener("keydown", onKey, true);
+      wide.removeEventListener?.("change", onWide);
+    };
+  }, [mobileOpen]);
 
   // Follow the active module when navigation crosses a module boundary.
   useEffect(() => setOpenModule(activeModuleIdx), [activeModuleIdx]);
@@ -62,35 +128,53 @@ export function LessonSidebar({
 
   return (
     <>
-      {/* Mobile toggle: fixed bottom-right button */}
+      {/* Mobile toggle: fixed bottom-right button, clear of the home indicator */}
       <button
+        ref={fabRef}
         onClick={() => setMobileOpen(true)}
-        className="fixed bottom-4 right-4 z-40 md:hidden flex items-center gap-1.5 bg-brand text-white rounded-full px-4 py-2.5 text-xs font-semibold shadow-lg"
+        className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-40 lg:hidden flex items-center gap-1.5 min-h-11 bg-brand text-white rounded-full px-4 text-sm font-semibold shadow-lg"
         aria-label="Open course contents"
+        aria-haspopup="dialog"
+        aria-expanded={mobileOpen}
       >
-        <BookOpen className="h-3.5 w-3.5" />
+        <BookOpen className="h-4 w-4" />
         Contents
       </button>
 
       {/* Mobile backdrop */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          className="fixed inset-0 z-[60] bg-black/60 lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
-      <aside className={`w-64 shrink-0 border-l border-border bg-surface-sidebar flex-col overflow-hidden ${mobileOpen ? "fixed inset-y-0 right-0 z-50 flex" : "hidden md:flex"}`}>
-      <div className="flex items-center justify-between px-3 py-2.5 border-b border-border shrink-0">
-        <span className="text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+      <aside
+        ref={asideRef}
+        id="lesson-contents"
+        role={mobileOpen ? "dialog" : undefined}
+        aria-modal={mobileOpen ? true : undefined}
+        aria-labelledby="lesson-contents-title"
+        className={`shrink-0 border-l border-border bg-surface-sidebar flex-col overflow-hidden ${
+          mobileOpen
+            ? "fixed top-0 right-0 z-[61] flex h-dvh w-80 max-w-[85vw] pb-[env(safe-area-inset-bottom)] lg:hidden"
+            : "hidden w-64 lg:flex"
+        }`}
+      >
+      <div className="flex items-center justify-between px-3 py-1 lg:py-2.5 border-b border-border shrink-0">
+        <span
+          id="lesson-contents-title"
+          className="text-xs lg:text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground"
+        >
           Course Content
         </span>
         <button
+          ref={closeRef}
           onClick={() => setMobileOpen(false)}
-          className="md:hidden text-muted-foreground hover:text-foreground p-1 -mr-1"
+          className="lg:hidden inline-flex h-11 w-11 -mr-2 items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
           aria-label="Close"
         >
-          <X className="h-4 w-4" />
+          <X className="h-5 w-5" />
         </button>
       </div>
       <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-contain">
@@ -100,7 +184,7 @@ export function LessonSidebar({
             className="flex items-center gap-2 px-3 py-2.5 border-b border-border/60 hover:bg-surface-toolbar transition-colors"
           >
             <Download className="h-3.5 w-3.5 shrink-0 text-brand" />
-            <span className="flex-1 text-[0.68rem] font-semibold text-muted-foreground">
+            <span className="flex-1 text-sm lg:text-[0.68rem] font-semibold text-muted-foreground">
               Downloads &amp; Resources
             </span>
           </Link>
@@ -119,7 +203,7 @@ export function LessonSidebar({
               {/* Module header: accordion toggle only */}
               <button
                 onClick={() => setOpenModule(isOpen ? -1 : category.index)}
-                className={`w-full flex items-center gap-2 px-3 py-2.5 text-left transition-colors ${
+                className={`w-full flex items-center gap-2 px-3 py-3 lg:py-2.5 text-left transition-colors ${
                   isOpen ? "bg-surface-toolbar" : "hover:bg-surface-toolbar"
                 }`}
               >
@@ -131,13 +215,13 @@ export function LessonSidebar({
                   )}
                 </span>
                 <span
-                  className={`flex-1 text-[0.68rem] font-semibold leading-snug ${
+                  className={`flex-1 text-sm lg:text-[0.68rem] font-semibold leading-snug ${
                     moduleIdx === activeModuleIdx ? "text-foreground" : "text-muted-foreground"
                   }`}
                 >
                   {category.name}
                 </span>
-                <span className="shrink-0 text-[0.65rem] text-muted-foreground/50 tabular-nums">
+                <span className="shrink-0 text-xs lg:text-[0.65rem] text-muted-foreground/50 tabular-nums">
                   {completedCount}/{lessons.length}
                 </span>
               </button>
@@ -148,7 +232,7 @@ export function LessonSidebar({
                   {category.sections.map((section) => (
                     <div key={section.index}>
                       {showSectionHeaders && (
-                        <div className="px-4 py-1 text-[0.65rem] uppercase tracking-widest text-muted-foreground/40 border-b border-border/30">
+                        <div className="px-4 py-1 text-xs lg:text-[0.65rem] uppercase tracking-widest text-muted-foreground/40 border-b border-border/30">
                           {section.name}
                         </div>
                       )}
@@ -168,19 +252,19 @@ export function LessonSidebar({
                             href={`/course/${courseId}/${moduleIdx}/${thisIdx}`}
                             title={label}
                             aria-current={isActive ? "page" : undefined}
-                            className={`flex items-start gap-2 px-4 py-2 border-b border-surface-toolbar cursor-pointer transition-colors ${
+                            className={`flex items-start gap-2 px-4 py-3 lg:py-2 border-b border-surface-toolbar cursor-pointer transition-colors ${
                               isActive ? "bg-surface-active" : "hover:bg-surface-toolbar"
                             }`}
                           >
                             <span
-                              className={`text-[0.65rem] shrink-0 pt-0.5 tabular-nums ${
+                              className={`text-xs lg:text-[0.65rem] shrink-0 pt-0.5 tabular-nums ${
                                 isDone ? "text-success" : "text-muted-foreground/40"
                               }`}
                             >
                               {thisIdx}
                             </span>
                             <span
-                              className={`text-[0.65rem] leading-snug flex-1 min-w-0 line-clamp-2 ${
+                              className={`text-sm lg:text-[0.65rem] leading-snug flex-1 min-w-0 line-clamp-2 ${
                                 isActive
                                   ? "text-foreground font-semibold"
                                   : "text-muted-foreground"
@@ -189,12 +273,12 @@ export function LessonSidebar({
                               {label}
                             </span>
                             {isMissing && (
-                              <span className="shrink-0 mt-0.5 text-[0.65rem] uppercase tracking-wide text-muted-foreground/50">
+                              <span className="shrink-0 mt-0.5 text-xs lg:text-[0.65rem] uppercase tracking-wide text-muted-foreground/50">
                                 missing
                               </span>
                             )}
                             {lesson.archived && (
-                              <span className="shrink-0 mt-0.5 text-[0.65rem] uppercase tracking-wide text-amber-500/70">
+                              <span className="shrink-0 mt-0.5 text-xs lg:text-[0.65rem] uppercase tracking-wide text-amber-500/70">
                                 archived
                               </span>
                             )}

@@ -51,6 +51,7 @@ import { LessonSidebar } from "@/components/lesson-sidebar";
 import { VideoPlayer } from "@/components/video-player";
 import { LessonArticle } from "@/components/lesson-article";
 import { LessonToolbar } from "@/components/lesson-toolbar";
+import { PdfLesson } from "@/components/pdf-lesson";
 
 interface Props {
   params: { courseId: string; moduleIndex: string; lessonIndex: string };
@@ -127,26 +128,36 @@ export default async function PlayerPage({ params, searchParams }: Props) {
     />
   );
 
-  // Desktop pins to the viewport so each pane scrolls on its own; mobile keeps page scroll.
+  // From lg the page pins to the viewport so each pane scrolls on its own. Below lg
+  // (phones, landscape phones, iPad portrait) it stacks, keeps page scroll, and the
+  // sidebar becomes a drawer; pb-24 keeps the Contents button off the last row.
   return (
-    <div className="flex flex-col min-h-screen md:h-screen md:min-h-0 md:overflow-hidden">
+    <div className="flex flex-col min-h-dvh lg:h-dvh lg:min-h-0 lg:overflow-hidden">
       <Nav
         breadcrumb={{
           label: `${courseName} · ${category.name}`,
           href: `/course/${courseId}`,
         }}
+        mobileBack={{
+          label: courseName,
+          href: `/course/${courseId}/${moduleIdx}`,
+          title: `Back to ${category.name}`,
+        }}
       />
-      <div className="flex flex-col md:flex-row md:flex-1 md:min-h-0">
-        <div className="flex flex-col min-w-0 md:flex-1 md:overflow-y-auto md:overscroll-contain">
+      <div className="flex flex-col lg:flex-row lg:flex-1 lg:min-h-0">
+        <div
+          data-lesson-main
+          className="flex flex-col min-w-0 pb-24 lg:pb-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain"
+        >
           {isMissing ? (
             <>
             {toolbar}
             <div className="flex flex-col items-center justify-center gap-2 bg-black aspect-video w-full px-6 text-center">
               <FileWarning className="h-7 w-7 text-brand" />
-              <p className="text-[0.85rem] font-semibold text-foreground">
+              <p className="text-[0.95rem] lg:text-[0.85rem] font-semibold text-foreground">
                 This lesson was never downloaded
               </p>
-              <p className="text-[0.7rem] text-muted-foreground max-w-md leading-relaxed">
+              <p className="text-sm lg:text-[0.7rem] text-muted-foreground max-w-md leading-relaxed">
                 The file for this lesson is empty in the archive, so there is nothing to
                 play. It is listed here so the module keeps its real running order.
               </p>
@@ -157,17 +168,17 @@ export default async function PlayerPage({ params, searchParams }: Props) {
               {toolbar}
               <div className="flex flex-col items-center justify-center gap-2 bg-black aspect-video w-full px-6 text-center">
                 <FileWarning className="h-7 w-7 text-brand" />
-                <p className="text-[0.85rem] font-semibold text-foreground">
+                <p className="text-[0.95rem] lg:text-[0.85rem] font-semibold text-foreground">
                   This video format cannot play in a browser
                 </p>
-                <p className="text-[0.7rem] text-muted-foreground max-w-md leading-relaxed">
+                <p className="text-sm lg:text-[0.7rem] text-muted-foreground max-w-md leading-relaxed">
                   Browsers cannot decode this file type. Download it and open it in a desktop
                   player such as VLC.
                 </p>
                 <a
                   href={videoSrc}
                   download
-                  className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary/30 px-2.5 py-1.5 text-[0.7rem] font-medium text-foreground hover:bg-secondary/60"
+                  className="mt-1 inline-flex min-h-11 lg:min-h-0 items-center gap-1.5 rounded-md border border-border bg-secondary/30 px-3 lg:px-2.5 py-1.5 text-sm lg:text-[0.7rem] font-medium text-foreground hover:bg-secondary/60"
                 >
                   <Download className="h-3.5 w-3.5" />
                   Download video
@@ -179,7 +190,7 @@ export default async function PlayerPage({ params, searchParams }: Props) {
               {toolbar}
               {isDocument &&
                 (lesson.file.toLowerCase().endsWith(".pdf") ? (
-                  <iframe src={documentSrc} title={title} className="w-full h-[80vh] border-0 bg-white" />
+                  <PdfLesson src={documentSrc} title={title} />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={documentSrc} alt={title} className="w-full h-auto bg-black" />
@@ -204,7 +215,7 @@ export default async function PlayerPage({ params, searchParams }: Props) {
           {/* The divider spans the pane while the article stays at reading width. */}
           <div className="px-4 py-4 border-b border-border">
             <div className={isArticle ? "max-w-3xl" : ""}>
-            <div className="text-[0.7rem] font-semibold text-brand mb-1 uppercase tracking-wide">
+            <div className="text-xs lg:text-[0.7rem] font-semibold text-brand mb-1 uppercase tracking-wide">
               {category.name}
             </div>
             <h1
@@ -217,7 +228,7 @@ export default async function PlayerPage({ params, searchParams }: Props) {
               {title}
             </h1>
             {description && (
-              <p className="text-[0.72rem] text-muted-foreground leading-relaxed whitespace-pre-line">
+              <p className="text-sm lg:text-[0.72rem] text-muted-foreground leading-relaxed whitespace-pre-line">
                 {linkify(description)}
               </p>
             )}
@@ -231,7 +242,7 @@ export default async function PlayerPage({ params, searchParams }: Props) {
                     <a
                       key={resource.file}
                       href={resourceHref}
-                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary/30 px-2.5 py-1.5 text-[0.68rem] font-medium text-foreground hover:bg-secondary/60"
+                      className="inline-flex min-h-11 lg:min-h-0 items-center gap-1.5 rounded-md border border-border bg-secondary/30 px-3 lg:px-2.5 py-1.5 text-xs lg:text-[0.68rem] font-medium text-foreground hover:bg-secondary/60"
                     >
                       <FileText className="h-3.5 w-3.5 text-brand" />
                       {resource.name}
@@ -244,13 +255,13 @@ export default async function PlayerPage({ params, searchParams }: Props) {
           </div>
 
           {/* Mobile-only inline lesson queue for current module */}
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <div className="px-4 pt-3 pb-2">
-              <p className="text-[0.65rem] uppercase tracking-widest text-muted-foreground font-semibold">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">
                 Up next · {category.name}
               </p>
             </div>
-            <div className="flex flex-col pb-16">
+            <div className="flex flex-col">
               {flatLessons.map((l, li) => {
                 const idx = li + 1;
                 const { title: lTitle } = parseLessonDescription(l);
@@ -264,11 +275,11 @@ export default async function PlayerPage({ params, searchParams }: Props) {
                       isActive ? "bg-surface-active" : "hover:bg-secondary/20"
                     }`}
                   >
-                    <span className="text-[0.65rem] tabular-nums text-muted-foreground/40 shrink-0 w-5 text-right">
+                    <span className="text-xs tabular-nums text-muted-foreground/40 shrink-0 w-5 text-right">
                       {String(idx).padStart(2, "0")}
                     </span>
                     <span
-                      className={`text-[0.78rem] leading-snug flex-1 ${
+                      className={`text-sm leading-snug flex-1 ${
                         isActive
                           ? "text-foreground font-semibold"
                           : done

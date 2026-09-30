@@ -10,7 +10,7 @@ interface LessonArticleProps {
 export function LessonArticle({ markdown }: LessonArticleProps) {
   if (!markdown) {
     return (
-      <p className="text-[0.75rem] text-muted-foreground italic">
+      <p className="text-sm lg:text-[0.75rem] text-muted-foreground italic">
         This lesson has no written content, the title is the whole task.
       </p>
     );
@@ -23,8 +23,8 @@ export function LessonArticle({ markdown }: LessonArticleProps) {
         prose-h2:text-base prose-h2:mt-7 prose-h2:mb-2
         prose-h3:text-sm prose-h3:mt-6 prose-h3:mb-2
         prose-h4:text-sm prose-h4:mt-5 prose-h4:mb-1.5 prose-h4:text-brand
-        prose-p:text-[0.82rem] prose-p:leading-relaxed prose-p:text-foreground/85
-        prose-li:text-[0.82rem] prose-li:leading-relaxed prose-li:text-foreground/85
+        prose-p:text-sm lg:prose-p:text-[0.82rem] prose-p:leading-relaxed prose-p:text-foreground/85
+        prose-li:text-sm lg:prose-li:text-[0.82rem] prose-li:leading-relaxed prose-li:text-foreground/85
         prose-li:my-0.5 prose-ul:my-2 prose-ol:my-2
         prose-strong:text-foreground prose-strong:font-semibold
         prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline prose-a:break-words

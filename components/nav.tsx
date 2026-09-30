@@ -7,9 +7,15 @@ import { openCommandPalette } from "@/lib/palette";
 
 interface NavProps {
   breadcrumb?: { label: string; href: string };
+  /**
+   * The compact back link shown below sm, where the full breadcrumb is hidden.
+   * Defaults to the breadcrumb; lesson pages point it at their module instead.
+   */
+  mobileBack?: { label: string; href: string; title?: string };
 }
 
-export function Nav({ breadcrumb }: NavProps) {
+export function Nav({ breadcrumb, mobileBack }: NavProps) {
+  const back: { label: string; href: string; title?: string } | undefined = mobileBack ?? breadcrumb;
   // Set after mount so the server render and first client render agree.
   const [shortcut, setShortcut] = useState("Ctrl K");
   useEffect(() => {
@@ -18,10 +24,22 @@ export function Nav({ breadcrumb }: NavProps) {
 
   return (
     <header className="sticky top-0 z-50 shrink-0 border-b border-border bg-surface-nav">
-      <div className="flex items-center gap-3 px-3 sm:px-6 py-3">
+      <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-1.5 sm:py-3">
         <Link href="/" className="text-sm font-bold tracking-wide text-white shrink-0">
           CourseVault
         </Link>
+
+        {/* Mobile: always a visible way back, 44 px tall */}
+        {back && (
+          <Link
+            href={back.href}
+            title={back.title ?? back.label}
+            className="sm:hidden flex flex-1 min-h-11 items-center gap-0.5 -ml-1 pr-1 text-sm text-muted-foreground hover:text-foreground transition-colors min-w-0"
+          >
+            <ChevronLeft className="h-5 w-5 shrink-0" />
+            <span className="truncate">{back.label}</span>
+          </Link>
+        )}
 
         {breadcrumb && (
           <Link
@@ -43,7 +61,7 @@ export function Nav({ breadcrumb }: NavProps) {
         >
           <Search className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1 text-left truncate">Search lessons, pages, tools…</span>
-          <kbd className="rounded border border-border bg-surface-toolbar px-1.5 py-px text-[0.65rem]">
+          <kbd className="rounded border border-border bg-surface-toolbar px-1.5 py-px text-xs lg:text-[0.65rem]">
             {shortcut}
           </kbd>
         </button>
@@ -54,9 +72,9 @@ export function Nav({ breadcrumb }: NavProps) {
           onClick={openCommandPalette}
           aria-haspopup="dialog"
           aria-label="Search"
-          className="sm:hidden ml-auto inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="sm:hidden ml-auto -mr-1.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
-          <Search className="h-4 w-4" />
+          <Search className="h-5 w-5" />
         </button>
       </div>
     </header>

@@ -22,6 +22,7 @@ import {
 import { formatTimestampParam } from "@/lib/timestamp";
 import { PLAYBACK_SPEEDS, resolveResumePosition, stepSpeed } from "@/lib/playback";
 import { CMS_COMMAND_EVENT, isTypingTarget } from "@/lib/commands";
+import { choosePreload, SSR_PRELOAD, type PreloadMode } from "@/lib/preload";
 
 /**
  * CourseVault is served over plain HTTP on the LAN / tailnet, which is not a
@@ -128,6 +129,36 @@ type WebkitDocument = Document & {
   webkitFullscreenElement?: Element | null;
   webkitExitFullscreen?: () => Promise<void> | void;
 };
+type OrientationLockable = ScreenOrientation & {
+  lock?: (orientation: string) => Promise<void>;
+  unlock?: () => void;
+};
+type NetworkNavigator = Navigator & { connection?: { saveData?: boolean } };
+
+function isCoarsePointer(): boolean {
+  try {
+    return window.matchMedia("(pointer: coarse)").matches;
+  } catch {
+    return false;
+  }
+}
+
+// Phones rotate into landscape for fullscreen video; both calls are best-effort.
+function lockLandscape() {
+  try {
+    void (screen.orientation as OrientationLockable | undefined)?.lock?.("landscape")?.catch(() => {});
+  } catch {
+    // orientation lock unsupported
+  }
+}
+function unlockOrientation() {
+  try {
+    (screen.orientation as OrientationLockable | undefined)?.unlock?.();
+  } catch {
+    // nothing locked
+  }
+}
+
 type PipDocument = Document & {
   pictureInPictureElement?: Element | null;
   exitPictureInPicture?: () => Promise<void>;
@@ -181,6 +212,7 @@ export function VideoPlayer({
   const [moreOpen, setMoreOpen] = useState(false); // mobile overflow menu
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
+  const speedButtonRef = useRef<HTMLButtonElement>(null);
   const [copied, setCopied] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [pipSupported, setPipSupported] = useState(false);
@@ -191,6 +223,8 @@ export function VideoPlayer({
   const [upNext, setUpNext] = useState<number | null>(null); // seconds left, null = hidden
   // Mirrors the element's paused state for the play/pause button icon only.
   const [playing, setPlaying] = useState(false);
+  // Server and first client render agree on "metadata"; a mount effect upgrades desktops to "auto".
+  const [preload, setPreload] = useState<PreloadMode>(SSR_PRELOAD);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -330,7 +364,8 @@ export function VideoPlayer({
     }
     const p = Math.max(0, Math.min(100, playedPct));
     const buf = Math.max(p, Math.min(100, bufferedPct));
-    seek.style.background = `linear-gradient(to right, hsl(var(--brand)) 0%, hsl(var(--brand)) ${p}%, rgba(255,255,255,0.38) ${p}%, rgba(255,255,255,0.38) ${buf}%, rgba(255,255,255,0.12) ${buf}%, rgba(255,255,255,0.12) 100%)`;
+    // Only the image: size/position classes keep it a thin band inside the taller hit area.
+    seek.style.backgroundImage = `linear-gradient(to right, hsl(var(--brand)) 0%, hsl(var(--brand)) ${p}%, rgba(255,255,255,0.38) ${p}%, rgba(255,255,255,0.38) ${buf}%, rgba(255,255,255,0.12) ${buf}%, rgba(255,255,255,0.12) 100%)`;
   }, []);
 
   useEffect(() => {
@@ -493,6 +528,19 @@ export function VideoPlayer({
     };
   }, [videoSrc, courseId, lessonFile, initialPosition, explicitStart, initialCompleted, postProgress, paintSeek]);
 
+  // ---- preload: buffer eagerly on desktop, sip data on phones and Save-Data --
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const saveData = (navigator as NetworkNavigator).connection?.saveData ?? false;
+    setPreload(choosePreload({ coarsePointer: isCoarsePointer(), saveData, hasPlayed: !!video && !video.paused }));
+    if (!video) return;
+    const onPlay = () => setPreload("auto");
+    video.addEventListener("play", onPlay);
+    return () => video.removeEventListener("play", onPlay);
+    // Re-decide per lesson: a new src on a phone should not inherit "auto" from the last one.
+  }, [videoSrc]);
+
   // ---- fullscreen / PiP state ------------------------------------------------
 
   useEffect(() => {
@@ -500,6 +548,7 @@ export function VideoPlayer({
     const onFs = () => {
       const el = doc.fullscreenElement ?? doc.webkitFullscreenElement ?? null;
       setIsFullscreen(!!el && el === wrapperRef.current);
+      if (!el) unlockOrientation();
     };
     document.addEventListener("fullscreenchange", onFs);
     document.addEventListener("webkitfullscreenchange", onFs);
@@ -529,7 +578,19 @@ export function VideoPlayer({
         return;
       }
       if (wrapper.requestFullscreen) {
-        void wrapper.requestFullscreen().catch(() => {});
+        wrapper
+          .requestFullscreen()
+          .then(() => {
+            if (isCoarsePointer()) lockLandscape();
+          })
+          .catch(() => {
+            // Element fullscreen refused (iPhone Safari): the native video fullscreen still works.
+            try {
+              video.webkitEnterFullscreen?.();
+            } catch {
+              // refused as well
+            }
+          });
       } else if (wrapper.webkitRequestFullscreen) {
         void wrapper.webkitRequestFullscreen();
       } else if (video.webkitEnterFullscreen) {
@@ -797,13 +858,30 @@ export function VideoPlayer({
     return () => document.removeEventListener("keydown", onEsc, true);
   }, [moreOpen]);
 
+  // Speed sheet / popover: Esc closes it and returns focus to the speed button.
+  useEffect(() => {
+    if (!speedOpen) return;
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      e.stopPropagation();
+      setSpeedOpen(false);
+      speedButtonRef.current?.focus();
+    };
+    document.addEventListener("keydown", onEsc, true);
+    return () => document.removeEventListener("keydown", onEsc, true);
+  }, [speedOpen]);
+
+  // Coarse pointers get 44 px rows in the popovers; the bottom sheet always has them.
+  const menuRow = "[@media(pointer:coarse)]:min-h-11";
+
   return (
     <div ref={wrapperRef} className={`flex flex-col ${isFullscreen ? "h-full w-full bg-black" : ""}`}>
       <div className={`relative bg-black ${isFullscreen ? "flex-1 min-h-0" : ""}`}>
         <video
           ref={videoRef}
           src={videoSrc}
-          preload="auto"
+          preload={preload}
           playsInline
           className={`block w-full bg-black cursor-pointer ${isFullscreen ? "h-full object-contain" : ""}`}
           style={isFullscreen ? undefined : { maxHeight: "70vh" }}
@@ -819,14 +897,14 @@ export function VideoPlayer({
         {error && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/90 px-6 text-center">
             <FileWarning className="h-7 w-7 text-brand" />
-            <p className="text-[0.85rem] font-semibold text-foreground">{error}</p>
-            <p className="text-[0.7rem] text-muted-foreground max-w-md leading-relaxed">
+            <p className="text-[0.95rem] lg:text-[0.85rem] font-semibold text-foreground">{error}</p>
+            <p className="text-sm lg:text-[0.7rem] text-muted-foreground max-w-md leading-relaxed">
               Download the file and open it in a desktop player such as VLC.
             </p>
             <a
               href={videoSrc}
               download
-              className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary/30 px-2.5 py-1.5 text-[0.7rem] font-medium text-foreground hover:bg-secondary/60"
+              className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary/30 px-2.5 py-1.5 text-xs lg:text-[0.7rem] font-medium text-foreground hover:bg-secondary/60"
             >
               <Download className="h-3.5 w-3.5" />
               Download video
@@ -837,7 +915,7 @@ export function VideoPlayer({
         {upNext !== null && nextHref && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/80 px-6">
             <div className="flex max-w-md flex-col items-center gap-3 text-center">
-              <span className="text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
+              <span className="text-xs lg:text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground">
                 Playing in {upNext}s
               </span>
               <p className="text-[0.95rem] font-semibold leading-snug text-foreground line-clamp-2">
@@ -846,13 +924,13 @@ export function VideoPlayer({
               <div className="flex gap-2">
                 <button
                   onClick={() => setUpNext(null)}
-                  className="rounded-md border border-border bg-secondary/30 px-3 py-1.5 text-[0.72rem] font-medium text-foreground hover:bg-secondary/60"
+                  className={`rounded-md border border-border bg-secondary/30 px-3 py-1.5 text-xs lg:text-[0.72rem] font-medium text-foreground hover:bg-secondary/60 ${menuRow}`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => goTo(nextHref, { autoplay: true })}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-brand px-3 py-1.5 text-[0.72rem] font-semibold text-white hover:bg-brand-hover"
+                  className={`inline-flex items-center gap-1.5 rounded-md bg-brand px-3 py-1.5 text-xs lg:text-[0.72rem] font-semibold text-white hover:bg-brand-hover ${menuRow}`}
                 >
                   Play now
                   <SkipForward className="h-3.5 w-3.5" />
@@ -863,7 +941,12 @@ export function VideoPlayer({
         )}
       </div>
 
-      <div className="flex flex-wrap sm:flex-nowrap items-center gap-x-1 sm:gap-2 bg-surface-toolbar border-b border-border px-2 sm:px-3 min-h-[44px] shrink-0">
+      {/* Below lg the seek bar owns a full-width row and secondary controls live in More;
+          from lg up everything sits on one row. */}
+      <div
+        data-player-bar
+        className="flex flex-wrap lg:flex-nowrap items-center gap-x-1 lg:gap-2 bg-surface-toolbar border-b border-border px-2 lg:px-3 min-h-[44px] shrink-0"
+      >
         <button
           onClick={() => goTo(prevHref)}
           disabled={!prevHref}
@@ -891,6 +974,7 @@ export function VideoPlayer({
           <SkipForward className="h-4 w-4" />
         </button>
 
+        {/* The input is the (tall) hit area; the visible track is a 4 px background band. */}
         <input
           ref={seekRef}
           type="range"
@@ -901,35 +985,51 @@ export function VideoPlayer({
           onChange={handleSeek}
           onPointerDown={startScrub}
           aria-label="Seek"
-          className="order-first basis-full mt-3 mb-1 sm:order-none sm:basis-auto sm:m-0 flex-1 min-w-0 h-1 rounded-full cursor-pointer appearance-none bg-white/10 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-brand"
+          className="order-first basis-full mt-1 lg:order-none lg:basis-auto lg:m-0 flex-1 min-w-0 lg:min-w-[240px] h-6 [@media(pointer:coarse)]:h-11 cursor-pointer appearance-none bg-transparent bg-[linear-gradient(rgba(255,255,255,0.12),rgba(255,255,255,0.12))] bg-no-repeat bg-center bg-[length:100%_4px] [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand [@media(pointer:coarse)]:[&::-webkit-slider-thumb]:h-5 [@media(pointer:coarse)]:[&::-webkit-slider-thumb]:w-5 [&::-moz-range-track]:bg-transparent [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-brand [@media(pointer:coarse)]:[&::-moz-range-thumb]:h-5 [@media(pointer:coarse)]:[&::-moz-range-thumb]:w-5"
         />
 
         <span
           ref={timeRef}
-          className="text-[0.65rem] text-muted-foreground shrink-0 tabular-nums mr-auto pl-1 sm:mr-0 sm:pl-0 whitespace-nowrap"
+          className="text-xs lg:text-[0.65rem] text-muted-foreground shrink-0 tabular-nums mr-auto pl-1 lg:mr-0 lg:pl-0 whitespace-nowrap"
         >
           00:00 / 00:00
         </span>
 
-        {/* Speed picker */}
+        {/* Speed picker: a bottom sheet below lg (the player sits right under the sticky
+            nav on phones, so an upward popover would hide behind it), a popover from lg up. */}
         <div className="relative shrink-0">
           <button
+            ref={speedButtonRef}
             onClick={() => { setSpeedOpen((o) => !o); setVolumeOpen(false); setMoreOpen(false); }}
-            className="text-[0.65rem] font-semibold tabular-nums w-9 h-9 flex items-center justify-center rounded transition-colors hover:text-foreground"
+            className="text-xs lg:text-[0.65rem] font-semibold tabular-nums min-w-9 h-9 px-1 flex items-center justify-center rounded transition-colors hover:text-foreground"
             style={{ color: speed !== 1 ? "hsl(var(--accent))" : "hsl(var(--muted-foreground))" }}
             title="Playback speed (< and >)"
+            aria-haspopup="true"
+            aria-expanded={speedOpen}
           >
             {speed}×
           </button>
           {speedOpen && (
             <>
-              <div className="fixed inset-0 z-10" onClick={() => setSpeedOpen(false)} />
-              <div className="absolute bottom-full mb-1 right-0 z-20 bg-surface-active border border-border rounded shadow-lg py-1 min-w-[64px]">
+              <div
+                className="fixed inset-0 z-[60] bg-black/50 lg:z-10 lg:bg-transparent"
+                onClick={() => setSpeedOpen(false)}
+              />
+              <div
+                data-speed-menu
+                role="group"
+                aria-label="Playback speed"
+                className="fixed inset-x-0 bottom-0 z-[61] max-h-[60dvh] overflow-y-auto overscroll-contain rounded-t-xl border-t border-border bg-surface-active pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-lg lg:absolute lg:inset-x-auto lg:bottom-full lg:right-0 lg:mb-1 lg:max-h-[calc(100dvh-8rem)] lg:min-w-[64px] lg:rounded lg:border lg:py-1"
+              >
+                <div className="lg:hidden px-4 pt-3 pb-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  Playback speed
+                </div>
                 {PLAYBACK_SPEEDS.map((s) => (
                   <button
                     key={s}
                     onClick={() => applySpeed(s, false)}
-                    className={`w-full text-left px-3 py-2 text-[0.7rem] transition-colors hover:bg-surface-field ${
+                    aria-pressed={s === speed}
+                    className={`w-full flex items-center text-left px-4 min-h-11 text-sm lg:px-3 lg:py-2 lg:text-[0.7rem] lg:[@media(pointer:fine)]:min-h-0 transition-colors hover:bg-surface-field ${
                       s === speed ? "text-brand font-semibold" : "text-muted-foreground"
                     }`}
                   >
@@ -941,10 +1041,10 @@ export function VideoPlayer({
           )}
         </div>
 
-        {/* Volume control (desktop; below sm it lives in the More menu) */}
+        {/* Volume control (from sm; below sm it lives in the More menu) */}
         <div className="relative shrink-0 hidden sm:block">
           <button
-            onClick={() => { setVolumeOpen((o) => !o); setSpeedOpen(false); }}
+            onClick={() => { setVolumeOpen((o) => !o); setSpeedOpen(false); setMoreOpen(false); }}
             onDoubleClick={toggleMute}
             className="p-2 text-muted-foreground hover:text-foreground transition-colors"
             title="Volume (double-click or M to mute)"
@@ -954,10 +1054,10 @@ export function VideoPlayer({
           {volumeOpen && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setVolumeOpen(false)} />
-              <div className="absolute bottom-full mb-1 right-0 z-20 bg-surface-active border border-border rounded-lg shadow-lg px-3 py-3 flex flex-col gap-2 w-32">
+              <div className="absolute bottom-full mb-1 right-0 z-20 bg-surface-active border border-border rounded-lg shadow-lg px-3 py-3 flex flex-col gap-2 w-36 lg:w-32">
                 <div className="flex items-center justify-between">
-                  <span className="text-[0.65rem] uppercase tracking-widest text-muted-foreground font-semibold">Volume</span>
-                  <span className="text-[0.65rem] text-muted-foreground tabular-nums">
+                  <span className="text-xs lg:text-[0.65rem] uppercase tracking-widest text-muted-foreground font-semibold">Volume</span>
+                  <span className="text-xs lg:text-[0.65rem] text-muted-foreground tabular-nums">
                     {Math.round(effectiveVolume * 100)}%
                   </span>
                 </div>
@@ -968,11 +1068,12 @@ export function VideoPlayer({
                   step={0.02}
                   value={effectiveVolume}
                   onChange={handleVolumeChange}
-                  className="w-full h-1 accent-brand cursor-pointer"
+                  aria-label="Volume"
+                  className="w-full h-1 [@media(pointer:coarse)]:h-6 accent-brand cursor-pointer"
                 />
                 <button
                   onClick={toggleMute}
-                  className="text-[0.65rem] text-muted-foreground hover:text-foreground transition-colors text-center"
+                  className={`text-xs lg:text-[0.65rem] text-muted-foreground hover:text-foreground transition-colors text-center ${menuRow}`}
                 >
                   {muted || volume === 0 ? "Unmute" : "Mute"}
                 </button>
@@ -984,7 +1085,7 @@ export function VideoPlayer({
         <button
           onClick={toggleAutoplayNext}
           aria-pressed={autoplayNext}
-          className={`hidden sm:inline-flex shrink-0 items-center rounded px-1.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide transition-colors ${
+          className={`hidden lg:inline-flex shrink-0 items-center rounded px-1.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide transition-colors ${
             autoplayNext ? "text-brand" : "text-muted-foreground/60 hover:text-foreground"
           }`}
           title={autoplayNext ? "Autoplay next lesson: on" : "Autoplay next lesson: off"}
@@ -994,7 +1095,7 @@ export function VideoPlayer({
 
         <button
           onClick={copyLinkAtCurrentTime}
-          className="hidden sm:inline-flex p-2 text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          className="hidden lg:inline-flex p-2 text-muted-foreground hover:text-foreground transition-colors shrink-0"
           title="Copy link at current time"
         >
           {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Link2 className="h-4 w-4" />}
@@ -1003,15 +1104,15 @@ export function VideoPlayer({
         {pipSupported && (
           <button
             onClick={togglePip}
-            className={`hidden sm:inline-flex p-2 transition-colors shrink-0 ${isPip ? "text-brand" : "text-muted-foreground hover:text-foreground"}`}
+            className={`hidden lg:inline-flex p-2 transition-colors shrink-0 ${isPip ? "text-brand" : "text-muted-foreground hover:text-foreground"}`}
             title="Picture-in-picture"
           >
             <PictureInPicture2 className="h-4 w-4" />
           </button>
         )}
 
-        {/* More menu: Auto next, Copy link, PiP and volume below the sm breakpoint */}
-        <div className="relative shrink-0 sm:hidden">
+        {/* More menu below lg: Auto next, Copy link, PiP, and volume below sm */}
+        <div className="relative shrink-0 lg:hidden">
           <button
             ref={moreButtonRef}
             onClick={() => { setMoreOpen((o) => !o); setSpeedOpen(false); setVolumeOpen(false); }}
@@ -1032,22 +1133,22 @@ export function VideoPlayer({
                 id="player-more-menu"
                 role="group"
                 aria-label="More player controls"
-                className="absolute bottom-full mb-1 right-0 z-20 w-52 max-w-[calc(100vw-1rem)] bg-surface-active border border-border rounded-lg shadow-lg py-1"
+                className="absolute bottom-full mb-1 right-0 z-20 w-60 max-w-[calc(100vw-1rem)] bg-surface-active border border-border rounded-lg shadow-lg py-1"
               >
                 <button
                   onClick={toggleAutoplayNext}
                   role="switch"
                   aria-checked={autoplayNext}
-                  className="w-full flex items-center justify-between px-3 py-2 text-[0.72rem] text-foreground hover:bg-surface-field transition-colors"
+                  className={`w-full flex items-center justify-between px-3 py-2 text-sm text-foreground hover:bg-surface-field transition-colors ${menuRow}`}
                 >
                   <span>Auto next lesson</span>
-                  <span className={`text-[0.65rem] font-semibold uppercase ${autoplayNext ? "text-brand" : "text-muted-foreground"}`}>
+                  <span className={`text-xs font-semibold uppercase ${autoplayNext ? "text-brand" : "text-muted-foreground"}`}>
                     {autoplayNext ? "On" : "Off"}
                   </span>
                 </button>
                 <button
                   onClick={() => void copyLinkAtCurrentTime()}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-[0.72rem] text-foreground hover:bg-surface-field transition-colors"
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-surface-field transition-colors ${menuRow}`}
                 >
                   {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Link2 className="h-4 w-4" />}
                   <span>{copied ? "Link copied" : "Copy link at current time"}</span>
@@ -1056,16 +1157,16 @@ export function VideoPlayer({
                   <button
                     onClick={() => { setMoreOpen(false); void togglePip(); }}
                     aria-pressed={isPip}
-                    className={`w-full flex items-center gap-2 px-3 py-2 text-[0.72rem] hover:bg-surface-field transition-colors ${isPip ? "text-brand" : "text-foreground"}`}
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-surface-field transition-colors ${menuRow} ${isPip ? "text-brand" : "text-foreground"}`}
                   >
                     <PictureInPicture2 className="h-4 w-4" />
                     <span>Picture-in-picture</span>
                   </button>
                 )}
-                <div className="border-t border-border mt-1 px-3 pt-2 pb-1.5 flex items-center gap-2">
+                <div className="sm:hidden border-t border-border mt-1 px-3 pt-2 pb-1.5 flex items-center gap-2">
                   <button
                     onClick={toggleMute}
-                    className="shrink-0 p-1 -ml-1 text-muted-foreground hover:text-foreground transition-colors"
+                    className="shrink-0 p-1 -ml-1 text-muted-foreground hover:text-foreground transition-colors [@media(pointer:coarse)]:p-2.5 [@media(pointer:coarse)]:-ml-2.5"
                     aria-label={muted || volume === 0 ? "Unmute" : "Mute"}
                     title={muted || volume === 0 ? "Unmute" : "Mute"}
                   >
@@ -1079,9 +1180,9 @@ export function VideoPlayer({
                     value={effectiveVolume}
                     onChange={handleVolumeChange}
                     aria-label="Volume"
-                    className="flex-1 min-w-0 h-1 accent-brand cursor-pointer"
+                    className="flex-1 min-w-0 h-1 [@media(pointer:coarse)]:h-6 accent-brand cursor-pointer"
                   />
-                  <span className="text-[0.65rem] text-muted-foreground tabular-nums w-8 text-right">
+                  <span className="text-xs text-muted-foreground tabular-nums w-9 text-right">
                     {Math.round(effectiveVolume * 100)}%
                   </span>
                 </div>
