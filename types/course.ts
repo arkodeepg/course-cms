@@ -6,8 +6,11 @@ export interface Lesson {
   status: string;
   has_description: boolean;
   resources?: Resource[];
-  playable?: boolean;
+  // Emitted by newer index generators; absent on older _index.json files.
+  duration_seconds?: number | null;
+  size_bytes?: number;
   archived?: boolean;
+  playable?: boolean;
 }
 
 export interface Resource {
@@ -23,6 +26,7 @@ export interface Section {
   name: string;
   folder: string;
   lessons: Lesson[];
+  duration_seconds?: number | null;
 }
 
 export interface Category {
@@ -31,6 +35,7 @@ export interface Category {
   folder: string;
   sections: Section[];
   resources?: Resource[];
+  duration_seconds?: number | null;
 }
 
 export interface CourseIndex {
@@ -42,4 +47,22 @@ export interface CourseIndex {
   missing: number;
   categories: Category[];
   resources?: Resource[];
+  duration_seconds?: number | null;
+  total_size_bytes?: number;
+}
+
+// The slice of a course the library page needs. Built on the server so the
+// client never receives a course's full lesson tree.
+export interface CourseSummary {
+  courseId: string;
+  title: string;
+  hasCover: boolean;
+  totalLessons: number;
+  moduleCount: number;
+  completedCount: number;
+  startedCount: number;
+  missingCount: number;
+  resumeHref: string | null;
+  lastActiveAt: string | null;
+  durationSeconds: number | null;
 }

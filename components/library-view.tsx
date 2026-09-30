@@ -4,18 +4,10 @@ import { useState, useEffect } from "react";
 import { LayoutList, LayoutGrid } from "lucide-react";
 import { CourseCard } from "@/components/course-card";
 import { CourseGridCard } from "@/components/course-grid-card";
-import { CourseIndex } from "@/types/course";
-
-interface CourseData {
-  courseId: string;
-  index: CourseIndex;
-  completedCount: number;
-  startedCount: number;
-  resumeHref: string | null;
-}
+import { CourseSummary } from "@/types/course";
 
 interface LibraryViewProps {
-  courses: CourseData[];
+  courses: CourseSummary[];
 }
 
 const STORAGE_KEY = "coursevault-view";
@@ -71,13 +63,13 @@ export function LibraryView({ courses }: LibraryViewProps) {
       {view === "list" ? (
         <div className="flex flex-col gap-3">
           {courses.map((d) => (
-            <CourseCard key={d.courseId} {...d} />
+            <CourseCard key={d.courseId} course={d} />
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {courses.map((d) => (
-            <CourseGridCard key={d.courseId} {...d} />
+            <CourseGridCard key={d.courseId} course={d} />
           ))}
         </div>
       )}
