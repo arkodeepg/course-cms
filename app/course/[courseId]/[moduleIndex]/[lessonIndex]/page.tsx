@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle2, FileText, FileWarning, PlayCircle } from "lucide-react";
+import { CheckCircle2, Download, FileText, FileWarning, PlayCircle } from "lucide-react";
 import {
   getCourseEntry,
   getLesson,
@@ -15,7 +15,9 @@ import {
   readLessonMarkdown,
 } from "@/lib/courses";
 import { courseTitle } from "@/lib/utils";
-import { resolveStartPosition } from "@/lib/timestamp";
+import { parseTimestamp, resolveStartPosition } from "@/lib/timestamp";
+import { computeLessonNav } from "@/lib/lesson-nav";
+import { hasUnplayableExtension } from "@/lib/playback";
 import { prisma } from "@/lib/db";
 
 export const dynamic = 'force-dynamic';
@@ -90,11 +92,29 @@ export default async function PlayerPage({ params, searchParams }: Props) {
   const documentSrc = isDocument ? resourceHref(getLessonFilePath(courseId, category, lesson)) : "";
   const videoAbsPath =
     isArticle || isMissing || isDocument ? "" : getLessonFilePath(courseId, category, lesson);
+  // Containers no browser decodes natively (or ones the indexer flagged): offer a download instead.
+  const isUnplayable =
+    !!videoAbsPath && (lesson.playable === false || hasUnplayableExtension(lesson.file));
   const videoSrc = videoAbsPath
     ? '/api/video' + videoAbsPath.split('/').map(s => encodeURIComponent(s)).join('/')
     : "";
 
   const courseName = courseTitle(courseId, entry.index);
+  // Prev / next run across module boundaries, not just within this module.
+  const nav = computeLessonNav(courseId, entry.index, moduleIdx, lessonIdx);
+  const initialCompleted = progressRow?.completed ?? false;
+
+  const toolbar = (
+    <LessonToolbar
+      courseId={courseId}
+      lessonIndex={lessonIdx}
+      totalLessons={totalLessons}
+      lessonFile={lesson.file}
+      initialCompleted={initialCompleted}
+      prevHref={nav.prevHref}
+      nextHref={nav.nextHref}
+    />
+  );
 
   // Desktop pins to the viewport so each pane scrolls on its own; mobile keeps page scroll.
   return (
@@ -118,16 +138,31 @@ export default async function PlayerPage({ params, searchParams }: Props) {
                 play. It is listed here so the module keeps its real running order.
               </p>
             </div>
+          ) : isUnplayable ? (
+            <>
+              {toolbar}
+              <div className="flex flex-col items-center justify-center gap-2 bg-black aspect-video w-full px-6 text-center">
+                <FileWarning className="h-7 w-7 text-[#e53e3e]" />
+                <p className="text-[0.85rem] font-semibold text-foreground">
+                  This video format cannot play in a browser
+                </p>
+                <p className="text-[0.7rem] text-muted-foreground max-w-md leading-relaxed">
+                  Browsers cannot decode this file type. Download it and open it in a desktop
+                  player such as VLC.
+                </p>
+                <a
+                  href={videoSrc}
+                  download
+                  className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary/30 px-2.5 py-1.5 text-[0.7rem] font-medium text-foreground hover:bg-secondary/60"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Download video
+                </a>
+              </div>
+            </>
           ) : isArticle || isDocument ? (
             <>
-              <LessonToolbar
-                courseId={courseId}
-                moduleIndex={moduleIdx}
-                lessonIndex={lessonIdx}
-                totalLessons={totalLessons}
-                lessonFile={lesson.file}
-                initialCompleted={progressRow?.completed ?? false}
-              />
+              {toolbar}
               {isDocument &&
                 (lesson.file.toLowerCase().endsWith(".pdf") ? (
                   <iframe src={documentSrc} title={title} className="w-full h-[80vh] border-0 bg-white" />
@@ -139,15 +174,17 @@ export default async function PlayerPage({ params, searchParams }: Props) {
           ) : (
             <VideoPlayer
               courseId={courseId}
-              moduleIndex={moduleIdx}
-              lessonIndex={lessonIdx}
-              totalLessons={totalLessons}
               lessonFile={lesson.file}
               videoSrc={videoSrc}
               initialPosition={resolveStartPosition(
                 searchParams.t,
                 progressRow?.positionSeconds
               )}
+              explicitStart={parseTimestamp(searchParams.t) !== null}
+              initialCompleted={initialCompleted}
+              prevHref={nav.prevHref}
+              nextHref={nav.nextHref}
+              nextTitle={nav.nextTitle}
             />
           )}
           {/* The divider spans the pane while the article stays at reading width. */}

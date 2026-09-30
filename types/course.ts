@@ -6,6 +6,8 @@ export interface Lesson {
   status: string;
   has_description: boolean;
   resources?: Resource[];
+  playable?: boolean;
+  archived?: boolean;
 }
 
 export interface Resource {
