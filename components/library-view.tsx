@@ -21,6 +21,24 @@ export function LibraryView({ courses }: LibraryViewProps) {
     if (saved === "grid" || saved === "list") setView(saved);
   }, []);
 
+  // The command palette toggles the view with a window event.
+  useEffect(() => {
+    function onViewEvent(e: Event) {
+      const detail = (e as CustomEvent).detail;
+      setView((cur) => {
+        const next = detail === "grid" || detail === "list" ? detail : cur === "list" ? "grid" : "list";
+        try {
+          localStorage.setItem(STORAGE_KEY, next);
+        } catch {
+          // storage unavailable
+        }
+        return next;
+      });
+    }
+    window.addEventListener("cms:library-view", onViewEvent);
+    return () => window.removeEventListener("cms:library-view", onViewEvent);
+  }, []);
+
   function switchView(v: "list" | "grid") {
     setView(v);
     localStorage.setItem(STORAGE_KEY, v);
