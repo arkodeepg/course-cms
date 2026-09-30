@@ -48,3 +48,6 @@ next-env.d.ts
 /data/*.db
 /data/*.db-shm
 /data/*.db-wal
+# Generated cover thumbnails (AIW2 execution/course_cms_covers.py)
+/data/covers/
+/.playwright-cli/

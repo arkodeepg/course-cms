@@ -21,8 +21,12 @@ export function CourseGridCard({ course }: CourseGridCardProps) {
         // Decorative: the title is right below it.
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={`/api/courses/${m.courseId}/cover`}
+          src={m.coverSrc}
           alt=""
+          width={640}
+          height={360}
+          loading="lazy"
+          decoding="async"
           className="h-36 w-full object-cover block"
           onError={() => setImgError(true)}
         />

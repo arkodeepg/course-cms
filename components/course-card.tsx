@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { CourseSummary } from "@/types/course";
 import { CardMeta, CardProgress, cardModel } from "@/components/course-card-shared";
@@ -10,16 +13,32 @@ interface CourseCardProps {
 // the whole card, and the action link sits above it, so no <a> nests in <a>.
 export function CourseCard({ course }: CourseCardProps) {
   const m = cardModel(course);
+  const [imgError, setImgError] = useState(false);
 
   return (
     <div className="relative flex items-center gap-3 sm:gap-4 rounded-lg border border-border bg-card px-3 sm:px-4 py-3 hover:bg-card/80 transition-colors">
-      <div
-        aria-hidden="true"
-        className="hidden sm:flex h-12 w-20 shrink-0 rounded-md items-center justify-center text-center text-sm font-bold tracking-wide select-none"
-        style={{ background: m.thumbBg, color: m.thumbFg }}
-      >
-        {m.initials}
-      </div>
+      {course.hasCover && !imgError ? (
+        // Decorative: the title is right beside it.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={m.coverSrc}
+          alt=""
+          width={80}
+          height={48}
+          loading="lazy"
+          decoding="async"
+          className="h-10 w-16 sm:h-12 sm:w-20 shrink-0 rounded-md object-cover bg-muted"
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <div
+          aria-hidden="true"
+          className="hidden sm:flex h-12 w-20 shrink-0 rounded-md items-center justify-center text-center text-sm font-bold tracking-wide select-none"
+          style={{ background: m.thumbBg, color: m.thumbFg }}
+        >
+          {m.initials}
+        </div>
+      )}
 
       <div className="flex-1 min-w-0">
         <Link

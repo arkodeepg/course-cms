@@ -1,6 +1,7 @@
 import { Category, CourseSummary } from '@/types/course';
 import { CourseEntry, getLessonsFlat, isMissingLesson, parseLessonDescription } from '@/lib/courses';
 import { courseTitle } from '@/lib/utils';
+import { courseHasCover } from '@/lib/covers';
 
 // One Progress row as the library page selects it.
 export interface ProgressRow {
@@ -74,7 +75,7 @@ export function summarizeCourse(entry: CourseEntry, rows: ProgressRow[]): Course
   return {
     courseId,
     title: courseTitle(courseId, index),
-    hasCover: Boolean(index.cover),
+    hasCover: courseHasCover(courseId, index),
     totalLessons: lessons.length,
     moduleCount: index.categories.length,
     completedCount,

@@ -29,6 +29,7 @@ export function cardModel(course: CourseSummary) {
     courseId,
     title,
     href: `/course/${courseId}`,
+    coverSrc: `/api/courses/${courseId}/cover`,
     lessonsLabel: `${plural(totalLessons, "lesson")} · ${plural(moduleCount, "module")}`,
     duration: formatDuration(course.durationSeconds),
     missingCount: course.missingCount,

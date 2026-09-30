@@ -5,6 +5,7 @@ const config: Config = {
   transform: { '^.+\\.tsx?$': ['ts-jest', { tsconfig: { module: 'commonjs' } }] },
   moduleNameMapper: { '^@/(.*)$': '<rootDir>/$1' },
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
+  setupFiles: ['<rootDir>/test/setup-env.ts'],
 };
 
 export default config;
