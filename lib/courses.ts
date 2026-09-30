@@ -6,6 +6,21 @@ export function getCoursesPath(): string {
   return process.env.COURSES_PATH || '/courses';
 }
 
+const COVER_EXTS = ['jpg', 'jpeg', 'png', 'webp', 'avif'];
+
+// Cover art is discovered on disk rather than trusted from the index: plenty of
+// courses have a cover.<ext> that their generator never recorded, and the cover
+// route looks the file up the same way.
+function withCover(index: CourseIndex, dir: string): CourseIndex {
+  if (index.cover) return index;
+  for (const ext of COVER_EXTS) {
+    if (fs.existsSync(path.join(getCoursesPath(), dir, `cover.${ext}`))) {
+      return { ...index, cover: `cover.${ext}` };
+    }
+  }
+  return index;
+}
+
 export function discoverCourses(): Array<{ courseId: string; index: CourseIndex; dir: string }> {
   const coursesPath = getCoursesPath();
   const entries = fs.readdirSync(coursesPath, { withFileTypes: true });
@@ -17,7 +32,7 @@ export function discoverCourses(): Array<{ courseId: string; index: CourseIndex;
     if (!fs.existsSync(indexPath)) continue;
     try {
       const index: CourseIndex = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
-      results.push({ courseId: index.course, index, dir: entry.name });
+      results.push({ courseId: index.course, index: withCover(index, entry.name), dir: entry.name });
     } catch {
       // skip malformed _index.json
     }
@@ -36,7 +51,7 @@ export function getCourseEntry(courseId: string): { index: CourseIndex; dir: str
     if (!fs.existsSync(indexPath)) continue;
     try {
       const index: CourseIndex = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
-      if (index.course === courseId) return { index, dir: entry.name };
+      if (index.course === courseId) return { index: withCover(index, entry.name), dir: entry.name };
     } catch {
       continue;
     }
@@ -97,6 +112,14 @@ export function isTextLesson(lesson: Lesson): boolean {
   return path.extname(lesson.file).toLowerCase() === '.md';
 }
 
+const DOCUMENT_LESSON_EXTS = ['.pdf', '.png', '.jpg', '.jpeg', '.gif', '.webp'];
+
+// A lesson whose file is a PDF or an image, such as a text-only post saved as
+// PDF. It is shown embedded; handing it to the video player shows nothing.
+export function isDocumentLesson(lesson: Lesson): boolean {
+  return DOCUMENT_LESSON_EXTS.includes(path.extname(lesson.file).toLowerCase());
+}
+
 // Reads an article lesson's Markdown, dropping the leading H1 — the page chrome
 // already renders the lesson title, so repeating it reads as a duplicate.
 export function readLessonMarkdown(courseId: string, category: Category, lesson: Lesson): string {
@@ -151,14 +174,33 @@ export interface ResourceGroup {
 }
 
 // Course-level downloads first, then one group per module that has resources.
+// A module's group carries its own resources plus every handout attached to one
+// of its lessons: those live only on the lesson page otherwise, which hides most
+// of a course's downloads from the downloads page.
 export function collectResourceGroups(index: CourseIndex): ResourceGroup[] {
   const groups: ResourceGroup[] = [];
   if (index.resources && index.resources.length > 0) {
     groups.push({ label: 'Course downloads', resources: index.resources });
   }
   for (const category of index.categories) {
-    if (category.resources && category.resources.length > 0) {
-      groups.push({ label: category.name, resources: category.resources });
+    const resources: Resource[] = [...(category.resources ?? [])];
+    for (const section of category.sections) {
+      for (const lesson of section.lessons) {
+        for (const resource of lesson.resources ?? []) {
+          // Lesson resources are stored relative to their section folder, so
+          // give each one the course-relative path the downloads page resolves.
+          resources.push({
+            name: `${lesson.name.split('\n')[0]} · ${resource.name}`,
+            file: resource.file,
+            path: resource.path ?? [category.folder, section.folder, resource.file]
+              .filter(Boolean)
+              .join('/'),
+          });
+        }
+      }
+    }
+    if (resources.length > 0) {
+      groups.push({ label: category.name, resources });
     }
   }
   return groups;
@@ -166,5 +208,15 @@ export function collectResourceGroups(index: CourseIndex): ResourceGroup[] {
 
 export function courseHasResources(index: CourseIndex): boolean {
   if (index.resources && index.resources.length > 0) return true;
-  return index.categories.some((c) => c.resources && c.resources.length > 0);
+  return index.categories.some(
+    (c) =>
+      (c.resources && c.resources.length > 0) ||
+      c.sections.some((s) => s.lessons.some((l) => l.resources && l.resources.length > 0))
+  );
+}
+
+// A lesson whose file never finished downloading. Indexed so the gap is visible
+// in the tree, but there is nothing to play.
+export function isMissingLesson(lesson: Lesson): boolean {
+  return lesson.status === 'missing';
 }

@@ -31,7 +31,11 @@ export function LessonSidebar({
 
   const hasResources =
     (courseIndex.resources?.length ?? 0) > 0 ||
-    courseIndex.categories.some((c) => (c.resources?.length ?? 0) > 0);
+    courseIndex.categories.some(
+      (c) =>
+        (c.resources?.length ?? 0) > 0 ||
+        c.sections.some((s) => s.lessons.some((l) => (l.resources?.length ?? 0) > 0))
+    );
 
   return (
     <>
@@ -131,6 +135,7 @@ export function LessonSidebar({
                         const isActive =
                           moduleIdx === activeModuleIdx && thisIdx === activeLessonIdx;
                         const isDone = completedSet.has(lesson.file);
+                        const isMissing = lesson.status === "missing";
 
                         return (
                           <Link
@@ -156,6 +161,11 @@ export function LessonSidebar({
                             >
                               {lesson.name.split("\n")[0]}
                             </span>
+                            {isMissing && (
+                              <span className="shrink-0 mt-0.5 text-[0.52rem] uppercase tracking-wide text-muted-foreground/50">
+                                missing
+                              </span>
+                            )}
                             {isDone && (
                               <CheckIcon className="h-3 w-3 shrink-0 text-[#2d6a4f] mt-0.5" />
                             )}

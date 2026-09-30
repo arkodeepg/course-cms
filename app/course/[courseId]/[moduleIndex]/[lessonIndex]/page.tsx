@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle2, FileText, PlayCircle } from "lucide-react";
+import { CheckCircle2, FileText, FileWarning, PlayCircle } from "lucide-react";
 import {
   getCourseEntry,
   getLesson,
@@ -9,6 +9,9 @@ import {
   getResourceFilePath,
   getLessonFilePath,
   isTextLesson,
+  isDocumentLesson,
+  isMissingLesson,
+  resourceHref,
   readLessonMarkdown,
 } from "@/lib/courses";
 import { courseTitle } from "@/lib/utils";
@@ -81,8 +84,12 @@ export default async function PlayerPage({ params, searchParams }: Props) {
   const flatLessons = getLessonsFlat(category);
   const totalLessons = flatLessons.length;
   const isArticle = isTextLesson(lesson);
+  const isMissing = isMissingLesson(lesson);
+  const isDocument = !isMissing && isDocumentLesson(lesson);
   const markdown = isArticle ? readLessonMarkdown(courseId, category, lesson) : "";
-  const videoAbsPath = isArticle ? "" : getLessonFilePath(courseId, category, lesson);
+  const documentSrc = isDocument ? resourceHref(getLessonFilePath(courseId, category, lesson)) : "";
+  const videoAbsPath =
+    isArticle || isMissing || isDocument ? "" : getLessonFilePath(courseId, category, lesson);
   const videoSrc = videoAbsPath
     ? '/api/video' + videoAbsPath.split('/').map(s => encodeURIComponent(s)).join('/')
     : "";
@@ -100,15 +107,35 @@ export default async function PlayerPage({ params, searchParams }: Props) {
       />
       <div className="flex flex-col md:flex-row md:flex-1 md:min-h-0">
         <div className="flex flex-col min-w-0 md:flex-1 md:overflow-y-auto md:overscroll-contain">
-          {isArticle ? (
-            <LessonToolbar
-              courseId={courseId}
-              moduleIndex={moduleIdx}
-              lessonIndex={lessonIdx}
-              totalLessons={totalLessons}
-              lessonFile={lesson.file}
-              initialCompleted={progressRow?.completed ?? false}
-            />
+          {isMissing ? (
+            <div className="flex flex-col items-center justify-center gap-2 bg-black aspect-video w-full px-6 text-center">
+              <FileWarning className="h-7 w-7 text-[#e53e3e]" />
+              <p className="text-[0.85rem] font-semibold text-foreground">
+                This lesson was never downloaded
+              </p>
+              <p className="text-[0.7rem] text-muted-foreground max-w-md leading-relaxed">
+                The file for this lesson is empty in the archive, so there is nothing to
+                play. It is listed here so the module keeps its real running order.
+              </p>
+            </div>
+          ) : isArticle || isDocument ? (
+            <>
+              <LessonToolbar
+                courseId={courseId}
+                moduleIndex={moduleIdx}
+                lessonIndex={lessonIdx}
+                totalLessons={totalLessons}
+                lessonFile={lesson.file}
+                initialCompleted={progressRow?.completed ?? false}
+              />
+              {isDocument &&
+                (lesson.file.toLowerCase().endsWith(".pdf") ? (
+                  <iframe src={documentSrc} title={title} className="w-full h-[80vh] border-0 bg-white" />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={documentSrc} alt={title} className="w-full h-auto bg-black" />
+                ))}
+            </>
           ) : (
             <VideoPlayer
               courseId={courseId}
