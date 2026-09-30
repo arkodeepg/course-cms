@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CheckIcon, ChevronDownIcon, ChevronRightIcon, X, BookOpen, Download } from "lucide-react";
 import { CourseIndex, Category } from "@/types/course";
@@ -26,6 +26,29 @@ export function LessonSidebar({
 }: LessonSidebarProps) {
   const [openModule, setOpenModule] = useState<number>(activeModuleIdx);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const activeRef = useRef<HTMLAnchorElement>(null);
+  const hasScrolledRef = useRef(false);
+
+  // Follow the active module when navigation crosses a module boundary.
+  useEffect(() => setOpenModule(activeModuleIdx), [activeModuleIdx]);
+
+  // Centre the active lesson inside the sidebar's own scroller. Scrolling the
+  // container directly (rather than scrollIntoView) never moves the page or the
+  // main pane. Instant on first mount, smooth after that.
+  useEffect(() => {
+    const container = scrollRef.current;
+    const el = activeRef.current;
+    if (!container || !el || container.clientHeight === 0) return;
+    const cRect = container.getBoundingClientRect();
+    const eRect = el.getBoundingClientRect();
+    const top = container.scrollTop + (eRect.top - cRect.top) - (container.clientHeight - eRect.height) / 2;
+    container.scrollTo({
+      top: Math.max(0, top),
+      behavior: hasScrolledRef.current ? "smooth" : "auto",
+    });
+    hasScrolledRef.current = true;
+  }, [activeModuleIdx, activeLessonIdx, openModule, mobileOpen]);
 
   const completedSet = new Set(completedFiles);
 
@@ -70,7 +93,7 @@ export function LessonSidebar({
           <X className="h-4 w-4" />
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto overscroll-contain">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-contain">
         {hasResources && (
           <Link
             href={`/course/${courseId}/resources`}
@@ -136,11 +159,15 @@ export function LessonSidebar({
                           moduleIdx === activeModuleIdx && thisIdx === activeLessonIdx;
                         const isDone = completedSet.has(lesson.file);
                         const isMissing = lesson.status === "missing";
+                        const label = lesson.name.split("\n")[0].trim();
 
                         return (
                           <Link
                             key={lesson.file}
+                            ref={isActive ? activeRef : undefined}
                             href={`/course/${courseId}/${moduleIdx}/${thisIdx}`}
+                            title={label}
+                            aria-current={isActive ? "page" : undefined}
                             className={`flex items-start gap-2 px-4 py-2 border-b border-[#1a1c26] cursor-pointer transition-colors ${
                               isActive ? "bg-[#1e2030]" : "hover:bg-[#1a1c26]"
                             }`}
@@ -153,17 +180,22 @@ export function LessonSidebar({
                               {thisIdx}
                             </span>
                             <span
-                              className={`text-[0.65rem] leading-snug flex-1 ${
+                              className={`text-[0.65rem] leading-snug flex-1 min-w-0 line-clamp-2 ${
                                 isActive
                                   ? "text-foreground font-semibold"
                                   : "text-muted-foreground"
                               }`}
                             >
-                              {lesson.name.split("\n")[0]}
+                              {label}
                             </span>
                             {isMissing && (
                               <span className="shrink-0 mt-0.5 text-[0.52rem] uppercase tracking-wide text-muted-foreground/50">
                                 missing
+                              </span>
+                            )}
+                            {lesson.archived && (
+                              <span className="shrink-0 mt-0.5 text-[0.52rem] uppercase tracking-wide text-amber-500/70">
+                                archived
                               </span>
                             )}
                             {isDone && (

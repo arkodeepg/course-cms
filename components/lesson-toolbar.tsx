@@ -1,27 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, SkipBack, SkipForward } from "lucide-react";
+import { CMS_COMMAND_EVENT, isTypingTarget } from "@/lib/commands";
 
 interface LessonToolbarProps {
   courseId: string;
-  moduleIndex: number;
   lessonIndex: number;
   totalLessons: number;
   lessonFile: string;
   initialCompleted: boolean;
+  /** Course-wide neighbours, computed on the server; null at either end of the course. */
+  prevHref: string | null;
+  nextHref: string | null;
 }
 
-// The prev/next + completion strip for article lessons. Video lessons get the
-// equivalent controls from VideoPlayer, which tracks completion by watch time.
+// The prev/next + completion strip for article, document and unplayable
+// lessons. Video lessons get the equivalent controls from VideoPlayer, which
+// tracks completion by watch time.
 export function LessonToolbar({
   courseId,
-  moduleIndex,
   lessonIndex,
   totalLessons,
   lessonFile,
   initialCompleted,
+  prevHref,
+  nextHref,
 }: LessonToolbarProps) {
   const [completed, setCompleted] = useState(initialCompleted);
   const [saving, setSaving] = useState(false);
@@ -31,7 +36,7 @@ export function LessonToolbar({
   // value rather than carrying the previous lesson's state over.
   useEffect(() => setCompleted(initialCompleted), [initialCompleted, lessonFile]);
 
-  async function markComplete() {
+  const markComplete = useCallback(async () => {
     if (completed || saving) return;
     setSaving(true);
     setCompleted(true);
@@ -47,27 +52,62 @@ export function LessonToolbar({
     } finally {
       setSaving(false);
     }
-  }
+  }, [completed, saving, courseId, lessonFile, router]);
 
-  function goToLesson(idx: number) {
-    router.push(`/course/${courseId}/${moduleIndex}/${idx}`);
-  }
+  const go = useCallback(
+    (href: string | null) => {
+      if (href) router.push(href);
+    },
+    [router]
+  );
+
+  // Latest handlers for the window listeners without re-binding them each render.
+  const handlersRef = useRef({ markComplete, go, prevHref, nextHref });
+  handlersRef.current = { markComplete, go, prevHref, nextHref };
+
+  useEffect(() => {
+    const onCommand = (e: Event) => {
+      const id = (e as CustomEvent<{ id?: string }>).detail?.id;
+      const h = handlersRef.current;
+      if (id === "next") h.go(h.nextHref);
+      else if (id === "prev") h.go(h.prevHref);
+      else if (id === "mark-complete") void h.markComplete();
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented) return;
+      if (isTypingTarget(e.target)) return;
+      const h = handlersRef.current;
+      if (e.key === "n" || e.key === "N") {
+        e.preventDefault();
+        h.go(h.nextHref);
+      } else if (e.key === "p" || e.key === "P") {
+        e.preventDefault();
+        h.go(h.prevHref);
+      }
+    };
+    window.addEventListener(CMS_COMMAND_EVENT, onCommand);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener(CMS_COMMAND_EVENT, onCommand);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, []);
 
   return (
     <div className="flex items-center gap-1 sm:gap-2 bg-[#1a1c26] border-b border-border px-2 sm:px-3 min-h-[44px]">
       <button
-        onClick={() => goToLesson(lessonIndex - 1)}
-        disabled={lessonIndex <= 1}
+        onClick={() => go(prevHref)}
+        disabled={!prevHref}
         className="p-2 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
-        title="Previous lesson"
+        title="Previous lesson (P)"
       >
         <SkipBack className="h-4 w-4" />
       </button>
       <button
-        onClick={() => goToLesson(lessonIndex + 1)}
-        disabled={lessonIndex >= totalLessons}
+        onClick={() => go(nextHref)}
+        disabled={!nextHref}
         className="p-2 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
-        title="Next lesson"
+        title="Next lesson (N)"
       >
         <SkipForward className="h-4 w-4" />
       </button>
@@ -91,9 +131,9 @@ export function LessonToolbar({
         {completed ? "Completed" : "Mark complete"}
       </button>
 
-      {lessonIndex < totalLessons && (
+      {nextHref && (
         <button
-          onClick={() => goToLesson(lessonIndex + 1)}
+          onClick={() => go(nextHref)}
           className="inline-flex items-center gap-1.5 rounded-md bg-[#e53e3e] px-2.5 py-1.5 text-[0.68rem] font-semibold text-white hover:bg-[#c53030] transition-colors"
         >
           Next
