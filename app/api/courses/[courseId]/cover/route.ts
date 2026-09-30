@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import fs from 'fs';
 import path from 'path';
 import { getCourseEntry, getCoursesPath } from '@/lib/courses';
 import { generatedCoverPath } from '@/lib/covers';
-import { etagMatches, statFile, streamFile, validatorHeaders } from '@/lib/file-serve';
+import { etagMatches, statFile, validatorHeaders } from '@/lib/file-serve';
 
 // Covers can be replaced in place, so a day with revalidation by ETag rather
 // than the archive's immutable year.
@@ -24,8 +25,18 @@ async function serve(req: NextRequest, p: string, mime: string): Promise<NextRes
   if (etagMatches(req, headers.ETag)) {
     return new NextResponse(null, { status: 304, headers });
   }
-  return new NextResponse(streamFile(p, req), {
-    headers: { ...headers, 'Content-Length': String(stat.size) },
+  // Covers are small (a generated WebP is ~40 KB at most, an original up to
+  // ~600 KB), so the body is read whole. Returning a Node read stream here made
+  // undici log ERR_INVALID_STATE ("ReadableStream is already closed") on
+  // every request in the standalone server.
+  let body: Buffer;
+  try {
+    body = await fs.promises.readFile(p);
+  } catch {
+    return null;
+  }
+  return new NextResponse(new Uint8Array(body), {
+    headers: { ...headers, 'Content-Length': String(body.length) },
   });
 }
 
