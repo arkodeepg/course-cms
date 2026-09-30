@@ -1,5 +1,5 @@
 import { CourseSummary } from "@/types/course";
-import { courseInitials, formatDuration, hueFor, percent } from "@/lib/format";
+import { courseInitials, formatDuration, hueFor, percent, plural } from "@/lib/format";
 
 // Everything both library card layouts derive from a CourseSummary.
 export function cardModel(course: CourseSummary) {
@@ -29,7 +29,7 @@ export function cardModel(course: CourseSummary) {
     courseId,
     title,
     href: `/course/${courseId}`,
-    lessonsLabel: `${totalLessons} lessons · ${moduleCount} ${moduleCount === 1 ? "module" : "modules"}`,
+    lessonsLabel: `${plural(totalLessons, "lesson")} · ${plural(moduleCount, "module")}`,
     duration: formatDuration(course.durationSeconds),
     missingCount: course.missingCount,
     completedPct,
@@ -53,7 +53,7 @@ export function CardMeta({ m }: { m: CardModel }) {
       <span>{m.lessonsLabel}</span>
       {m.duration && <span>· {m.duration}</span>}
       {m.missingCount > 0 && (
-        <span className="text-amber-400/80" title={`${m.missingCount} lessons were never downloaded`}>
+        <span className="text-amber-400/80" title={`${plural(m.missingCount, "lesson")} ${m.missingCount === 1 ? "was" : "were"} never downloaded`}>
           · {m.missingCount} missing
         </span>
       )}

@@ -15,7 +15,7 @@ import {
   libraryStats,
   sortCourses,
 } from "@/lib/library-sort";
-import { formatHours, relativeTime } from "@/lib/format";
+import { formatHours, relativeTime, plural } from "@/lib/format";
 
 interface LibraryViewProps {
   courses: CourseSummary[];
@@ -108,7 +108,7 @@ export function LibraryView({ courses, now }: LibraryViewProps) {
       <div className="mb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-snug">My Courses</h1>
         <p className="text-[0.72rem] text-muted-foreground mt-1" data-testid="library-stats">
-          {stats.courses} courses · {stats.lessons.toLocaleString("en")} lessons
+          {plural(stats.courses, "course")} · {plural(stats.lessons, "lesson")}
           {hours && <> · {hours} of video</>} · {stats.percentComplete}% complete
         </p>
       </div>
@@ -227,7 +227,7 @@ export function LibraryView({ courses, now }: LibraryViewProps) {
 
       {filter && (
         <p className="text-[0.68rem] text-muted-foreground mb-2" aria-live="polite">
-          {visible.length} of {courses.length} courses match
+          {visible.length} of {plural(courses.length, "course")} match
         </p>
       )}
 

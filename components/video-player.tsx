@@ -17,6 +17,7 @@ import {
   FileWarning,
   Play,
   Pause,
+  MoreHorizontal,
 } from "lucide-react";
 import { formatTimestampParam } from "@/lib/timestamp";
 import { PLAYBACK_SPEEDS, resolveResumePosition, stepSpeed } from "@/lib/playback";
@@ -177,6 +178,9 @@ export function VideoPlayer({
   const [volumeOpen, setVolumeOpen] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [speedOpen, setSpeedOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false); // mobile overflow menu
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [pipSupported, setPipSupported] = useState(false);
@@ -777,6 +781,22 @@ export function VideoPlayer({
   const effectiveVolume = muted ? 0 : volume;
   const VolumeIcon = effectiveVolume === 0 ? VolumeX : effectiveVolume < 0.5 ? Volume1 : Volume2;
 
+  // More menu: focus its first item on open; Esc (from anywhere) closes it and
+  // returns focus to the More button.
+  useEffect(() => {
+    if (!moreOpen) return;
+    moreMenuRef.current?.querySelector<HTMLElement>("button, input")?.focus();
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      e.stopPropagation();
+      setMoreOpen(false);
+      moreButtonRef.current?.focus();
+    };
+    document.addEventListener("keydown", onEsc, true);
+    return () => document.removeEventListener("keydown", onEsc, true);
+  }, [moreOpen]);
+
   return (
     <div ref={wrapperRef} className={`flex flex-col ${isFullscreen ? "h-full w-full bg-black" : ""}`}>
       <div className={`relative bg-black ${isFullscreen ? "flex-1 min-h-0" : ""}`}>
@@ -843,7 +863,7 @@ export function VideoPlayer({
         )}
       </div>
 
-      <div className="flex items-center gap-1 sm:gap-2 bg-surface-toolbar border-b border-border px-2 sm:px-3 min-h-[44px] shrink-0">
+      <div className="flex flex-wrap sm:flex-nowrap items-center gap-x-1 sm:gap-2 bg-surface-toolbar border-b border-border px-2 sm:px-3 min-h-[44px] shrink-0">
         <button
           onClick={() => goTo(prevHref)}
           disabled={!prevHref}
@@ -881,12 +901,12 @@ export function VideoPlayer({
           onChange={handleSeek}
           onPointerDown={startScrub}
           aria-label="Seek"
-          className="flex-1 h-1 rounded-full cursor-pointer appearance-none bg-white/10 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-brand"
+          className="order-first basis-full mt-3 mb-1 sm:order-none sm:basis-auto sm:m-0 flex-1 min-w-0 h-1 rounded-full cursor-pointer appearance-none bg-white/10 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-brand"
         />
 
         <span
           ref={timeRef}
-          className="text-[0.65rem] text-muted-foreground shrink-0 tabular-nums hidden sm:inline"
+          className="text-[0.65rem] text-muted-foreground shrink-0 tabular-nums mr-auto pl-1 sm:mr-0 sm:pl-0 whitespace-nowrap"
         >
           00:00 / 00:00
         </span>
@@ -894,7 +914,7 @@ export function VideoPlayer({
         {/* Speed picker */}
         <div className="relative shrink-0">
           <button
-            onClick={() => { setSpeedOpen((o) => !o); setVolumeOpen(false); }}
+            onClick={() => { setSpeedOpen((o) => !o); setVolumeOpen(false); setMoreOpen(false); }}
             className="text-[0.65rem] font-semibold tabular-nums w-9 h-9 flex items-center justify-center rounded transition-colors hover:text-foreground"
             style={{ color: speed !== 1 ? "hsl(var(--accent))" : "hsl(var(--muted-foreground))" }}
             title="Playback speed (< and >)"
@@ -921,8 +941,8 @@ export function VideoPlayer({
           )}
         </div>
 
-        {/* Volume control */}
-        <div className="relative shrink-0">
+        {/* Volume control (desktop; below sm it lives in the More menu) */}
+        <div className="relative shrink-0 hidden sm:block">
           <button
             onClick={() => { setVolumeOpen((o) => !o); setSpeedOpen(false); }}
             onDoubleClick={toggleMute}
@@ -974,7 +994,7 @@ export function VideoPlayer({
 
         <button
           onClick={copyLinkAtCurrentTime}
-          className="p-2 text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          className="hidden sm:inline-flex p-2 text-muted-foreground hover:text-foreground transition-colors shrink-0"
           title="Copy link at current time"
         >
           {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Link2 className="h-4 w-4" />}
@@ -983,17 +1003,98 @@ export function VideoPlayer({
         {pipSupported && (
           <button
             onClick={togglePip}
-            className={`p-2 transition-colors shrink-0 ${isPip ? "text-brand" : "text-muted-foreground hover:text-foreground"}`}
+            className={`hidden sm:inline-flex p-2 transition-colors shrink-0 ${isPip ? "text-brand" : "text-muted-foreground hover:text-foreground"}`}
             title="Picture-in-picture"
           >
             <PictureInPicture2 className="h-4 w-4" />
           </button>
         )}
 
+        {/* More menu: Auto next, Copy link, PiP and volume below the sm breakpoint */}
+        <div className="relative shrink-0 sm:hidden">
+          <button
+            ref={moreButtonRef}
+            onClick={() => { setMoreOpen((o) => !o); setSpeedOpen(false); setVolumeOpen(false); }}
+            className={`p-2 transition-colors ${moreOpen ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            title="More controls"
+            aria-label="More controls"
+            aria-haspopup="true"
+            aria-expanded={moreOpen}
+            aria-controls="player-more-menu"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </button>
+          {moreOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setMoreOpen(false)} />
+              <div
+                ref={moreMenuRef}
+                id="player-more-menu"
+                role="group"
+                aria-label="More player controls"
+                className="absolute bottom-full mb-1 right-0 z-20 w-52 max-w-[calc(100vw-1rem)] bg-surface-active border border-border rounded-lg shadow-lg py-1"
+              >
+                <button
+                  onClick={toggleAutoplayNext}
+                  role="switch"
+                  aria-checked={autoplayNext}
+                  className="w-full flex items-center justify-between px-3 py-2 text-[0.72rem] text-foreground hover:bg-surface-field transition-colors"
+                >
+                  <span>Auto next lesson</span>
+                  <span className={`text-[0.65rem] font-semibold uppercase ${autoplayNext ? "text-brand" : "text-muted-foreground"}`}>
+                    {autoplayNext ? "On" : "Off"}
+                  </span>
+                </button>
+                <button
+                  onClick={() => void copyLinkAtCurrentTime()}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-[0.72rem] text-foreground hover:bg-surface-field transition-colors"
+                >
+                  {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Link2 className="h-4 w-4" />}
+                  <span>{copied ? "Link copied" : "Copy link at current time"}</span>
+                </button>
+                {pipSupported && (
+                  <button
+                    onClick={() => { setMoreOpen(false); void togglePip(); }}
+                    aria-pressed={isPip}
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-[0.72rem] hover:bg-surface-field transition-colors ${isPip ? "text-brand" : "text-foreground"}`}
+                  >
+                    <PictureInPicture2 className="h-4 w-4" />
+                    <span>Picture-in-picture</span>
+                  </button>
+                )}
+                <div className="border-t border-border mt-1 px-3 pt-2 pb-1.5 flex items-center gap-2">
+                  <button
+                    onClick={toggleMute}
+                    className="shrink-0 p-1 -ml-1 text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label={muted || volume === 0 ? "Unmute" : "Mute"}
+                    title={muted || volume === 0 ? "Unmute" : "Mute"}
+                  >
+                    <VolumeIcon className="h-4 w-4" />
+                  </button>
+                  <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.02}
+                    value={effectiveVolume}
+                    onChange={handleVolumeChange}
+                    aria-label="Volume"
+                    className="flex-1 min-w-0 h-1 accent-brand cursor-pointer"
+                  />
+                  <span className="text-[0.65rem] text-muted-foreground tabular-nums w-8 text-right">
+                    {Math.round(effectiveVolume * 100)}%
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
         <button
           onClick={toggleFullscreen}
-          className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+          className="p-2 text-muted-foreground hover:text-foreground transition-colors shrink-0"
           title="Fullscreen (F)"
+          aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
         >
           {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
         </button>

@@ -75,16 +75,23 @@ const sample: PaletteIndex = {
   modules: [
     [0, 1, "Foundations"],
     [1, 1, "Offer"],
+    [1, 2, "Prospecting"],
   ],
   lessons: [
     [0, 1, 1, "The Billion Dollar CRO Mindset"],
     [0, 1, 2, "Heatmaps"],
     [1, 1, 1, "Build your offer"],
     [1, 1, 2, "Mindset for offers"],
+    [1, 1, 3, "Rest"],
+    [1, 2, 1, "Rest"],
+    [1, 2, 2, "Prospecting scripts"],
+    [0, 1, 3, "Prospecting for CRO"],
   ],
   resources: [
     [1, 1, "Offer worksheet", "01 Offer/worksheet.pdf", 1],
     [1, 0, "Swipe file", "swipe.zip", 0],
+    [1, 0, "Note", "note.pdf", 1],
+    [1, 0, "Must read", "must-read.pdf", 1],
   ],
   recent: [[1, 1, 2]],
 };
@@ -105,6 +112,35 @@ describe("palette model", () => {
     const lessons = search(prep, "larsen mindset", { pathname: "/" }).find((g) => g.id === "lessons");
     expect(lessons?.items.map((i) => i.title)).toEqual(["Mindset for offers"]);
     expect(lessons?.items[0].subtitle).toBe("Matthew Larsen - 10k Per Month · Offer");
+  });
+
+  test("a course-only query lists the course, not its lessons by subtitle", () => {
+    const groups = search(prep, "larsen", { pathname: "/" });
+    expect(groups[0].items[0].href).toBe("/course/matthew-larsen-10k-per-month");
+    const lessons = groups.find((g) => g.id === "lessons");
+    expect(lessons).toBeUndefined();
+    const pages = groups.find((g) => g.id === "pages")?.items.map((i) => i.href) ?? [];
+    expect(pages).toContain("/course/matthew-larsen-10k-per-month/2");
+  });
+
+  test("a course-only query lists no resources by subtitle alone", () => {
+    const res = search(prep, "larsen", { pathname: "/" }).find((g) => g.id === "resources");
+    expect(res).toBeUndefined();
+    const note = search(prep, "larsen note", { pathname: "/" }).find((g) => g.id === "resources");
+    expect(note?.items.map((i) => i.title)).toEqual(["Note"]);
+  });
+
+  test("course plus topic keeps only title hits in that course", () => {
+    const lessons = search(prep, "larsen prospecting", { pathname: "/" }).find((g) => g.id === "lessons");
+    const titles = lessons?.items.map((i) => i.title) ?? [];
+    expect(titles[0]).toBe("Prospecting scripts");
+    expect(titles).not.toContain("Rest"); // module "Prospecting" is not enough
+    expect(titles).not.toContain("Prospecting for CRO"); // other course
+  });
+
+  test("cro mindset still finds the mindset lesson first", () => {
+    const lessons = search(prep, "cro mindset", { pathname: "/" }).find((g) => g.id === "lessons");
+    expect(lessons?.items[0].title).toBe("The Billion Dollar CRO Mindset");
   });
 
   test("resources: viewable opens the viewer, others download", () => {
@@ -201,6 +237,30 @@ describe("performance", () => {
 
     const larsen = search(prep, "larsen", { pathname: "/" });
     expect(larsen[0].items[0].href).toBe("/course/matthew-larsen-10k-per-month");
+    // No subtitle-only resources for a course-name query ("Note", "cover").
+    const larsenRes = larsen.find((g) => g.id === "resources")?.items ?? [];
+    for (const it of larsenRes) {
+      if (/larsen/i.test(it.subtitle ?? "")) expect(normalize(it.title)).toContain("larsen");
+    }
+    // A real resource is still found by its own name.
+    const drift = raw.resources.find(([, , , path]) => path.endsWith("06-Use the Semantic Drift Analyzer.pdf"));
+    expect(drift).toBeDefined();
+    const hits = search(prep, drift![2], { pathname: "/" }).find((g) => g.id === "resources")?.items ?? [];
+    expect(hits.map((i) => i.title)).toContain(drift![2]);
+    expect(hits[0].subtitle).toMatch(/^Jesse Cunningham/);
+    // No subtitle-only lessons for a course-name query.
+    const larsenLessons = larsen.find((g) => g.id === "lessons")?.items ?? [];
+    for (const it of larsenLessons) {
+      // A Larsen lesson must earn its place by title; other courses only reach
+      // here through a fuzzy title match of their own.
+      if (/larsen/i.test(it.subtitle ?? "")) expect(normalize(it.title)).toContain("larsen");
+    }
+    expect(larsenLessons.length).toBeLessThanOrEqual(3);
+    const prospecting = search(prep, "larsen prospecting", { pathname: "/" }).find((g) => g.id === "lessons");
+    for (const it of prospecting?.items ?? []) {
+      expect(it.subtitle).toMatch(/Larsen/);
+      expect(normalize(it.title)).toMatch(/larsen|prospect/);
+    }
     const cro = search(prep, "cro mindset", { pathname: "/" }).find((g) => g.id === "lessons");
     expect(cro?.items[0].title).toMatch(/The Billion Dollar CRO Mindset$/);
     expect(cro?.items[0].subtitle).toMatch(/^Dylan Ander - CRO Masterclass · /);

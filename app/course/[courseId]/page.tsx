@@ -6,7 +6,7 @@ import { courseTitle } from "@/lib/utils";
 import { prisma } from "@/lib/db";
 import { Nav } from "@/components/nav";
 import { ModuleCard } from "@/components/module-card";
-import { formatDuration } from "@/lib/format";
+import { formatDuration, plural } from "@/lib/format";
 import type { Metadata } from "next";
 
 export const dynamic = 'force-dynamic';
@@ -57,7 +57,7 @@ export default async function ModuleListPage({ params }: Props) {
         </Link>
         <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-snug">{courseName}</h1>
         <p className="text-[0.72rem] text-muted-foreground mt-1 mb-5">
-          {lessonTotal} lessons
+          {plural(lessonTotal, "lesson")}
           {totalDuration && <> · {totalDuration}</>}
           {completedTotal > 0 && <> · {completedTotal} complete</>}
         </p>

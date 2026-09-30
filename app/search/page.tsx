@@ -3,6 +3,7 @@ import { LayoutList, LayoutGrid } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { MAX_LIMIT, SearchResult, searchLibrary } from "@/lib/search";
 import type { Metadata } from "next";
+import { plural } from "@/lib/format";
 
 interface Props {
   searchParams: { q?: string; view?: string };
@@ -43,8 +44,8 @@ export default async function SearchPage({ searchParams }: Props) {
           <>
             <div className="flex items-center justify-between mb-4">
               <p className="text-[0.7rem] uppercase tracking-widest text-muted-foreground">
-                {total > results.length ? `Top ${results.length} of ${total}` : total} result
-                {total !== 1 ? "s" : ""} for &ldquo;{q}&rdquo;
+                {total > results.length ? `Top ${results.length} of ${total}` : total}{" "}
+                {plural(total, "result", "results", false)} for &ldquo;{q}&rdquo;
               </p>
               <div className="flex items-center gap-1">
                 <Link

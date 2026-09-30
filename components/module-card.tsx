@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Category } from "@/types/course";
 import { lessonsFlat } from "@/lib/utils";
-import { categoryDurationSeconds, formatDuration } from "@/lib/format";
+import { categoryDurationSeconds, formatDuration, plural } from "@/lib/format";
 
 interface ModuleCardProps {
   courseId: string;
@@ -57,7 +57,7 @@ export function ModuleCard({ courseId, category, completedCount, startedCount }:
       </div>
 
       <div className="text-[0.68rem] text-muted-foreground shrink-0 text-right">
-        <div>{total} lessons</div>
+        <div>{plural(total, "lesson")}</div>
         {duration && <div className="tabular-nums">{duration}</div>}
       </div>
     </Link>

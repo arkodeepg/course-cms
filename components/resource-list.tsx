@@ -31,6 +31,7 @@ import {
   kindCounts,
 } from "@/lib/resource-kinds";
 import { LessonArticle } from "@/components/lesson-article";
+import { plural } from "@/lib/format";
 
 export interface ResourceItem {
   name: string;
@@ -402,7 +403,7 @@ export function ResourceList({ groups }: { groups: ResourceGroupView[] }) {
         )}
         {(kindFilter !== null || q) && (
           <p className="text-[0.68rem] text-muted-foreground" aria-live="polite">
-            {visibleCount} of {totalItems} files
+            {visibleCount} of {plural(totalItems, "file")}
           </p>
         )}
       </div>

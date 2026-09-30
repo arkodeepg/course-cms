@@ -6,6 +6,7 @@ import {
   formatHours,
   hueFor,
   percent,
+  plural,
   relativeTime,
   stringHash,
   sumDurations,
@@ -141,5 +142,24 @@ describe('percent', () => {
   it('rounds and guards zero', () => {
     expect(percent(1, 3)).toBe(33);
     expect(percent(0, 0)).toBe(0);
+  });
+});
+
+describe('plural', () => {
+  it('uses the singular only for exactly one', () => {
+    expect(plural(1, 'lesson')).toBe('1 lesson');
+    expect(plural(0, 'lesson')).toBe('0 lessons');
+    expect(plural(2, 'module')).toBe('2 modules');
+    expect(plural(1, 'section')).toBe('1 section');
+    expect(plural(5, 'resource')).toBe('5 resources');
+    expect(plural(1, 'file')).toBe('1 file');
+  });
+  it('groups thousands and takes an irregular plural', () => {
+    expect(plural(1234, 'lesson')).toBe('1,234 lessons');
+    expect(plural(2, 'match', 'matches')).toBe('2 matches');
+  });
+  it('can return the noun alone', () => {
+    expect(plural(1, 'result', 'results', false)).toBe('result');
+    expect(plural(3, 'result', 'results', false)).toBe('results');
   });
 });

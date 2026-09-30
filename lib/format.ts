@@ -129,3 +129,16 @@ export function categoryDurationSeconds(category: Timed & { sections: { lessons:
   }
   return sumDurations(category.sections.flatMap((s) => s.lessons.map((l) => l.duration_seconds)));
 }
+
+// Singular or plural noun for a count: plural(1, "lesson") is "1 lesson",
+// plural(3, "lesson") is "3 lessons". Irregular plurals pass their own form.
+// `countLabel` false returns the noun alone, for "4 of 12 files" style lines.
+export function plural(
+  n: number,
+  singular: string,
+  pluralForm: string = singular + "s",
+  countLabel = true
+): string {
+  const word = n === 1 ? singular : pluralForm;
+  return countLabel ? `${n.toLocaleString("en")} ${word}` : word;
+}

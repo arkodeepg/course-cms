@@ -5,7 +5,7 @@ import { getCourseEntry, getLessonsFlat, parseLessonDescription } from "@/lib/co
 import { courseTitle } from "@/lib/utils";
 import { prisma } from "@/lib/db";
 import { Nav } from "@/components/nav";
-import { categoryDurationSeconds, formatClock, formatDuration } from "@/lib/format";
+import { categoryDurationSeconds, formatClock, formatDuration, plural } from "@/lib/format";
 import { sectionsToOpen } from "@/lib/sections";
 import type { Metadata } from "next";
 
@@ -92,7 +92,7 @@ export default async function ModuleDetailPage({ params }: Props) {
           </h1>
           <div className="flex items-center gap-3 mt-2">
             <span className="text-[0.72rem] text-muted-foreground">
-              {completedCount} of {flatLessons.length} lessons complete
+              {completedCount} of {plural(flatLessons.length, "lesson")} complete
               {moduleDuration && <> · {moduleDuration}</>}
             </span>
             <div className="h-[3px] w-32 rounded-full bg-secondary">

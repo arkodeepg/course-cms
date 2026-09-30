@@ -1,7 +1,7 @@
 // Command palette model: payload shape, item building, search and actions.
 // Client safe (no fs, no Prisma). The server half lives in lib/palette-index.ts.
 
-import { normalize, rank, type Field } from "@/lib/fuzzy";
+import { normalize, rank, type Field, type RankOptions } from "@/lib/fuzzy";
 import { isViewable } from "@/lib/resource-kinds";
 
 // ---------------------------------------------------------------------------
@@ -370,15 +370,18 @@ export function search(prep: PreparedIndex | null, query: string, ctx: PaletteCo
   }
 
   const scores = new Map<PaletteItem, number>();
-  const push = (id: string, label: string, list: PaletteItem[], limit: number) => {
-    const ranked = rank(list, get, q, limit);
+  const push = (id: string, label: string, list: PaletteItem[], limit: number, opts?: RankOptions) => {
+    const ranked = rank(list, get, q, limit, opts);
     for (const r of ranked) scores.set(r.item, r.score);
     if (ranked.length) groups.push({ id, label, items: ranked.map((r) => r.item) });
   };
   if (prep) {
     push("courses", "Courses", prep.courses, GROUP_LIMITS.courses);
-    push("lessons", "Lessons", prep.lessons, GROUP_LIMITS.lessons);
-    push("resources", "Resources", prep.resources, GROUP_LIMITS.resources);
+    // A lesson needs a title hit: "larsen" alone lists the course, not every
+    // lesson in it; "larsen prospecting" still narrows via the course name.
+    push("lessons", "Lessons", prep.lessons, GROUP_LIMITS.lessons, { requirePrimary: true });
+    // Same rule for resources: a token must hit the file name itself.
+    push("resources", "Resources", prep.resources, GROUP_LIMITS.resources, { requirePrimary: true });
     // Pages are ranked after dropping those that duplicate a course row.
     push("pages", "Pages", prep.pages, GROUP_LIMITS.pages + GROUP_LIMITS.courses);
   }

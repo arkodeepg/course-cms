@@ -128,22 +128,47 @@ export interface Field {
   weight: number;
 }
 
+export interface RankOptions {
+  // At least one query token must match the primary field (the title) itself
+  // (a subsequence-only title match does not count when that token is a plain
+  // substring of another field).
+  // Stops a query that only names the course from listing every lesson in it
+  // ("larsen"), while "larsen prospecting" still narrows by course plus title.
+  requirePrimary?: boolean;
+}
+
 // Score a query (already tokenised) against an item's fields. The first field
-// is the primary one (the title). Returns 0 when any token misses everywhere.
-export function scoreFields(tokens: string[], fields: Field[], phrase?: string): number {
+// is the primary one (the title). Returns 0 when any token misses everywhere,
+// or, with `requirePrimary`, when no token matches the title.
+export function scoreFields(
+  tokens: string[],
+  fields: Field[],
+  phrase?: string,
+  opts?: RankOptions
+): number {
   if (tokens.length === 0) return 0;
+  const primary = fields[0]?.text ?? "";
   let total = 0;
+  let primaryHit = false;
   for (const tok of tokens) {
     let best = 0;
-    for (const f of fields) {
+    for (let i = 0; i < fields.length; i++) {
+      const f = fields[i];
       if (!f.text) continue;
-      const sc = scoreToken(tok, f.text) * f.weight;
+      const raw = scoreToken(tok, f.text);
+      if (i === 0 && raw > 0 && !primaryHit) {
+        // A scattered (subsequence) title match is coincidence when the token
+        // sits whole in the course or module text: "larsen" vs "layout intro
+        // offer presentation" in a Larsen course.
+        primaryHit = f.text.includes(tok) || !fields.some((o, j) => j > 0 && o.text.includes(tok));
+      }
+      const sc = raw * f.weight;
       if (sc > best) best = sc;
     }
     if (best === 0) return 0;
     total += best;
   }
-  const primary = fields[0]?.text ?? "";
+  if (opts?.requirePrimary && !primaryHit) return 0;
   if (phrase && tokens.length > 1 && primary.includes(phrase)) total += 10;
   // Shorter titles win ties.
   return Math.max(total * 0.5, total - primary.length * 0.02);
@@ -160,7 +185,8 @@ export function rank<T>(
   items: readonly T[],
   getFields: (item: T) => Field[],
   query: string,
-  limit = Infinity
+  limit = Infinity,
+  opts?: RankOptions
 ): Ranked<T>[] {
   const tokens = tokenize(query);
   if (tokens.length === 0) return [];
@@ -169,7 +195,7 @@ export function rank<T>(
   tokens.sort((a, b) => b.length - a.length);
   const out: Ranked<T>[] = [];
   for (const item of items) {
-    const score = scoreFields(tokens, getFields(item), phrase);
+    const score = scoreFields(tokens, getFields(item), phrase, opts);
     if (score <= 0) continue;
     if (out.length >= limit && score <= out[out.length - 1].score) continue;
     let i = out.length;
