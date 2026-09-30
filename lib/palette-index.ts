@@ -2,6 +2,7 @@
 // /api/palette from the course folders plus recent progress rows.
 
 import path from "path";
+import { gzipSync } from "zlib";
 import {
   collectResourceGroups,
   courseHasResources,
@@ -82,4 +83,32 @@ export function buildPaletteIndex(
   }
 
   return { v: 1, root, courses, modules, lessons, resources, recent };
+}
+
+// ---------------------------------------------------------------------------
+// Compression. The standalone server does not gzip route handler responses, so
+// the palette route compresses itself. The gzipped body is cached by ETag, so
+// it is compressed once per content change rather than per request.
+
+// True when an Accept-Encoding header allows gzip (q > 0, or `*`).
+export function acceptsGzip(header: string | null | undefined): boolean {
+  if (!header) return false;
+  let star: boolean | null = null;
+  for (const part of header.toLowerCase().split(",")) {
+    const [name, ...params] = part.trim().split(";");
+    const q = params.map((p) => p.trim()).find((p) => p.startsWith("q="));
+    const allowed = q ? Number(q.slice(2)) > 0 : true;
+    if (name.trim() === "gzip" || name.trim() === "x-gzip") return allowed;
+    if (name.trim() === "*") star = allowed;
+  }
+  return star === true;
+}
+
+let gzipCache: { etag: string; buf: Buffer } | null = null;
+
+export function gzipForEtag(etag: string, body: string): Buffer {
+  if (gzipCache && gzipCache.etag === etag) return gzipCache.buf;
+  const buf = gzipSync(Buffer.from(body, "utf8"), { level: 6 });
+  gzipCache = { etag, buf };
+  return buf;
 }
