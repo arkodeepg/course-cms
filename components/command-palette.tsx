@@ -374,7 +374,7 @@ export function CommandPalette() {
           // Clicking empty space would blur the input and lose the key handling.
           if (!(e.target as HTMLElement).closest("input, button")) e.preventDefault();
         }}
-        className="flex w-full max-w-xl max-h-[75vh] flex-col overflow-hidden rounded-lg border border-border bg-[#1a1c26] shadow-2xl"
+        className="flex w-full max-w-xl max-h-[75vh] flex-col overflow-hidden rounded-lg border border-border bg-surface-toolbar shadow-2xl"
       >
         <div className="flex items-center gap-2 border-b border-border px-3">
           <Search className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
@@ -396,7 +396,7 @@ export function CommandPalette() {
             autoComplete="off"
             className="flex-1 bg-transparent py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
-          <kbd className="hidden sm:inline rounded border border-border bg-[#252532] px-1.5 py-0.5 text-[0.6rem] text-muted-foreground">
+          <kbd className="hidden sm:inline rounded border border-border bg-surface-field px-1.5 py-0.5 text-[0.65rem] text-muted-foreground">
             Esc
           </kbd>
         </div>
@@ -416,7 +416,7 @@ export function CommandPalette() {
                 <ArrowLeft className="h-3.5 w-3.5" />
                 Back
               </button>
-              <span className="text-[0.62rem] uppercase tracking-widest text-muted-foreground">
+              <span className="text-[0.65rem] uppercase tracking-widest text-muted-foreground">
                 Player keyboard shortcuts
               </span>
             </div>
@@ -424,7 +424,7 @@ export function CommandPalette() {
               {PLAYER_SHORTCUTS.map(([keys, what]) => (
                 <li key={keys} className="flex items-center justify-between gap-3 px-3 py-2">
                   <span className="text-[0.78rem] text-foreground">{what}</span>
-                  <kbd className="shrink-0 rounded border border-border bg-[#252532] px-1.5 py-0.5 text-[0.65rem] text-muted-foreground">
+                  <kbd className="shrink-0 rounded border border-border bg-surface-field px-1.5 py-0.5 text-[0.65rem] text-muted-foreground">
                     {keys}
                   </kbd>
                 </li>
@@ -449,7 +449,7 @@ export function CommandPalette() {
               <div key={g.id} role="group" aria-labelledby={`cmdk-group-${g.id}`} className="py-1">
                 <div
                   id={`cmdk-group-${g.id}`}
-                  className="flex items-center gap-1.5 px-4 pb-1 pt-1.5 text-[0.6rem] font-semibold uppercase tracking-widest text-muted-foreground"
+                  className="flex items-center gap-1.5 px-4 pb-1 pt-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground"
                 >
                   {g.id === "recent" && <History className="h-3 w-3" aria-hidden />}
                   {g.label}
@@ -477,14 +477,14 @@ export function CommandPalette() {
                       className={cn(
                         "mx-1.5 flex cursor-pointer items-center gap-3 rounded-md px-2.5 py-2",
                         selected
-                          ? "bg-secondary text-foreground ring-1 ring-inset ring-[#e53e3e]/60"
+                          ? "bg-secondary text-foreground ring-1 ring-inset ring-brand/60"
                           : "text-foreground/90"
                       )}
                     >
                       <Icon
                         className={cn(
                           "h-4 w-4 shrink-0",
-                          selected ? "text-[#e53e3e]" : "text-muted-foreground"
+                          selected ? "text-brand" : "text-muted-foreground"
                         )}
                         aria-hidden
                       />
@@ -495,7 +495,7 @@ export function CommandPalette() {
                         )}
                       </span>
                       {item.hint && (
-                        <kbd className="shrink-0 rounded border border-border bg-[#252532] px-1.5 py-0.5 text-[0.6rem] text-muted-foreground">
+                        <kbd className="shrink-0 rounded border border-border bg-surface-field px-1.5 py-0.5 text-[0.65rem] text-muted-foreground">
                           {item.hint}
                         </kbd>
                       )}
@@ -508,7 +508,7 @@ export function CommandPalette() {
           </div>
         )}
 
-        <div className="hidden sm:flex items-center gap-4 border-t border-border px-3 py-2 text-[0.62rem] text-muted-foreground">
+        <div className="hidden sm:flex items-center gap-4 border-t border-border px-3 py-2 text-[0.65rem] text-muted-foreground">
           <span><Kbd>↑</Kbd><Kbd>↓</Kbd> navigate</span>
           <span><Kbd>Enter</Kbd> open</span>
           <span><Kbd>Ctrl/⌘ Enter</Kbd> new tab</span>
@@ -522,6 +522,6 @@ export function CommandPalette() {
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="mr-1 rounded border border-border bg-[#252532] px-1 py-px text-[0.58rem]">{children}</kbd>
+    <kbd className="mr-1 rounded border border-border bg-surface-field px-1 py-px text-[0.65rem]">{children}</kbd>
   );
 }

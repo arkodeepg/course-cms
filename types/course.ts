@@ -63,6 +63,8 @@ export interface CourseSummary {
   startedCount: number;
   missingCount: number;
   resumeHref: string | null;
+  // Title of the lesson resumeHref points at, for the Continue strip.
+  resumeLessonTitle: string | null;
   lastActiveAt: string | null;
   durationSeconds: number | null;
 }

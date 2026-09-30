@@ -95,11 +95,12 @@ describe('course summaries', () => {
       startedCount: 1,
       missingCount: 1,
       resumeHref: '/course/matthew-larsen-10k-per-month/1/2',
+      resumeLessonTitle: expect.any(String),
       lastActiveAt: t(20).toISOString(),
       durationSeconds: null,
     });
     expect(cro).toMatchObject({ hasCover: true, totalLessons: 3, moduleCount: 1, startedCount: 0, durationSeconds: 5400 });
-    expect(empty).toMatchObject({ title: 'Empty', resumeHref: null, lastActiveAt: null });
+    expect(empty).toMatchObject({ title: 'Empty', resumeHref: null, resumeLessonTitle: null, lastActiveAt: null });
   });
 
   it('sorts most recently active first and keeps discovery order for the rest', () => {
@@ -116,7 +117,7 @@ describe('course summaries', () => {
     expect(Object.keys(s).sort()).toEqual(
       [
         'completedCount', 'courseId', 'durationSeconds', 'hasCover', 'lastActiveAt', 'missingCount',
-        'moduleCount', 'resumeHref', 'startedCount', 'title', 'totalLessons',
+        'moduleCount', 'resumeHref', 'resumeLessonTitle', 'startedCount', 'title', 'totalLessons',
       ].sort()
     );
   });

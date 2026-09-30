@@ -3,8 +3,12 @@ import { buildCourseSummaries } from "@/lib/library";
 import { prisma } from "@/lib/db";
 import { Nav } from "@/components/nav";
 import { LibraryView } from "@/components/library-view";
+import type { Metadata } from "next";
 
 export const dynamic = 'force-dynamic';
+
+// Same segment as the root layout, so its title template does not apply here.
+export const metadata: Metadata = { title: { absolute: "My Courses | CourseVault" } };
 
 export default async function LibraryPage() {
   const courses = discoverCourses();
@@ -28,7 +32,7 @@ export default async function LibraryPage() {
             <code className="text-xs">_index.json</code>.
           </p>
         ) : (
-          <LibraryView courses={summaries} />
+          <LibraryView courses={summaries} now={Date.now()} />
         )}
       </main>
     </div>

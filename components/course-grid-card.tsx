@@ -3,127 +3,64 @@
 import { useState } from "react";
 import Link from "next/link";
 import { CourseSummary } from "@/types/course";
+import { CardMeta, CardProgress, cardModel } from "@/components/course-card-shared";
 
 interface CourseGridCardProps {
   course: CourseSummary;
 }
 
-function thumbGradient(courseId: string): string {
-  const h = courseId.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-  const hue = h % 360;
-  return `hsl(${hue} 50% 10%)`;
-}
-
-function thumbTextColor(courseId: string): string {
-  const h = courseId.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-  const hue = h % 360;
-  return `hsl(${hue} 60% 50%)`;
-}
-
-function courseInitials(title: string): string {
-  return title
-    .split(/[\s\-–]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? "")
-    .join("");
-}
-
+// Grid layout. Same stretched-link structure as CourseCard: one primary link
+// covers the card, the action link sits above it.
 export function CourseGridCard({ course }: CourseGridCardProps) {
-  const {
-    courseId,
-    title: name,
-    hasCover,
-    totalLessons,
-    moduleCount,
-    completedCount,
-    startedCount,
-    resumeHref,
-  } = course;
-  const completedPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
-  const startedPct = totalLessons > 0 ? Math.round((startedCount / totalLessons) * 100) : 0;
-  const allDone = completedPct === 100;
-  const hasProgress = resumeHref !== null;
-
-  let statusLabel = "Not started";
-  if (allDone) statusLabel = "Completed";
-  else if (completedCount > 0) statusLabel = `${completedCount} complete`;
-  else if (startedCount > 0) statusLabel = `${startedCount} in progress`;
-
-  const resumeActionHref = allDone
-    ? `/course/${courseId}/1/1`
-    : hasProgress
-    ? resumeHref!
-    : `/course/${courseId}/1/1`;
-  const actionLabel = allDone ? "Rewatch" : hasProgress ? "Resume" : "Start";
-
+  const m = cardModel(course);
   const [imgError, setImgError] = useState(false);
 
   return (
-    <div className="flex flex-col rounded-lg border border-border bg-card overflow-hidden hover:border-border/80 transition-colors">
-      {/* Thumbnail */}
-      <Link href={`/course/${courseId}`} className="block">
-        {hasCover && !imgError ? (
-          <img
-            src={`/api/courses/${courseId}/cover`}
-            alt={name}
-            className="h-36 w-full object-cover block"
-            onError={() => setImgError(true)}
-          />
-        ) : (
-          <div
-            className="h-36 flex items-center justify-center"
-            style={{ background: thumbGradient(courseId) }}
-          >
-            <span
-              className="text-4xl font-black tracking-tight select-none"
-              style={{ color: thumbTextColor(courseId) }}
-            >
-              {courseInitials(name)}
-            </span>
-          </div>
-        )}
-      </Link>
-
-      {/* Progress bar — full width, flush under thumbnail */}
-      <div className="h-[3px] w-full bg-secondary relative overflow-hidden">
-        {startedPct > 0 && (
-          <div
-            className="absolute inset-y-0 left-0"
-            style={{ width: `${completedPct + startedPct}%`, background: "hsl(0 72% 30%)" }}
-          />
-        )}
-        <div
-          className="absolute inset-y-0 left-0 transition-all"
-          style={{
-            width: `${completedPct}%`,
-            background: allDone ? "hsl(150 42% 30%)" : "hsl(0 72% 51%)",
-          }}
+    <div className="relative flex flex-col rounded-lg border border-border bg-card overflow-hidden hover:border-muted-foreground/40 transition-colors">
+      {course.hasCover && !imgError ? (
+        // Decorative: the title is right below it.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={`/api/courses/${m.courseId}/cover`}
+          alt=""
+          className="h-36 w-full object-cover block"
+          onError={() => setImgError(true)}
         />
+      ) : (
+        <div
+          aria-hidden="true"
+          className="h-36 flex items-center justify-center"
+          style={{ background: m.thumbBg }}
+        >
+          <span
+            className="text-4xl font-black tracking-tight select-none"
+            style={{ color: m.thumbFg }}
+          >
+            {m.initials}
+          </span>
+        </div>
+      )}
+
+      <div className="flex-1 flex flex-col px-3 pt-3 pb-2">
+        <Link
+          href={m.href}
+          title={m.title}
+          className="stretched-link text-[0.82rem] font-semibold text-foreground leading-snug line-clamp-2"
+        >
+          {m.title}
+        </Link>
+        <CardMeta m={m} />
+        <div className="text-[0.65rem] text-muted-foreground mt-0.5">{m.statusLabel}</div>
+        <CardProgress m={m} className="mt-2" />
       </div>
 
-      {/* Info */}
-      <Link href={`/course/${courseId}`} className="flex-1 flex flex-col px-3 pt-3 pb-2">
-        <div className="text-[0.82rem] font-semibold text-foreground leading-snug line-clamp-2">
-          {name}
-        </div>
-        <div className="text-[0.65rem] text-muted-foreground mt-1">
-          {totalLessons} lessons · {moduleCount} modules
-        </div>
-        <div className="text-[0.62rem] text-muted-foreground/70 mt-0.5">{statusLabel}</div>
-      </Link>
-
-      {/* Action button */}
       <div className="px-3 pb-3">
         <Link
-          href={resumeActionHref}
-          className="block w-full text-center rounded py-1.5 text-xs font-semibold transition-opacity hover:opacity-80"
-          style={{
-            background: allDone ? "#2d3a2d" : hasProgress ? "hsl(150 42% 30%)" : "hsl(0 72% 51%)",
-            color: allDone ? "#6a9a6a" : "white",
-          }}
+          href={m.actionHref}
+          aria-label={`${m.actionLabel} ${m.title}`}
+          className={`relative z-10 block w-full text-center rounded py-1.5 text-xs font-semibold transition-opacity hover:opacity-80 ${m.actionClass}`}
         >
-          {actionLabel}
+          {m.actionLabel}
         </Link>
       </div>
     </div>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LayoutList, LayoutGrid } from "lucide-react";
 import { Nav } from "@/components/nav";
 import { MAX_LIMIT, SearchResult, searchLibrary } from "@/lib/search";
+import type { Metadata } from "next";
 
 interface Props {
   searchParams: { q?: string; view?: string };
@@ -15,6 +16,11 @@ function groupByModule(results: SearchResult[]): Map<string, SearchResult[]> {
     map.get(key)!.push(r);
   }
   return map;
+}
+
+export function generateMetadata({ searchParams }: Props): Metadata {
+  const q = (searchParams.q ?? "").trim();
+  return { title: q ? `Search: ${q}` : "Search" };
 }
 
 export default async function SearchPage({ searchParams }: Props) {
@@ -67,7 +73,7 @@ export default async function SearchPage({ searchParams }: Props) {
 
                 return (
                   <div key={key}>
-                    <div className="text-xs font-semibold text-[#e53e3e] mb-1">
+                    <div className="text-xs font-semibold text-brand mb-1">
                       {courseName} · {first.categoryName}
                     </div>
                     <div className={view === "grid" ? "grid grid-cols-2 gap-2" : "flex flex-col gap-1"}>

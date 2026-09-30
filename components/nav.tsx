@@ -17,7 +17,7 @@ export function Nav({ breadcrumb }: NavProps) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 shrink-0 border-b border-border bg-[#16181f]">
+    <header className="sticky top-0 z-50 shrink-0 border-b border-border bg-surface-nav">
       <div className="flex items-center gap-3 px-3 sm:px-6 py-3">
         <Link href="/" className="text-sm font-bold tracking-wide text-white shrink-0">
           CourseVault
@@ -39,11 +39,11 @@ export function Nav({ breadcrumb }: NavProps) {
           onClick={openCommandPalette}
           aria-haspopup="dialog"
           aria-keyshortcuts="Control+K Meta+K"
-          className="hidden sm:flex flex-1 max-w-sm ml-auto items-center gap-2 rounded-md border border-border bg-[#252532] py-1.5 pl-2.5 pr-2 text-xs text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="hidden sm:flex flex-1 max-w-sm ml-auto items-center gap-2 rounded-md border border-border bg-surface-field py-1.5 pl-2.5 pr-2 text-xs text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
           <Search className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1 text-left truncate">Search lessons, pages, tools…</span>
-          <kbd className="rounded border border-border bg-[#1a1c26] px-1.5 py-px text-[0.6rem]">
+          <kbd className="rounded border border-border bg-surface-toolbar px-1.5 py-px text-[0.65rem]">
             {shortcut}
           </kbd>
         </button>

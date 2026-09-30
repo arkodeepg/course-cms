@@ -1,0 +1,178 @@
+{
+  "course": "creative-portfolios-a-powerful-visual-language-for-brands",
+  "title": "Creative Portfolios A powerful visual language for brands",
+  "total_lessons": 9,
+  "downloaded": 9,
+  "missing": 0,
+  "categories": [
+    {
+      "index": 1,
+      "name": "Lessons",
+      "folder": "",
+      "sections": [
+        {
+          "index": 1,
+          "name": "Lessons",
+          "folder": "",
+          "lessons": [
+            {
+              "index": 1,
+              "name": "lesson1",
+              "url": "",
+              "file": "lesson1.mp4",
+              "status": "downloaded",
+              "has_description": false,
+              "resources": [
+                {
+                  "name": "code",
+                  "file": "code.zip"
+                }
+              ],
+              "size_bytes": 69270011,
+              "duration_seconds": 204.44
+            },
+            {
+              "index": 2,
+              "name": "lesson2",
+              "url": "",
+              "file": "lesson2.mp4",
+              "status": "downloaded",
+              "has_description": false,
+              "resources": [
+                {
+                  "name": "code",
+                  "file": "code.zip"
+                }
+              ],
+              "size_bytes": 36751181,
+              "duration_seconds": 255.36
+            },
+            {
+              "index": 3,
+              "name": "lesson3",
+              "url": "",
+              "file": "lesson3.mp4",
+              "status": "downloaded",
+              "has_description": false,
+              "resources": [
+                {
+                  "name": "code",
+                  "file": "code.zip"
+                }
+              ],
+              "size_bytes": 56968569,
+              "duration_seconds": 681.08
+            },
+            {
+              "index": 4,
+              "name": "lesson4",
+              "url": "",
+              "file": "lesson4.mp4",
+              "status": "downloaded",
+              "has_description": false,
+              "resources": [
+                {
+                  "name": "code",
+                  "file": "code.zip"
+                }
+              ],
+              "size_bytes": 111189784,
+              "duration_seconds": 381.24
+            },
+            {
+              "index": 5,
+              "name": "lesson5",
+              "url": "",
+              "file": "lesson5.mp4",
+              "status": "downloaded",
+              "has_description": false,
+              "resources": [
+                {
+                  "name": "code",
+                  "file": "code.zip"
+                }
+              ],
+              "size_bytes": 91467360,
+              "duration_seconds": 887.43
+            },
+            {
+              "index": 6,
+              "name": "lesson6",
+              "url": "",
+              "file": "lesson6.mp4",
+              "status": "downloaded",
+              "has_description": false,
+              "resources": [
+                {
+                  "name": "code",
+                  "file": "code.zip"
+                }
+              ],
+              "size_bytes": 146663256,
+              "duration_seconds": 780.3
+            },
+            {
+              "index": 7,
+              "name": "lesson7",
+              "url": "",
+              "file": "lesson7.mp4",
+              "status": "downloaded",
+              "has_description": false,
+              "resources": [
+                {
+                  "name": "code",
+                  "file": "code.zip"
+                }
+              ],
+              "size_bytes": 40000841,
+              "duration_seconds": 690.92
+            },
+            {
+              "index": 8,
+              "name": "lesson8",
+              "url": "",
+              "file": "lesson8.mp4",
+              "status": "downloaded",
+              "has_description": false,
+              "resources": [
+                {
+                  "name": "code",
+                  "file": "code.zip"
+                }
+              ],
+              "size_bytes": 68940515,
+              "duration_seconds": 911.6
+            },
+            {
+              "index": 9,
+              "name": "lesson9",
+              "url": "",
+              "file": "lesson9.mp4",
+              "status": "downloaded",
+              "has_description": false,
+              "resources": [
+                {
+                  "name": "code",
+                  "file": "code.zip"
+                }
+              ],
+              "size_bytes": 46935561,
+              "duration_seconds": 185.67
+            }
+          ],
+          "duration_seconds": 4978.04
+        }
+      ],
+      "duration_seconds": 4978.04
+    }
+  ],
+  "resources": [
+    {
+      "name": "Project – Awwwards",
+      "file": "Project – Awwwards.fig",
+      "path": "code/Project – Awwwards.fig"
+    }
+  ],
+  "duration_seconds": 4978.04,
+  "total_size_bytes": 668187078
+}

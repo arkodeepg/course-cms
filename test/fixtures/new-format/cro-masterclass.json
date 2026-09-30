@@ -1,0 +1,474 @@
+{
+  "course": "cro-masterclass",
+  "total_lessons": 31,
+  "downloaded": 31,
+  "missing": 0,
+  "categories": [
+    {
+      "index": 1,
+      "name": "[MODULE 1] Welcome to the CRO Masterclass!\n\nI’ve optimized over $5B in online revenue. This course gives you the exact playbook on the mindset, research (BDF), and clean execution you should take so your website sucks less every week.",
+      "folder": "01 - [MODULE 1] Welcome to the CRO Masterclass!",
+      "sections": [
+        {
+          "index": 1,
+          "name": "[MODULE 1] Welcome to the CRO Masterclass!\n\nI’ve optimized over $5B in online revenue. This course gives you the exact playbook on the mindset, research (BDF), and clean execution you should take so your website sucks less every week.",
+          "folder": "01 - [MODULE 1] Welcome to the CRO Masterclass!",
+          "lessons": [
+            {
+              "index": 1,
+              "name": "Intro - How to Use the Masterclass\n\nWelcome! Here's a quick orientation so you see wins fast. I'll show you how to pace the course, where the templates live, and how to apply each lesson to your site.\n\nBillion Dollar Data Funnel Spreadsheet Link (https://docs.google.com/spreadsheets/d/1Y44sDdvXAjKwBME8JvtPlDpJGSjuFUoWyhYlN7Xptpc/edit?usp=sharing)",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158777896/posts/2192212759",
+              "file": "01 - Intro - How to Use the Masterclass.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 41089045,
+              "duration_seconds": 144.23
+            }
+          ],
+          "duration_seconds": 144.23
+        }
+      ],
+      "duration_seconds": 144.23
+    },
+    {
+      "index": 2,
+      "name": "[MODULE 2] The Foundations of CRO\n\nBefore we touch pixels, we fix how you think. Your website always sucks and that’s the point. We’ll use that mentality to compound small wins.",
+      "folder": "02 - [MODULE 2] The Foundations of CRO",
+      "sections": [
+        {
+          "index": 1,
+          "name": "Your New CRO Mindset",
+          "folder": "01 - 2. Your New CRO Mindset",
+          "lessons": [
+            {
+              "index": 1,
+              "name": "Lesson 2.1 - The Billion Dollar CRO Mindset\n\nBig idea: CRO isn’t “conversion rate optimization,\" it’s business optimization. Focus on moving more people from the actual journey to the optimal journey that buyers naturally take.\n\nKey points:\n\n- Ignore conversion rate as a lone metric; use CRO insights to inform ads, email/SMS, website, and copy across the business.\n\n- Define two journeys: Optimal (what you want purchasers to do) vs Actual (what they are doing). Your job is to close that gap.\n\n- Treat analytics as behavior of humans, not numbers.\n\nExamples/tactics:\n\n- Reuse high-performing headlines/images from site tests in ad creative and SMS.\n\n- If users obsess over a policy in FAQs, weave it into emails and landing pages.\n\nMetrics/definitions:\n\n- Optimal vs Actual Customer Journey; “behavioral analytics” mindset.\n\nAction items:\n\n- Identify the optimal journey from buyer cohorts.\n\n- Map current behavior to find frictions.\n\n- Prioritize fixes that push non-buyers onto the optimal path.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158777963/posts/2192212977",
+              "file": "01 - Lesson 2.1 - The Billion Dollar CRO Mindset.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 12547363,
+              "duration_seconds": 302.2
+            }
+          ],
+          "duration_seconds": 302.2
+        },
+        {
+          "index": 2,
+          "name": "The Gator vs The Judge",
+          "folder": "02 - 3. The Gator vs The Judge",
+          "lessons": [
+            {
+              "index": 2,
+              "name": "Lesson 3.1 - The Gator vs The Judge\n\nBig idea: Design for the subconscious “Gator” (95% of cognition), not the analytical “Judge.” When the Judge activates, skepticism and hesitation rise.\n\nKey points:\n\n- Visitors arrive primed by confirmation bias, so the sale is yours to lose.\n\n- The Gator glides on clarity and relevance; the Judge appears when users must think hard.\n\n- Use imagery and headlines that mirror the visitor’s identity and intent.\n\nExamples/tactics:\n\n- Runner hero image + “#1 sneaker for long-distance runners” beats generic “Where sneakers meet comfort.”\n\n- Stroop test analogy: make the task “read the words,” not “name the ink color.”\n\nMetrics/definitions:\n\n- “Gator” = subconscious autopilot; “Judge” = conscious effortful system.\n\nAction items:\n\n- Audit hero images and headlines for instant relevance to ICPs.\n\n- Remove elements that trigger questions/doubt.\n\n- Align copy with the click-in promise to validate confirmation bias.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158779253/posts/2192216642",
+              "file": "02 - Lesson 3.1 - The Gator vs The Judge.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 34045011,
+              "duration_seconds": 748.17
+            }
+          ],
+          "duration_seconds": 748.17
+        },
+        {
+          "index": 3,
+          "name": "What is a Website?",
+          "folder": "03 - 4. What is a Website",
+          "lessons": [
+            {
+              "index": 3,
+              "name": "Lesson 4.1 - What is a Website?\n\nBig idea: Every website reduces to five pillars: Offer, UVPs, Copywriting, Creative (images/video), and UX. You’re only as strong as your weakest pillar.\n\nKey points:\n\n- Definition: a domain that visually presents an Offer and communicates unique value via Copy and Creative within a usable UX.\n\n- Burger-stand analogy maps 1:1 to the five pillars.\n\nExamples/tactics:\n\n- Map a hero section: Offer (product), UVPs (gluten-free/vegan/etc.), Copy (“tasty boost of health”), Creative (product/lifestyle shots), UX (nav, CTAs, search).\n\nMetrics/definitions:\n\n- UVP/USP, capital-O Offer (bundles, packs, and promos, not just the SKU).\n\nAction items:\n\n- Score each page across the five pillars.\n\n- Find the weakest pillar and fix it first.\n\n- Repeat for homepage, PDPs, and key LPs.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158779258/posts/2192217087",
+              "file": "03 - Lesson 4.1 - What is a Website.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 34659145,
+              "duration_seconds": 764.97
+            }
+          ],
+          "duration_seconds": 764.97
+        }
+      ],
+      "duration_seconds": 1815.34
+    },
+    {
+      "index": 3,
+      "name": "[MODULE 3] The Billion Dollar Data Funnel",
+      "folder": "03 - [MODULE 3] The Billion Dollar Data Funnel",
+      "sections": [
+        {
+          "index": 1,
+          "name": "The Billion-Dollar Data Funnel",
+          "folder": "01 - 5. The Billion-Dollar Data Funnel",
+          "lessons": [
+            {
+              "index": 1,
+              "name": "Lesson 5.1 - The Billion-Dollar Data Funnel Overview\n\nBig idea: Demographics get the click; psychographics win the sale. The Funnel is a 6-source system to capture both.\n\nKey points:\n\n- Six inputs: Customer feedback surveys, Raw data analysis, Competitor analysis (via 5 pillars), Heatmaps & Recordings, User testing, Expert review.\n\n- Don’t copy competitors; your customers ≠ their customers.\n\nExamples/tactics:\n\n- Use surveys to ask “What’s important when buying ___?” “How do you use ___?”\n\n- Use recordings to spot friction; heatmaps to see profitable behaviors.\n\nMetrics/definitions:\n\n- ICE prioritization for test ideas; “pass-through revenue” thinking.\n\nAction items:\n\n- Run all six inputs (non-optional).\n\n- Synthesize into hypotheses, score with ICE.\n\n- Test and roll wins into ads, email, and site.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158779654/posts/2192218704",
+              "file": "01 - Lesson 5.1 - The Billion-Dollar Data Funnel Overview.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 44816627,
+              "duration_seconds": 930.53
+            }
+          ],
+          "duration_seconds": 930.53
+        },
+        {
+          "index": 2,
+          "name": "Customer Feedback Surveys",
+          "folder": "02 - 6. Customer Feedback Surveys",
+          "lessons": [
+            {
+              "index": 2,
+              "name": "Lesson 6.1 - Mastering Customer Feedback Surveys\n\nBig idea: Qualitative surveys are the fastest path to revenue because they reveal psychographics and language to use in copy.\n\nKey points:\n\n- 6-8 questions max; start with how/what; make it about the customer, not the brand.\n\n- Send to last-90-day customers; incentivize (20% off or gift card).\n\nExamples/tactics:\n\n- Google Forms/Typeform is enough; build a 45-day post-purchase email flow to automate survey collection.\n\nMetrics/definitions:\n\n- Cadence and response rate\n\nAction items:\n\n- Draft the survey (how/what questions).\n\n- Email it to last-90-day buyers + incentive.\n\n- Export responses, summarize with AI, and extract themes and exact phrasing.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158779712/posts/2192218961",
+              "file": "02 - Lesson 6.1 - Mastering Customer Feedback Surveys.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 61289687,
+              "duration_seconds": 1133.6
+            },
+            {
+              "index": 3,
+              "name": "Lesson 6.2 - Mapping Customer Feedback Surveys to Your Website\n\nBig idea: Route survey insights directly into the five pillars; especially FAQs, UVPs, testimonials, images, headlines, and product descriptions.\n\nKey points:\n\n- Build FAQs from top uncertainties; remove FAQs no one cares about.\n\n- Choose testimonials that echo the psychographic hot buttons.\n\n- Let usage data drive imagery; headlines sell the dream, subheads explain the how.\n\nExamples/tactics:\n\n- If “durability” and “versatility” dominate responses, elevate those UVPs on home/PDP and mirror in reviews and images.\n\nAction items:\n\n- Tag survey themes and map to sections.\n\n- Rewrite top-of-funnel headlines + PDP bullets using customer words.\n\n- Curate testimonials that prove the winning themes.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158779712/posts/2192219164",
+              "file": "03 - Lesson 6.2 - Mapping Customer Feedback Surveys to Your Website.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 29319815,
+              "duration_seconds": 563.8
+            },
+            {
+              "index": 4,
+              "name": "Lesson 6.3 - [BONUS!] Understanding Post-Purchase Surveys by KnoCommerce\n\nBig idea: Add two CRO-focused questions to post-purchase surveys; analyze open-text at scale and weight by customer value to prioritize fixes.\n\nKey points:\n\n- Ask: “Was any part of our store difficult to use?” (Yes/No → open text if Yes).\n\n- Aggregate thousands of responses; use AI to cluster themes and sort by revenue/orders.\n\nExamples/tactics:\n\n- Identify issues like intrusive pop-ups or mobile checkout bugs; tie to specific customers for follow-up.\n\nAction items:\n\n- Add the two questions.\n\n- Export responses monthly; cluster + weight by revenue.\n\n- Fix top issues; notify customers you improved them.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158779712/posts/2192219190",
+              "file": "04 - Lesson 6.3 - [BONUS!] Understanding Post-Purchase Surveys by KnoCommerce.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 30684713,
+              "duration_seconds": 502.14
+            }
+          ],
+          "duration_seconds": 2199.54
+        },
+        {
+          "index": 3,
+          "name": "Customer Interviews",
+          "folder": "03 - 7. Customer Interviews",
+          "lessons": [
+            {
+              "index": 5,
+              "name": "Lesson 7.1 - The Goldmine of Customer Interviews\n\nBig idea: Live interviews deliver depth that surveys can’t. Two hours/month can dramatically sharpen positioning and UX.\n\nKey points:\n\n- Who to call: buyers in last 24h and ~30 days; also leads who gave phone but didn’t buy.\n\n- Best times: weekends ~11am; weekdays ~8pm (local time).\n\n- Use what/how questions; get consent if recording.\n\nExamples/tactics:\n\n- Founders do first rounds, then delegate to CS with quotas; text first if appropriate.\n\nAction items:\n\n- Book 4×30-min interview slots/month.\n\n- Use a simple script (what/how/why).\n\n- Log quotes and themes; feed into copy/UX tests.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158779875/posts/2192220221",
+              "file": "05 - Lesson 7.1 - The Goldmine of Customer Interviews.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 14568804,
+              "duration_seconds": 334.17
+            },
+            {
+              "index": 6,
+              "name": "Lesson 7.2 - Live Customer Interview\n\nBig idea: Real customer language confirms psychographics; here, versatility, durability, and city use stood out.\n\nKey points:\n\n- Calling customers allows you to uncover key details that can help you better understand what they want.\n\n- Example Customer Call: This customer is looking for every day to day-to-night flexibility; real leather durability; laptop-friendly; pockets/organization. Desire for interchangeable straps (product insight).\n\nAction items:\n\n- Elevate “versatile everyday bag” messaging.\n\n- Feature organization shots and “fits laptop comfortably.”\n\n- Consider modular straps as roadmap/test.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158779875/posts/2192220603",
+              "file": "06 - Lesson 7.2 - Live Customer Interview.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 111537123,
+              "duration_seconds": 403.43
+            }
+          ],
+          "duration_seconds": 737.6
+        },
+        {
+          "index": 4,
+          "name": "Raw Data Analysis",
+          "folder": "04 - 8. Raw Data Analysis",
+          "lessons": [
+            {
+              "index": 7,
+              "name": "Lesson 8.1 - Understanding Raw Data Analysis\n\nBig idea: Raw data (GA4, etc.) tells you where to focus; hunt problems, not bright spots.\n\nKey points:\n\n- Three lenses: RPS by page, Journey analysis, Funnel drop-off.\n\n- Use them to find leaks between Actual vs Optimal.\n\nAction items:\n\n- Pull top pages by Revenue per Session.\n\n- Run journey/pathing.\n\n- Build funnels to quantify drop-offs.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158779942/posts/2192220900",
+              "file": "07 - Lesson 8.1 - Understanding Raw Data Analysis.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 5779185,
+              "duration_seconds": 124.43
+            },
+            {
+              "index": 8,
+              "name": "Lesson 8.2 - The Value of RPS Page Analysis\n\nBig idea: Revenue per Session (RPS) = revenue / sessions per page shows which pages enable purchases (pass-through revenue), not just where checkout happens.\n\nKey points:\n\n- Analyze entry pages and top-viewed pages by RPS, segmented (new/returning, device, channel).\n\n- Collections pages often carry outsized RPS; send more traffic there if true.\n\nExamples/tactics:\n\n- If one PDP is a strong entry page for new users, bias traffic toward it.\n\n- If returning users convert via search, improve site search UX/results.\n\nAction items:\n\n- Build RPS tables for entry/top pages.\n\n- Identify high-RPS page types (ie: collections).\n\n- Adjust traffic routing and internal linking to favor them.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158779942/posts/2192220902",
+              "file": "08 - Lesson 8.2 - The Value of RPS Page Analysis.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 24014984,
+              "duration_seconds": 463.0
+            },
+            {
+              "index": 9,
+              "name": "Lesson 8.3 - Customer Journey Analysis\n\nBig idea: Compare Optimal vs Actual journeys using GA4 Path Exploration; today’s profitable journeys often include more pages per session.\n\nKey points:\n\n- Switch the node dimension to page path; analyze flows from key entry pages (homepage vs PDP).\n\n- If homepage → collections is the prevalent profitable path, send more traffic to homepage or push users into collections.\n\nExamples/tactics:\n\n- Reorder collection tiles to match popular paths; ensure best-performing items appear above the fold, especially on mobile.\n\nAction items:\n\n- Map top two entry flows (homepage and top PDP)\n\n- Note where users “go backwards” since it's a sign of confusion.\n\n- Restructure nav/collections to make the profitable path the easy path.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158779942/posts/2192220959",
+              "file": "09 - Lesson 8.3 - Customer Journey Analysis.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 42480058,
+              "duration_seconds": 774.57
+            },
+            {
+              "index": 10,
+              "name": "Lesson 8.4 - Building Funnel Reports\n\nBig idea: Funnels quantify where users abandon between page types (Homepage → PLP/Collection → PDP → Add to Cart → Checkout → Purchase).\n\nKey points:\n\n- Track completed vs abandoned between each step; compare to benchmarks.\n\n- Biggest drop = biggest opportunity (ie: PDP → ATC).\n\nAction items:\n\n- Build a page-type funnel.\n\n- Benchmark drop-offs.\n\n- If PDP→ATC is weak, focus tests on PDP value props, media, pricing cues, and CTA clarity.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158779942/posts/2192220963",
+              "file": "10 - Lesson 8.4 - Building Funnel Reports.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 14356217,
+              "duration_seconds": 291.1
+            },
+            {
+              "index": 11,
+              "name": "Lesson 8.5 - Tying Together Your Raw Analytics Insights\n\nBig idea: When RPS, Journeys, and Funnels point to the same bottleneck, that’s your priority.\n\nExample synthesis:\n\n- Collections pages show higher RPS; homepage sends more people to collections; funnels reveal PDP→ATC as the main leak → prioritize PDP optimization first.\n\nAction items:\n\n- Write one hypothesis per converging signal (ie: “Improve PDP to lift ATC”).\n\n- Design tests mapped to five pillars (UVPs, copy, creative, UX, offer).\n\n- Measure lift and propagate wins to ads/email.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158779942/posts/2192220966",
+              "file": "11 - Lesson 8.5 - Tying Together Your Raw Analytics Insights.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 7713525,
+              "duration_seconds": 168.7
+            }
+          ],
+          "duration_seconds": 1821.8
+        },
+        {
+          "index": 5,
+          "name": "Competitor Analysis",
+          "folder": "05 - 9. Competitor Analysis",
+          "lessons": [
+            {
+              "index": 12,
+              "name": "Lesson 9.1 - Perfecting Your Competitor Analysis\n\nBig idea: Don’t copy your competitors, deconstruct them. Audit competitors through the five pillars (Offer, UVPs, Copy, Creative, UX), then test only what fits your customers.\n\nKey points:\n\n- Pick ~3 comps (peer, premium, challenger) close to your market.\n\n- Analyze by pillar, per page (homepage, PLP/collections, PDP, cart/checkout).\n\n- No funnel jacking: patterns → hypotheses, not copy/paste.\n\n- Compare positioning & price tiers; review both mobile and desktop.\n\n- Log specifics: offers, warranties/BNPL, UVP bullets, tone (“everyday” vs luxury), image styles, navigation, and friction.\n\nExamples/tactics:\n\n- Offer/UVPs: Premiums highlight warranty/customization/BNPL; value brands push discounts/rewards.\n\n- Copy: Shared “everyday” angle; premiums keep it inspirational, peers explain materials (e.g., leather grades).\n\n- Creative: Premiums invest in many angles/context; peers mix lifestyle + white-bg tiles.\n\n- UX quick wins: 2×2 mobile product tiles; “recently viewed” atop PLPs; PDP carousel galleries; aggressive upsells near ATC; size reference UI (ie: fits iPhone/iPad/MacBook).\n\n- Avoid video heroes and tiny fonts that hurt readability.\n\nMetrics/definitions:\n\n- Five pillars: Offer, UVPs, Copy, Creative, UX.\n\n- Funnel jacking: Copying a competitor’s page/flow verbatim.\n\n- Page types: HP, PLP/collections, PDP, cart/checkout.\n\n- ICE: Impact, Confidence, Effort for prioritizing tests.\n\nAction items:\n\n- Select 3 competitors (peer/premium/challenger).\n\n- Build a sheet: rows = pages, columns = five pillars; add links/screens.\n\n- Tag findings Table Stakes / Differentiator / Experiment Idea.\n\n- Convert ideas → hypotheses (ie: “Show warranty near ATC → ↑ATC”).\n\n- Prioritize with ICE, A/B test on your traffic.\n\n- Roll proven wins into site, ads, email/SMS; re-audit quarterly.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780005/posts/2192221063",
+              "file": "12 - Lesson 9.1 - Perfecting Your Competitor Analysis.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 209765509,
+              "duration_seconds": 2628.63
+            },
+            {
+              "index": 13,
+              "name": "Lesson 9.2: Spy on Competitor Ads in 5 Minutes\n\nBig idea: Spy ethically, not lazily. Use Meta’s Ad Library to see where competitors send traffic (PDP vs custom landers), what offers they push, and convert those observations into your testable hypotheses; never copy.\n\nKey points:\n\n- Search rivals in Meta Ad Library (set All ads, correct country).\n\n- Inspect destination URLs: PDP-only vs bespoke LPs (listicles, slim PDPs, bundles).\n\n- Match ad promise ⇄ landing experience; misalignment = likely underperformance.\n\n- Premium brands often push many PDPs; value brands highlight discounts/BNPL.\n\n- Landing pages may live on subdomains with tracking (ie: myshop.brand.com).\n\n- This informs offers, page type, and routing; not a license to funnel-jack.\n\nExamples/tactics:\n\n- Portland Leather & Coach: heavy PDP routing, discount forward (PLG) vs brand-led (Coach).\n\n- High performers often use listicles (“5 reasons…”), slim PDPs, bundle pages for paid.\n\n- Look for ATC near fold, social proof blocks, and size-reference UI on PDPs.\n\n- Note DPA/catalog ads (many SKUs) vs single-lander campaigns (one narrative).\n\nMetrics/definitions:\n\n- DPA = Dynamic Product Ads (catalog-driven).\n\n- LP types: PDP, Slim PDP, Listicle/Advertorial, Bundle, Quiz.\n\n- Ad→LP congruence: headline/hero/offer match score.\n\n- Routing mix: % spend to PDP vs custom LPs.\n\n- Offer taxonomy: discount, warranty, customization, BNPL, bundle.\n\nAction Items:\n\n- In Ad Library, pull top 3–5 competitors; capture creative → URL → LP type → offer (sheet + screenshots).\n\n- Score ad-lander congruence and catalog patterns (ie: PDP-only, listicle use, bundles).\n\n- Translate patterns into hypotheses (ie: “Listicle for [ICP] lifts paid ATC vs PDP”).\n\n- Build one congruent paid lander per core offer/ICP; mirror ad hooks above the fold.\n\n- A/B test PDP vs LP for paid traffic; track CTR, bounce, ATC, CVR, AOV.\n\n- Keep what wins; don’t copy layouts; adapt to your five pillars and customer insights.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780005/posts/2192263247",
+              "file": "13 - Lesson 9.2 Spy on Competitor Ads in 5 Minutes.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 30548119,
+              "duration_seconds": 423.7
+            }
+          ],
+          "duration_seconds": 3052.33
+        },
+        {
+          "index": 6,
+          "name": "User Testing",
+          "folder": "06 - 10. User Testing",
+          "lessons": [
+            {
+              "index": 14,
+              "name": "Lesson 10.1 - Watch the Friction with User Testing\n\nBig idea: User testing is live data (like customer interviews for your site). Give people specific tasks, watch them perform, and surface pain points, friction, and unmet needs to close the gap between actual vs optimal journeys.\n\nKey points:\n\n- Two modes: unmoderated platforms (ie: usertesting.com) and live moderated (Zoom; record with consent).\n\n- Recruit right-fit personas (ideally non-customers or high-intent non-buyers; avoid mismatches).\n\n- Focus on what’s not working; wins teach less than blockers.\n\n- Five task types (a funnel): Discovery → Evaluation → Comparison → Add to Cart → Checkout.\n\n- Capture verbatims + behavior; depth over breadth (qual > big N).\n\nExamples/tactics:\n\n- Pain points (red): bugs, broken buttons, unclear CTAs, unusable nav/search.\n\n- Friction (orange): premature popups, too many steps, hard scanning, slow pages.\n\n- Unmet needs (yellow): missing info (fit, materials, returns, size refs).\n\n- Task scripts:\n\n- Discovery: “Find an everyday leather bag that fits a laptop.”\n\n- Evaluation: “What info do you need before buying? Go find it.”\n\n- Comparison: “Compare two bags, choose one, explain why.”\n\n- ATC: “Add it to cart; now find one accessory you’d add.”\n\n- Checkout: “Begin checkout and narrate any confusion.”\n\nMetrics/definitions:\n\n- Pain point: blocks progress (bug/critical UX).\n\n- Friction: slows progress (effort/cognitive load).\n\n- Unmet need: missing/unclear content.\n\n- Think-aloud protocol: tester narrates thoughts.\n\n- Light quant to compare runs: task success rate, time-to-task, error/misclick count.\n\nAction items:\n\n- Draft 3-5 task scripts mapped to your funnel; include think-aloud.\n\n- Recruit 5-8 testers per persona (desktop + mobile); record with consent.\n\n- Tag findings Pain/Friction/Unmet with timestamps & quotes.\n\n- Turn findings into hypotheses (ie: “Add ‘fits 13″ laptop’ near ATC\")\n\n- Prioritize with ICE, implement fixes (copy near CTAs, UVPs, pop-up timing, nav/search).\n\n- Re-test the same tasks post-changes to confirm lift and catch regressions.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780071/posts/2192221460",
+              "file": "14 - Lesson 10.1 - Watch the Friction with User Testing.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 31598470,
+              "duration_seconds": 693.63
+            }
+          ],
+          "duration_seconds": 693.63
+        },
+        {
+          "index": 7,
+          "name": "Heatmaps",
+          "folder": "07 - 11. Heatmaps",
+          "lessons": [
+            {
+              "index": 15,
+              "name": "Lesson 11.1 - The Fundamentals of Heatmaps\n\nBig idea: Heatmaps visualize real user behavior: where they click, how far they scroll, and where attention lingers, so you can move important content up, clarify CTAs, and remove confusing UI.\n\nKey points\n\n- Three types: Clickmaps (taps/clicks), Scrollmaps (depth/visibility), Movemaps (hover/reading attention).\n\n- Colors = activity: red/orange/yellow = hot, green/blue/purple = cold.\n\n- Every click is a vote for what users think is interactive; non-clickable “button-like” elements create confusion (rage clicks).\n\n- Use scrollmaps to spot bucket drop-offs and to reposition high-value sections.\n\nExamples/tactics\n\n- Clickmap: 20% clicking a non-clickable tag → make it a link or restyle to not look clickable.\n\n- Scrollmap: Only 40% see pricing/CTA → move it higher or add a mid-page CTA.\n\n- Movemap: Heavy reading on a spec block → convert to scannable bullets and add a nearby CTA.\n\n- Micro-UX: Round letters in logos get stray clicks—reduce false affordances near CTAs.\n\nMetrics/definitions\n\n- Visibility % at each fold/bucket.\n\n- Click concentration (top elements by % of total clicks).\n\n- Rage clicks (rapid repeated clicks on dead UI).\n\n- Pass-through revenue per element/section (if your tool supports revenue tying).\n\nAction items\n\n- Capture heatmaps for homepage, top PLP, top PDP (desktop & mobile).\n\n- For each page, list the top 5 clicked elements and lowest-seen key sections.\n\n- Fix dead-looking UI (make clickable or restyle), move high-value buckets higher.\n\n- Add/relocate CTAs where movemap shows attention; trim/pop-up timing to cut friction.\n\n- Re-record heatmaps after changes; compare visibility & click distribution and iterate.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780072/posts/2192221462",
+              "file": "15 - Lesson 11.1 - The Fundamentals of Heatmaps.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 18263502,
+              "duration_seconds": 378.43
+            },
+            {
+              "index": 16,
+              "name": "Lesson 11.2 - How to Read Heatmap Behavior\n\nBig idea: Use heatmaps to separate Gator (fast, intuitive) from Judge (effortful, skeptical) behavior. Read hot vs cold zones to spot clarity wins, confusion, and where to move or remove content.\n\nKey points\n\n- Identify hot (nav, search, cart, hero CTA) and cold sections; FAQs cold = concern.\n\n- Gator signals: clicks on intended CTAs, image/gallery taps, smooth above-the-fold (ATF) scan.\n\n- Judge signals: rage/dead clicks on non-clickables (badges, labels), heavy review/filter toggling, sharp scroll drop-offs.\n\n- ATF earns the scroll; below-the-fold (BTF) must answer doubts without spawning new ones.\n\n- Evaluate heatmaps through the five pillars (Offer, UVPs, Copy, Creative, UX).\n\nExamples/tactics\n\n- Users click a “NEW/Bestseller” badge → either link it (to the collection) or restyle so it doesn’t look tappable.\n\n- Scrollmap cliff at section 3 → bucket test: move that block up, rewrite, or delete.\n\n- Movemap attention on specs → convert to scannable bullets + nearby CTA.\n\n- Gallery/carousel heavily clicked on PDPs (fashion) → add more angles and size-reference shots.\n\n- Reviews hot = “positive Judge” → keep star summary near price/ATC and surface key sentiments.\n\nMetrics/definitions\n\n- Hot/cold zones: red/orange/yellow vs green/blue/purple activity.\n\n- Rage clicks: rapid repeats on dead UI. Dead clicks: clicks on non-interactive elements.\n\n- Bucket retention: visibility % by section; target ≥70% reach to section 2 before optimizing deeper.\n\n- Pass-through revenue per element/section (if tool supports revenue tying).\n\nAction items\n\n- Run click/scroll/move heatmaps on HP, top PLP, top PDP (desktop + mobile).\n\n- List top 5 clicked elements and 3 cold but important sections per page.\n\n- Fix dead-looking UI (link or restyle), retime popups, and move high-value buckets up.\n\n- Add CTAs where the movemap shows attention; surface UVPs near ATC (warranty, returns, size fit).\n\n- Re-measure after changes; compare visibility %, rage/dead clicks, click distribution; iterate via the 5 pillars.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780072/posts/2192221465",
+              "file": "16 - Lesson 11.2 - How to Read Heatmap Behavior.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 51533262,
+              "duration_seconds": 978.83
+            },
+            {
+              "index": 17,
+              "name": "Lesson 11.3 - The Power of Revenue-Based Heatmaps\n\nBig idea: Standard heatmaps show attention; revenue-based heatmaps tie every click/scroll/hover to money. Optimize by value, not volume: “Clicks don’t pay the bills; revenue does.”\n\nKey points\n\n- Overlay transaction data on engagement to see which elements generate revenue.\n\n- Two lenses: Element Revenue per Session (eRPS) = “market share” of page value; Revenue per Click (RPC) = potency of each action.\n\n- Use eRPS for elements of a kind (ie: FAQ items, collection tiles).\n\n- Use RPC to compare unlike elements (nav vs search vs hero CTA).\n\n- Hot doesn’t always mean profitable; cold can be high-value but low-visibility.\n\nExamples/tactics\n\n- Hero CTA gets many clicks, but nav/search RPC is higher → emphasize nav/search prominence.\n\n- Collection tiles eRPS: Best Sellers > Totes > Wallets → reorder tiles; demote/remove low-eRPS tiles.\n\n- Reviews/FAQs with high RPC but low eRPS (buried BTF) → move up or add mid-page links.\n\n- Compare PDP gallery actions vs badges/labels to spot dead/low-value clicks to restyle or remove.\n\nMetrics/definitions\n\n- eRPS (Element Revenue per Session): avg $ per session attributable to an element (share of page value).\n\n- RPC (Revenue per Click): avg $ per click on an element (action potency).\n\n- Visibility %: audience that reaches an element’s section.\n\n- Ad→LP congruence (contextual): ensure profitable elements are surfaced early.\n\nAction items\n\n- Instrument revenue-based heatmaps on HP, top PLP, top PDP (desktop/mobile).\n\n- Pull a table of top eRPS (elements-of-a-kind) and top RPC (cross-type).\n\n- Reorder/surface high-eRPS elements; elevate high-RPC but low-visibility sections.\n\n- Restyle or link dead/badge clicks; trim low-value tiles/blocks.\n\n- Re-measure eRPS/RPC + visibility after changes; iterate and propagate winners across pages.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780072/posts/2192221471",
+              "file": "17 - Lesson 11.3 - The Power of Revenue-Based Heatmaps.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 41755066,
+              "duration_seconds": 686.73
+            },
+            {
+              "index": 18,
+              "name": "Lesson 11.4 - The 7 Types of High-ROI Areas\n\nBig idea: Use revenue-based heatmaps to rank page elements by value, not clicks. Tweak the seven highest-leverage areas to push more users into profitable paths fast.\n\nKey points\n\n- Analyze eRPS (element revenue per session) for elements of a kind; eRPC (element revenue per click) for cross-type comparisons.\n\n- Reorder or remove items with weak eRPS; surface potent (high eRPC) but low-visibility sections.\n\n- Mobile ≠ desktop, check both.\n\nThe 7 high-ROI areas (examples/tactics)\n\n- Navigation order: Sort top nav by eRPS (ie: Crossbody > Best Sellers > Totes; demote/replace low eRPS like Wallets/About).\n\n- Product carousels (PDP): Rank photos by eRPS; move human/lifestyle shots earlier if they outperform isolated shots.\n\n- Collection tiles (HP/PLP): Reorder tiles by eRPS; bury or remove low-value tiles that siphon attention.\n\n- Outbound links: Social icons/widgets often drive $0; bury in footer or remove to keep shoppers on-site.\n\n- Content buckets/sections: Use scroll + ERPS to move high-performers up (ie: a video with high eRPC but only 8% visibility).\n\n- FAQs: Prioritize shipping/returns/warranty if they show highest eRPS; trim low-impact questions.\n\n- Value props (UVPs): Elevate the UVP users care about (ie: “Handcrafted leather”) and place near price/ATC.\n\nMetrics/definitions\n\n- eRPS: Avg $ per session attributed to an element (share of page value).\n\n- eRPC: Avg $ per click on an element (action potency).\n\n- Visibility %: Portion of users who see a section.\n\n- Dead/Rage clicks: Non-interactive or repeatedly clicked UI.\n\nAction items\n\n- Pull eRPS/eRPC tables for HP, top PLP, top PDP (desktop & mobile).\n\n- Reorder nav, tiles, and carousels by eRPS; elevate high-eRPC low-visibility sections.\n\n- Remove/restyle zero-value outbound links and badge “fake buttons.”\n\n- Promote high-eRPS FAQs/UVPs near CTAs; add human/context images early.\n\n- Re-run heatmaps; compare eRPS/eRPC & visibility deltas; propagate winners sitewide.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780072/posts/2192221479",
+              "file": "18 - Lesson 11.4 - The 7 Types of High-ROI Areas.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 67558796,
+              "duration_seconds": 935.63
+            }
+          ],
+          "duration_seconds": 2979.62
+        },
+        {
+          "index": 8,
+          "name": "Screen Recordings",
+          "folder": "08 - 12. Screen Recordings",
+          "lessons": [
+            {
+              "index": 19,
+              "name": "Lesson 12.1 - Learn the Why Behind Screen Recordings\n\nBig idea: Screen recordings reveal why users behave the way heatmaps and journey tables say they do. Watch real sessions to see the Gator → Judge switch and pinpoint blockers in the actual journey.\n\nKey points\n\n- Real visitor sessions (clicks, scrolls, pauses, tab switches); not prompted tasks.\n\n- Complements: Tables = where, Heatmaps = what, Recordings = why, Surveys = how to fix.\n\n- Look for the moment the Judge wakes up: hesitation, back-and-forth, rage clicks.\n\n- Recruit signals from both desktop and mobile; tabs and Apple/Shop Pay quirks can mask intent.\n\nExamples/tactics\n\n- Smooth glide → fast ATC: Gator flow; reinforce page elements used.\n\n- Repeated cursor circling / back-and-forth: uncertainty; tighten copy/labels, add comparisons.\n\n- Rage clicks on badges/icons: restyle or make actionable.\n\n- Hover then bail on tiles: add clarity (size/price badges) or simplify choices.\n\n- Long pause in checkout/form: remove distractions, auto-fill, clarify errors; offer wallet pay.\n\n- Open new tab to a competitor: add differentiators (warranty, returns, price anchors) near decision points.\n\nMetrics/definitions\n\n- Rage clicks: rapid repeats on one spot.\n\n- Hesitation time: long dwell before/after key elements.\n\n- Backtracks: up/down scroll loops or page ping-pong.\n\n- Drop context: tab away / idle during funnel step.\n\n- Task path tags: annotate segments (discover → evaluate → compare → ATC → checkout).\n\nAction items\n\n- Sample 50-100 recordings split by device and outcome (purchasers vs non-purchasers).\n\n- Tag moments as Pain / Friction / Unmet Need with timestamps and short notes.\n\n- Compile top 5 recurring issues (ie: badge rage clicks, PDP image confusion, checkout dwell).\n\n- Convert to hypotheses (ie:“Add comparison table on PDP → fewer backtracks”).\n\n- Prioritize with ICE, ship fixes (copy, UX, affordances, payments).\n\n- Rewatch fresh recordings post-change to verify reduced hesitation/rage and improved completion.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780075/posts/2192221501",
+              "file": "19 - Lesson 12.1 - Learn the Why Behind Screen Recordings.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 24494992,
+              "duration_seconds": 402.4
+            },
+            {
+              "index": 20,
+              "name": "Lesson 12.2 - Analyzing User Behavior Through Screen Recordings\n\nBig idea: Don’t watch random sessions. Filter first, then use the 3-F’s (Friction, Flow, Focus) to explain why users stall or buy, and to target fixes on profit-driving pages.\n\nKey points\n\n- Filter by segment (new/returning, device, channel) and page type (HP/PLP/PDP/cart/checkout).\n\n- Pair with raw data: prioritize pages with high RPS, big drop-offs, or key paths.\n\n- Watch purchasers vs non-purchasers to contrast optimal vs actual journeys.\n\n- Use the 3-F’s lens on every notable moment.\n\nExamples/tactics\n\n- Friction: rage/dead clicks on badges, double popups, form hesitations → restyle or delay, simplify fields, clarify errors.\n\n- Flow: smooth scan → ATC; reinforce used elements (keep nav path, CTA placement).\n\n- Focus: long dwell on reviews/specs → surface summaries near price/ATC; convert walls of text to bullets.\n\nMetrics/definitions\n\n- 3-F’s: Friction (blocks/slows), Flow (smooth progress), Focus (high-value attention).\n\n- Rage clicks / dead clicks; hesitation time; backtracks (scroll ping-pong); idle/tab-away.\n\n- Purchase outcome tags (purchaser vs non); RPS for page priority.\n\nAction items\n\n- Pull recordings for top HP/PLP/PDP/cart; filter by non-purchasers, then compare with purchasers.\n\n- Annotate timestamps as Friction/Flow/Focus with 1-line notes.\n\n- Cluster recurring issues (ie: badge rage clicks, review rabbit holes, popup timing).\n\n- Convert to hypotheses (ie: “Move review summary near price → fewer backtracks”).\n\n- Prioritize with ICE, ship fixes (popup timing, review/UVP placement, image order, compare blocks).\n\n- Re-sample recordings post-change to confirm reduced friction + improved completion.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780075/posts/2192221509",
+              "file": "20 - Lesson 12.2 - Analyzing User Behavior Through Screen Recordings.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 35021390,
+              "duration_seconds": 605.33
+            },
+            {
+              "index": 21,
+              "name": "Lesson 12.3 - Building Your Takeaway Strategy\n\nBig idea: Use the 3F’s (Friction, Flow, Focus) to turn what you see in recordings into sharp hypotheses and prioritized fixes that close the Actual → Optimal journey gap.\n\nKey points\n\n- Friction = UX problem: rage/dead clicks, form stalls, popup clashes → remove blockers first.\n\n- Flow = lift AOV: smooth PDP → Cart → Checkout paths are prime for upsells/cross-sells.\n\n- Focus = promote/clarify: long dwell on sections (reviews, video, specs) means “buying energy” there; surface them higher and add clear CTAs.\n\nExamples/tactics\n\n- Rage clicks on size chart: enlarge/move guide; add inline fit tips (ie: “fits 13″ laptop”).\n\n- Checkout form hesitation: split steps, simplify fields, clarify errors, add trust badges + shipping/returns near inputs.\n\n- Strong flow from size guide → ATC: pre-expose “Find your size” ATF; keep path distraction-free; test subtle post-ATC upsell.\n\n- Hero video focus, no clicks: add sticky/overlay Shop Now, caption key benefits; shorten first 5-8s.\n\n- Scroll to bottom for reviews/FAQs: pull review summary + FAQs near price/ATC; add UGC tiles mid-page.\n\nMetrics/definitions\n\n- 3F’s: Friction (blocks/slows), Flow (smooth progress), Focus (high-value attention).\n\n- Signals: rage/dead clicks, hesitation time, backtracks, long dwell.\n\n- Outcomes to track: Add-to-Cart rate, Checkout start rate, RPS/AOV, section visibility %.\n\nAction items\n\n- For each priority page, list top 3F observations (timestamp + note).\n\n- Write hypotheses: “Because we saw [signal], if we [change], [metric] will ↑ X% for [segment].”\n\n- Map fixes to five pillars: UX (placement/timing), Copy (fit tips, guarantees), UVPs (returns/warranty), Creative (UGC, size refs), Offer (bundles/upsells).\n\n- Prioritize with ICE; ship friction fixes first, then flow/AOV lifts, then focus promotions.\n\n- Re-record after changes; confirm reduced friction and improved ATC/RPS; queue follow-up tests.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780075/posts/2192221516",
+              "file": "21 - Lesson 12.3 - Building Your Takeaway Strategy.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 10021044,
+              "duration_seconds": 195.43
+            }
+          ],
+          "duration_seconds": 1203.16
+        },
+        {
+          "index": 9,
+          "name": "Expert Review",
+          "folder": "09 - 13. Expert Review",
+          "lessons": [
+            {
+              "index": 22,
+              "name": "Lesson 13.1 - Why You Need an Expert Review\n\nBig idea: A great consultant can validate (or kill) your hypotheses fast and point you to the next highest-leverage move. Treat this as business optimization, not just CRO: bring in hyper-specialists for targeted, time-boxed help.\n\nKey points\n\n- Use expert review to confirm priorities from the Billion-Dollar Data Funnel (surveys, raw data, heatmaps/recordings, user tests, competitor analysis).\n\n- Prefer hyper-specific specialists (ie: PDP copy for fashion; Shopify performance; consumer psych for supplements).\n\n- Time-boxed > retainer: pay for 1–2 focused hours; repeat only if ROI is clear.\n\n- Source via trusted network first; ask for concrete examples, not vague decks.\n\n- Send a pre-read so the hour is spent deciding, not onboarding. Record the session (with consent) and auto-transcribe.\n\nExamples/tactics\n\n- Pay a top copywriter for headline/subhead surgery on a hero/PDP (tiny phrasing shifts can lift ROAS/CVR).\n\n- Bring a site-speed specialist who’s tuned 10+ Shopify/Woo sites to <2s LCP; review code/apps and a punch-list.\n\n- Ask a consumer psych pro to map your ICP’s anxieties to PDP proof (warranty, return window, size guidance).\n\n- Hire a category insider (ie: luxury leather buyer) to stress-test UVPs and imagery standards.\n\nMetrics/definitions\n\n- Pre-read: 1-page brief with problem, goals, 3 links, and current hypotheses.\n\n- Payoff window: time to first measurable lift after the session (ie: 7-14 days).\n\n- Lift targets: ATC%, CVR, AOV, LCP/CLS, refund rate, or support tickets (by topic).\n\n- ICE: Impact, Confidence, Effort; continue only if the session yields high-ICE actions.\n\nAction items\n\n- From your funnel findings, write 3–5 crisp questions you need answered now.\n\n- Identify one hyper-specialist per question (peer recs > cold outreach).\n\n- Send a pre-read 48h before: problem, context, analytics/recordings links, draft hypotheses.\n\n- Record + transcribe the call; tag quotes to Pain/Friction/Unmet themes.\n\n- Turn advice into testable hypotheses (owner + due date); prioritize with ICE.\n\n- Ship changes within 7-14 days; measure lift; schedule a 30-min follow-up only if results warrant.\n\n- Build a rolodex: demographics insider, hyper-specialist marketer (copy/ads), ops/tech, product/supply chain, and an executive coach for leadership/decision velocity.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780077/posts/2192221523",
+              "file": "22 - Lesson 13.1 - Why You Need an Expert Review.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 36264886,
+              "duration_seconds": 856.33
+            }
+          ],
+          "duration_seconds": 856.33
+        }
+      ],
+      "duration_seconds": 14474.54
+    },
+    {
+      "index": 4,
+      "name": "[MODULE 4] Applying the Billion Dollar Data Funnel",
+      "folder": "04 - [MODULE 4] Applying the Billion Dollar Data Funnel",
+      "sections": [
+        {
+          "index": 1,
+          "name": "Split Testing & Experimentation",
+          "folder": "01 - 14. Split Testing & Experimentation",
+          "lessons": [
+            {
+              "index": 1,
+              "name": "Lesson 14.1 - Split Testing & Experimentation Fundamentals\n\nBig idea: CRO ≠ split testing, but great CRO makes testing easy. Avoid “Big Bang” redesigns; use evolutionary redesign (fast, measured tests) that reveal what works for your buyers and why.\n\nKey points\n\n- You can do CRO before first sale (interviews, comps, speed, landers).\n\n- Redesigns are risky: too many changes = no intel on which change mattered; many relaunches depress CVR.\n\n- Split testing’s goal = reduce uncertainty and close Actual → Optimal journey gaps (money is a byproduct).\n\n- Test types:\n\n- Split (A/B/A/B/C…) for one element (headline, image, CTA, layout tweak).\n\n- Multivariate (MVT) to test combinations (ie: 3 headlines × 3 images = 9 combos). Needs high traffic.\n\n- URL redirect = whole-page/flow versions; use sparingly (ad congruence issues).\n\n- Reverse A/B (pro move): ship code to prod, use test to hide/show section—avoids redirects.\n\n- Evolutionary cadence: ship template → test; while running, prep next area (PDP → PLP → HP → Nav).\n\nExamples/tactics\n\n- After the Data Funnel: turn survey/heatmap/recording findings into specific hypotheses (ie: “Move returns/warranty near ATC”).\n\n- Multivariate hero: Pair identity-mirroring image with ICP headline; cut losers early to speed learning.\n\n- Ad-LP testing: Don’t random-redirect. Duplicate the ad set and send each ad cluster to its best-matching LP.\n\n- Reverse A/B to trial a new FAQ/UVP block without changing URLs.\n\n- If a relaunch is unavoidable, component-test major blocks first (hero, PDP info stack, nav), then assemble.\n\nMetrics/definitions\n\n- Primary: ATC%, CVR, AOV, Revenue/Sess (RPS).\n\n- Diagnostic: time-to-first-action, scroll reach (bucket retention), misclick & rage click rate.\n\n- Test math: power, MDE (minimum detectable effect), runtime by traffic.\n\n- MVT: tests interactions between elements; not “many A/Bs,” but factorial combos.\n\nAction items\n\n- From your Funnel findings, write 10-20 hypotheses mapped to five pillars (Offer/UVPs/Copy/Creative/UX).\n\n- Prioritize with ICE; queue 2–3 tests/week (start with PDP → PLP → HP → Nav).\n\n- Choose test type: Split for single-element; MVT for combo learning; Reverse A/B to trial new sections; avoid URL redirects unless template-scale.\n\n- Ensure ad-LP congruence: duplicate ad sets for each LP variant.\n\n- Define success metrics & MDE up front; stop early losers, let likely winners reach significance.\n\n- Ship winners fast; document what worked/why; syndicate language/imagery to ads, email, SMS.\n\n- Rinse: re-test quarterly; never “rebuild” blindly; evolve with measured steps.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780082/posts/2192221533",
+              "file": "01 - Lesson 14.1 - Split Testing & Experimentation Fundamentals.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 61507767,
+              "duration_seconds": 1274.47
+            },
+            {
+              "index": 2,
+              "name": "Lesson 14.2 - The 9 Biggest Mistakes of Split Testing\n\nBig idea: Tests don’t only “win” or “lose”; they produce intel. Avoid Big-Bang redesigns and run disciplined, evolutionary tests that close the Actual → Optimal journey gap.\n\nKey points\n\n- Winner/loser myth: a “loss” = paid learning.\n\n- “Too small” myth: tiny copy changes can move $$$ if rooted in data.\n\n- “Quick wins/low-hanging fruit” myth: aside from bug fixes, treat ideas as hypotheses; sometimes do\n\n- live tests when risk is low.\n\n- Brand fear: tasteful urgency/scarcity can work; test, don’t assume.\n\n- “We tried that already” fallacy: right idea ≠ right implementation. Iterate.\n\n- WYSIWYG-only + poor QA: prefer code-based variants; cross-browser/viewport QA.\n\n- Stopping <2 weeks: let cycles/traffic stabilize; reach significance.\n\n- Too many at once: ≤2 concurrent tests per single user journey.\n\n- Low-impact choices: use ICE and always run follow-up tests to compound wins.\n\nExamples/tactics\n\n- Two-word headline tweak lifted ROAS/CVR; prioritize message-market fit tests.\n\n- If a female-hero image wins on HP, propagate to PDP, emails, ads (follow-up tests).\n\n- Replace fake-button badges causing rage clicks; trial a reverse A/B to insert/remove sections without redirects.\n\n- Use live test (ship & monitor) for obvious fixes; split test for competing solutions.\n\nMetrics/definitions\n\n- ICE: Impact, Confidence, Effort prioritization.\n\n- Live test vs Split test: ship to 100% and monitor vs controlled variant test.\n\n- Min runtime: ~2 weeks (or until power/MDE met).\n\n- Concurrency rule: max 2 tests touching the same purchase path.\n\n- Diagnostics: bucket reach, time-to-first-action, misclick/rage-click rate.\n\nAction items\n\n- List 10-20 hypotheses from your Data Funnel; score with ICE.\n\n- Choose test type (split/MVT/live; use reverse A/B to avoid redirects).\n\n- Set guardrails: ≥2-week runtime, power/MDE, ≤2 tests per journey.\n\n- Enforce QA (browsers/devices) before launching.\n\n- Document what/why each result; ship winners and follow up (propagate angle/asset).\n\n- Retire “quick win” thinking; treat every result as directional intel for the next test.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780082/posts/2192221538",
+              "file": "02 - Lesson 14.2 - The 9 Biggest Mistakes of Split Testing.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 34702293,
+              "duration_seconds": 676.97
+            },
+            {
+              "index": 3,
+              "name": "Lesson 14.3 - The Ultimate Guide to Split Testing\n\nBig idea: Great results come from great test design. Use the Billion-Dollar Data Funnel to decide what to test; this module makes your tests valid, targeted, and useful so you learn fast and ship safely.\n\nKey points\n\n- Goal → Hypothesis: Write a precise goal and a measurable hypothesis before you touch the page.\n\n- Prioritize with ICE: Impact, Confidence, Effort → pick high-I, high-C, low-E first.\n\n- Choose the right test type: Split (A/B/A/B/C…), MVT (element combos), URL redirect (rare), Reverse A/B (hide/show coded block).\n\n- Targeting matters: Decide blanket (all users) vs targeted (e.g., new users, Meta traffic). Targeting is a variable.\n\n- Isolate variables: Change as little as possible per test to preserve intel.\n\n- Pick the right metric: RPS/AOV; define primary KPI + sensible secondarys.\n\n- Run long enough: Minimum 2 weeks; require 95% stat-sig and adequate power.\n\n- QA like crazy: Browsers, devices, viewports; coordinate with devs; watch for flicker.\n\n- Document & follow up: Every result → insight → next hypothesis.\n\nExamples/tactics\n\n- Hypothesis formula: “Because of insight, if we change X, RPS will ↑ by Y% for segment.”\n\n- Reverse A/B: Code new FAQ/UVP section, then A/B hide/show to avoid redirects.\n\n- Ad-LP congruence: Don’t random-redirect; duplicate ad sets so each creative hits its best-fit lander.\n\n- Segment wins: If total test is flat, inspect new vs returning or channel; promote only where it wins.\n\n- Isolate hero: First test headline only; next test image; then pair best-of-both (light MVT).\n\nMetrics/definitions\n\n- RPS (Revenue per Session): Primary for most site changes.\n\n- AOV: Primary for bundles/upsells/pricing.\n\n- Power / Stat-Sig: Confidence it’s real (≥95%) and repeatable (adequate sample).\n\n- Bucket reach: % seeing each section (for judging placement moves).\n\nAction items\n\n- Draft 10-20 hypotheses with the formula above; score with ICE and sort.\n\n- For each, pick test type (Split / MVT / Reverse A/B; avoid URL redirects unless template-scale).\n\n- Decide audience (blanket vs targeted); set primary KPI (RPS or AOV) + secondarys.\n\n- Set guardrails: ≥2-week runtime, 95% stat-sig, power met, ≤2 concurrent tests per journey.\n\n- QA across devices/browsers; launch; monitor early but don’t peak.\n\n- Log results (what/why), ship winners fast, and schedule the follow-up test to compound gains.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780082/posts/2192221542",
+              "file": "03 - Lesson 14.3 - The Ultimate Guide to Split Testing.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 145245953,
+              "duration_seconds": 2883.03
+            }
+          ],
+          "duration_seconds": 4834.47
+        },
+        {
+          "index": 2,
+          "name": "Landing Page Fundamentals",
+          "folder": "02 - 15. Landing Page Fundamentals",
+          "lessons": [
+            {
+              "index": 4,
+              "name": "Lesson 15.1 - Landing Page Breakdown\n\nBig idea: A “landing page” is any entry page (HP, PLP, PDP, long-form, listicle, advertorial, VSL). Make it Gator-friendly first (instant clarity), then satisfy the Judge (proof/details). Build each section from your customer insights, not opinions.\n\nKey points\n\n- Five LP archetypes: Long-form, Listicle (“5 reasons...”), Advertorial/story, VSL, PDP as LP.\n\n- Hero section (ATF) does 80% of the work: image + headline + sub-headline + primary CTA.\n\n- Headlines sell the dream; sub-heads explain the “how.”\n\n- UVPs and social proof must mirror survey insights (psychographics).\n\n- Conversational CTAs beat “Buy now.” Match CTA to visit intent.\n\n- Buy box/Offer: price clarity, anchoring, simple bundles, tastefully applied scarcity (near money).\n\n- FAQs: 6-8 Qs max, driven by real questions; reduce Judge effort.\n\nExamples/tactics\n\n- Hero image rules: (1) Show a human (even partial), (2) product is the hero, (3) one-second test (“What do I sell?”), (4) no auto video/carousels ATF.\n\n- Headline/sub-head: “Work faster with your AI team” → “Notion is the AI workspace...” (dream → how).\n\n- Listicle for paid: map 5 reasons directly to top survey themes.\n\n- Social proof: Use review snippets/UGC that echo survey language; place review summary + key FAQ near price/ATC; add stars in mobile nav; use micro-influencer endorsements for niche audiences.\n\n- CTAs: “Try it & save 43%” (ad clickers), “Make it yours” (ownership), “Ready for checkout” (decision stage).\n\n- Buy box: Big, legible price; show compare/anchor; present bundle/qty options; scarcity only in buy box (“Only 7 left”).\n\n- FAQs: ie: size/fit, returns/shipping, compatibility, not generic brand fluff.\n\nMetrics/definitions\n\n- One-second test: Can a skimmer name the product/category in 1s?\n\n- Section/bucket reach: % of users who see each block (use scrollmaps).\n\n- Primary KPIs: RPS (landing traffic), AOV (bundles/upsells), ATC rate (PDP as LP), CTR to next step.\n\n- Ad-LP congruence: Match ad promise ↔ hero image/copy/offer.\n\nAction items\n\n- Choose LP type per campaign (Long-form/Listicle/Advertorial/VSL/PDP).\n\n- Build hero to pass one-second test: human + product-forward image, dream headline, explanatory sub-head, conversational CTA.\n\n- Place UVPs and social proof that mirror survey themes near price/ATC; add stars or a testimonial line in mobile nav.\n\n- Design the buy box: big price, clear anchor, simple bundles, tasteful scarcity near the CTA.\n\n- Write 6-8 FAQ from actual questions (shipping/returns/fit first).\n\n- Validate with heatmaps/recordings (hero clicks, review dwell, FAQ use) and RPS/ATC; A/B test headlines, images, CTA copy, FAQ order.\n\n- Propagate winners across ads, email/SMS, PDPs, and other landers.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780083/posts/2192221558",
+              "file": "04 - Lesson 15.1 - Landing Page Breakdown.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 152684718,
+              "duration_seconds": 2935.97
+            },
+            {
+              "index": 5,
+              "name": "Lesson 15.2 - 5 Types of Landing Pages\n\nBig idea: Pick the landing page type based on product complexity and traffic source. Build for the Gator first (instant clarity) and satisfy the Judge with proof/education. Education before persuasion; sell hardest at the end.\n\nKey points\n\n- Five types: Long-form, Listicle (5-10 reasons), Advertorial (1st-person story), VSL (video-led long-form), PDP as LP.\n\n- Match type to traffic + AOV + category (ie: consumables → listicle/advertorial; high AOV/SaaS → long-form/VSL; fashion/catalog ads → PDP).\n\n- Ad→LP congruence: hero image, headline, and offer must mirror the click promise.\n\n- For listicles/advertorials: educate first, sell later; put the buy box at the bottom or link out to PDP.\n\n- Remove distractions only if testing shows it helps; many brands now successfully send paid traffic to homepages.\n\nExamples/tactics\n\n- Long-form: Education-led hero (human + product), dream headline + subhead (how), proof blocks, comparison, UGC, buy box with big price/anchors/bundles, tight FAQ.\n\n- Listicle: Derive 5–10 reasons directly from survey themes (ie: quality, tech, celeb proof, “replace old X”). Light CTAs mid-page; hard CTA at end to PDP/buy box.\n\n- Advertorial: 1st-person POV (“I/me”), third-party tone, inline links only; read like a food blog review.\n\n- VSL: Hook (problem), agitate (pain), solve (your offer), transformation, proof, urgency. Place mirrored long-form beneath video. Best for high education or 65+ demos.\n\n- PDP as LP: For fashion/accessories/catalog ads. Consider keeping nav; front-load identity-matching images, review summary, size/fit tips, returns near price/ATC.\n\nMetrics/definitions\n\n- Ad-LP congruence: headline/hero/offer alignment with ad hook.\n\n- Bucket reach (scroll depth): percent reaching each section; use it to reorder blocks.\n\n- Primary KPIs: RPS (by traffic source), ATC rate (PDP), AOV (bundles), CTR to next step (listicle/advertorial), video play-through (VSL).\n\n- Section tests: hero (image/headline/CTA), proof placement, buy-box layout, FAQ order.\n\nAction items\n\n- For each channel (Meta/Google/TikTok/Email), choose LP type and write an ad→LP congruence note (hook, claim, offer).\n\n- Build the hero to pass the 1-second test (human + product; dream headline; “how” subhead; conversational CTA).\n\n- Listicle/advertorial: draft reasons/story from survey themes; keep CTAs light until the end; link to PDP or place buy box bottom-only.\n\n- VSL: script (hook→pain→solution→proof→offer); place mirrored long-form beneath; add sticky CTA.\n\n- PDP as LP: surface review summary, fit/returns, key UVPs near price/ATC; ensure gallery shows lifestyle + angle variety.\n\n- Launch with segmented tests per source; track RPS, ATC, AOV, bucket reach; reorder sections and refine CTAs; propagate winners to other LPs.",
+              "url": "https://dylan-ander.mykajabi.com/products/cro-masterclass/categories/2158780083/posts/2192221625",
+              "file": "05 - Lesson 15.2 - 5 Types of Landing Pages.mp4",
+              "status": "downloaded",
+              "has_description": true,
+              "size_bytes": 66634961,
+              "duration_seconds": 921.0
+            }
+          ],
+          "duration_seconds": 3856.97
+        }
+      ],
+      "duration_seconds": 8691.44
+    }
+  ],
+  "title": "Dylan Ander - CRO Masterclass",
+  "last_refreshed": "2026-09-14",
+  "duration_seconds": 25125.55,
+  "total_size_bytes": 1526502030
+}
