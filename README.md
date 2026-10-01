@@ -30,6 +30,38 @@ A self-hosted, Kajabi-style course player for locally downloaded video courses. 
 
 **A course will only appear in CourseVault if its folder contains an `_index.json` file.** Other folders (without `_index.json`) are silently ignored, even if they contain video files.
 
+Courses live in `/mnt/DATA/Archive/courses/<course folder>/`. The onboarding command is `scripts/onboard.py` in this repo. It calls helper scripts (index generator, remux, covers) that live in the AIW2 workspace at `/mnt/DATA/AIW2/execution/`, and runs with the AIW2 venv python, which has its dependencies. Both locations are configurable, see `docs/onboarding.md`.
+
+### Required after adding a course: run the onboarding command
+
+Once the download has fully finished (torrent or downloader says complete), run this with the course folder name or its full path:
+
+```bash
+cd /mnt/DATA/projects/course-cms
+
+# 1. Audit only: safe at any time, changes nothing but its report folder
+/mnt/DATA/AIW2/venv/bin/python scripts/onboard.py "<course folder>" --audit-only
+
+# 2. Full run with fixes. Use tmux for big courses, the remux takes a while
+tmux new -d -s course_onboard_x 'cd /mnt/DATA/projects/course-cms && /mnt/DATA/AIW2/venv/bin/python scripts/onboard.py "<course folder>" --yes'
+tmux attach -t course_onboard_x    # live progress bars
+```
+
+What it does automatically (full run only, never with `--audit-only`):
+- Lossless faststart remux of mp4 files whose index sits at the end, plus a lossless container fix for MPEG-TS saved as `.mp4`. Verified, and throttled so the app stays responsive.
+- Builds or refreshes `_index.json`. The previous one is backed up first and restored if the install fails.
+- Generates the cover.
+
+What it only reports, with the exact command to act on it: incomplete, zero-byte or still-growing downloads, duplicate files, codecs or containers a browser cannot play (avi, HEVC, 10-bit and so on), high bitrates, broken resources, and app smoke failures (course page, modules, first lessons, video Range requests, cover, search). It never re-encodes, deletes or renames anything. If any file is still growing, every fix is blocked and the run stays audit-only: wait and rerun. Every step is idempotent, so rerunning after a re-download is always safe.
+
+The report is at `/mnt/DATA/AIW2/.tmp/course_cms_onboard/<course folder>/REPORT.md` (override with `--out-root`): one row per step (OK / FIXED / REPORT / FAIL / SKIPPED), then findings and commands. Exit code 1 means at least one step is FAIL. In an audit-only run, a cover 404 and TAIL-MOOV files are expected findings.
+
+**Do not hand-write `_index.json`** unless the generator cannot handle the course. Prefer `/mnt/DATA/AIW2/execution/course_cms_build_index.py` (its header documents `--from-index`, `--pdf-lessons`, `--out-dir`, `--dry-run`), and the onboarding command, which calls it for you. A hand-written or scraper-written index is fine: the onboarding command refreshes it in place with `--from-index` and keeps its tree exactly.
+
+**Hard rule: lesson order must never change for an existing course.** Lesson URLs are positional (`/course/{id}/{module}/{lesson}`), so moving a lesson breaks every saved link to it. The onboarding command refuses any index that would reorder lessons. If a fresh build would move lessons, decide with the owner, never force it.
+
+Full details, including how to act on each report-only finding: [`docs/onboarding.md`](docs/onboarding.md).
+
 ### Required folder structure
 
 ```
