@@ -209,6 +209,7 @@ export default async function PlayerPage({ params, searchParams }: Props) {
                 ))}
             </>
           ) : (
+            <TranscriptPanel timedSrc={captionsSrc} textSrc={transcriptTextSrc}>
             <VideoPlayer
               courseId={courseId}
               lessonFile={lesson.file}
@@ -224,13 +225,7 @@ export default async function PlayerPage({ params, searchParams }: Props) {
               nextTitle={nav.nextTitle}
               captionsSrc={captionsSrc}
             />
-          )}
-          {(captionsSrc || transcriptTextSrc) && (
-            <TranscriptPanel
-              key={lesson.file}
-              timedSrc={captionsSrc}
-              textSrc={transcriptTextSrc}
-            />
+            </TranscriptPanel>
           )}
           {/* The divider spans the pane while the article stays at reading width. */}
           <div className="px-4 py-4 border-b border-border">

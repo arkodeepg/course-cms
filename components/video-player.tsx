@@ -379,13 +379,22 @@ export function VideoPlayer({
       setCueText(lines.join("\n"));
     };
     applyMode();
+    // cuechange alone misses the first cue when the track finishes loading after
+    // the mode switch (a persisted "on" at page load), so timeupdate and seeked
+    // re-read the active cues too. Same text means React skips the render.
+    const frame = requestAnimationFrame(onCueChange);
     track.addEventListener("cuechange", onCueChange);
     el.addEventListener("load", onCueChange);
+    video?.addEventListener("timeupdate", onCueChange);
+    video?.addEventListener("seeked", onCueChange);
     video?.addEventListener("webkitbeginfullscreen", applyMode);
     video?.addEventListener("webkitendfullscreen", applyMode);
     return () => {
+      cancelAnimationFrame(frame);
       track.removeEventListener("cuechange", onCueChange);
       el.removeEventListener("load", onCueChange);
+      video?.removeEventListener("timeupdate", onCueChange);
+      video?.removeEventListener("seeked", onCueChange);
       video?.removeEventListener("webkitbeginfullscreen", applyMode);
       video?.removeEventListener("webkitendfullscreen", applyMode);
       track.mode = "disabled";
