@@ -18,10 +18,18 @@ import {
   Play,
   Pause,
   MoreHorizontal,
+  Captions,
 } from "lucide-react";
 import { formatTimestampParam } from "@/lib/timestamp";
 import { PLAYBACK_SPEEDS, resolveResumePosition, stepSpeed } from "@/lib/playback";
-import { CMS_COMMAND_EVENT, isTypingTarget } from "@/lib/commands";
+import {
+  CMS_COMMAND_EVENT,
+  CMS_PLAYER_TIME_EVENT,
+  isTypingTarget,
+  parseSeekTo,
+  type PlayerTimeDetail,
+} from "@/lib/commands";
+import { cleanCueText } from "@/lib/captions";
 import { choosePreload, SSR_PRELOAD, type PreloadMode } from "@/lib/preload";
 
 /**
@@ -61,6 +69,7 @@ const LS = {
   volume: "cms:player:volume",
   muted: "cms:player:muted",
   autoplayNext: "cms:player:autoplayNext",
+  captions: "cms:player:captions",
 };
 // Session flag holding the href we are about to open, so that lesson starts playing.
 const AUTOPLAY_FLAG = "cms:player:autoplay";
@@ -177,6 +186,8 @@ interface VideoPlayerProps {
   prevHref: string | null;
   nextHref: string | null;
   nextTitle: string | null;
+  /** Same-origin text/vtt URL (/api/captions/...) for this lesson, or null when it has none. */
+  captionsSrc?: string | null;
 }
 
 export function VideoPlayer({
@@ -189,6 +200,7 @@ export function VideoPlayer({
   prevHref,
   nextHref,
   nextTitle,
+  captionsSrc = null,
 }: VideoPlayerProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -227,6 +239,12 @@ export function VideoPlayer({
   const [playing, setPlaying] = useState(false);
   // Server and first client render agree on "metadata"; a mount effect upgrades desktops to "auto".
   const [preload, setPreload] = useState<PreloadMode>(SSR_PRELOAD);
+  // Captions are drawn by our own overlay (track mode "hidden"), not by the
+  // browser: native cues sit inside the <video> box, and a custom overlay keeps
+  // them the same size and style in and out of wrapper fullscreen.
+  const trackRef = useRef<HTMLTrackElement>(null);
+  const [captionsOn, setCaptionsOn] = useState(false);
+  const [cueText, setCueText] = useState("");
   const router = useRouter();
   const pathname = usePathname();
 
@@ -261,6 +279,7 @@ export function VideoPlayer({
       if (video) video.muted = m === "1";
     }
     if (a !== null) setAutoplayNext(a === "1");
+    if (readStore(LS.captions) === "1") setCaptionsOn(true);
     if (video) {
       setPipSupported(!!(document as PipDocument).pictureInPictureEnabled && !video.disablePictureInPicture);
     }
@@ -323,6 +342,56 @@ export function VideoPlayer({
     writeStore(LS.autoplayNext, next ? "1" : "0");
     if (!next) setUpNext(null);
   }
+
+  const toggleCaptions = useCallback(() => {
+    if (!captionsSrc) {
+      showToast("No captions for this lesson");
+      return;
+    }
+    setCaptionsOn((on) => {
+      const next = !on;
+      writeStore(LS.captions, next ? "1" : "0");
+      return next;
+    });
+  }, [captionsSrc, showToast]);
+
+  // ---- captions --------------------------------------------------------------
+
+  useEffect(() => {
+    const el = trackRef.current;
+    const track = el?.track;
+    if (!el || !track || !captionsSrc) return;
+    const video = videoRef.current as (HTMLVideoElement & { webkitDisplayingFullscreen?: boolean }) | null;
+    // "hidden" loads the file and fires cuechange without the browser drawing it.
+    // iOS native fullscreen shows only the video element, so hand cues to the
+    // browser there.
+    const applyMode = () => {
+      if (!captionsOn) track.mode = "disabled";
+      else track.mode = video?.webkitDisplayingFullscreen ? "showing" : "hidden";
+    };
+    const onCueChange = () => {
+      const cues = track.activeCues;
+      const lines: string[] = [];
+      for (let i = 0; cues && i < cues.length; i++) {
+        const text = cleanCueText((cues[i] as VTTCue).text ?? "");
+        if (text) lines.push(text);
+      }
+      setCueText(lines.join("\n"));
+    };
+    applyMode();
+    track.addEventListener("cuechange", onCueChange);
+    el.addEventListener("load", onCueChange);
+    video?.addEventListener("webkitbeginfullscreen", applyMode);
+    video?.addEventListener("webkitendfullscreen", applyMode);
+    return () => {
+      track.removeEventListener("cuechange", onCueChange);
+      el.removeEventListener("load", onCueChange);
+      video?.removeEventListener("webkitbeginfullscreen", applyMode);
+      video?.removeEventListener("webkitendfullscreen", applyMode);
+      track.mode = "disabled";
+      setCueText("");
+    };
+  }, [captionsSrc, captionsOn]);
 
   // ---- progress --------------------------------------------------------------
 
@@ -451,7 +520,17 @@ export function VideoPlayer({
 
     const onCanPlay = () => applySeek();
 
+    const broadcastTime = () => {
+      if (!isCurrent()) return;
+      window.dispatchEvent(
+        new CustomEvent<PlayerTimeDetail>(CMS_PLAYER_TIME_EVENT, {
+          detail: { time: video.currentTime, videoSrc: src },
+        })
+      );
+    };
+
     const onTime = () => {
+      broadcastTime();
       if (!isCurrent() || !video.duration) return;
       lastTimeRef.current = video.currentTime;
       const pct = (video.currentTime / video.duration) * 100;
@@ -504,6 +583,7 @@ export function VideoPlayer({
     video.addEventListener("loadedmetadata", onMeta);
     video.addEventListener("canplay", onCanPlay);
     video.addEventListener("timeupdate", onTime);
+    video.addEventListener("seeked", broadcastTime);
     video.addEventListener("progress", onProgress);
     video.addEventListener("pause", onPause);
     video.addEventListener("play", onPlay);
@@ -519,6 +599,7 @@ export function VideoPlayer({
       video.removeEventListener("loadedmetadata", onMeta);
       video.removeEventListener("canplay", onCanPlay);
       video.removeEventListener("timeupdate", onTime);
+      video.removeEventListener("seeked", broadcastTime);
       video.removeEventListener("progress", onProgress);
       video.removeEventListener("pause", onPause);
       video.removeEventListener("play", onPlay);
@@ -652,6 +733,21 @@ export function VideoPlayer({
     [showToast]
   );
 
+  // Absolute seek, for the transcript panel. Before metadata the browser keeps
+  // the value as the start position, so it is set even without a duration.
+  const seekTo = useCallback(
+    (seconds: number) => {
+      const v = videoRef.current;
+      if (!v || !Number.isFinite(seconds)) return;
+      const d = v.duration;
+      const t = Math.max(0, Number.isFinite(d) && d > 0 ? Math.min(d, seconds) : seconds);
+      v.currentTime = t;
+      lastTimeRef.current = t;
+      showToast(fmtTime(t));
+    },
+    [showToast]
+  );
+
   const seekToFraction = useCallback(
     (fraction: number) => {
       const v = videoRef.current;
@@ -699,7 +795,9 @@ export function VideoPlayer({
   const latest = {
     togglePlay,
     seekBy,
+    seekTo,
     seekToFraction,
+    toggleCaptions,
     applySpeed,
     applyVolume,
     toggleMute,
@@ -755,6 +853,9 @@ export function VideoPlayer({
         case "f":
           h.toggleFullscreen();
           break;
+        case "c":
+          h.toggleCaptions();
+          break;
         case ">":
           h.applySpeed(stepSpeed(video?.playbackRate ?? 1, 1));
           break;
@@ -785,7 +886,11 @@ export function VideoPlayer({
       else if (id === "copy-timestamp") void h.copyLinkAtCurrentTime();
       else if (id === "fullscreen") h.toggleFullscreen();
       else if (id === "pip") void h.togglePip();
-      else if (id.startsWith("speed:")) {
+      else if (id === "captions-toggle") h.toggleCaptions();
+      else if (id.startsWith("seek-to:")) {
+        const t = parseSeekTo(id);
+        if (t !== null) h.seekTo(t);
+      } else if (id.startsWith("speed:")) {
         const s = Number(id.slice(6));
         if (s > 0) h.applySpeed(s);
       } else if (id.startsWith("seek:")) {
@@ -898,7 +1003,36 @@ export function VideoPlayer({
               : { aspectRatio: "16 / 9", maxHeight: "min(70vh, calc(100dvh - 10rem))" }
           }
           onClick={togglePlay}
-        />
+        >
+          {captionsSrc && (
+            <track
+              key={captionsSrc}
+              ref={trackRef}
+              kind="captions"
+              src={captionsSrc}
+              srcLang="en"
+              label="Captions"
+            />
+          )}
+        </video>
+
+        {captionsOn && cueText && (
+          <div
+            data-captions-overlay
+            aria-live="off"
+            className={`pointer-events-none absolute inset-x-0 flex justify-center px-4 ${
+              isFullscreen ? "bottom-[6%]" : "bottom-3 lg:bottom-4"
+            }`}
+          >
+            <span
+              className={`max-w-[92%] whitespace-pre-line rounded bg-black/75 px-2 py-0.5 text-center font-medium leading-snug text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.8)] ${
+                isFullscreen ? "text-xl sm:text-2xl lg:text-3xl px-3 py-1" : "text-sm sm:text-base lg:text-[0.95rem]"
+              }`}
+            >
+              {cueText}
+            </span>
+          </div>
+        )}
 
         {toast && (
           <div className="pointer-events-none absolute top-4 left-1/2 -translate-x-1/2 rounded-md bg-black/75 px-3 py-1.5 text-[0.75rem] font-semibold tabular-nums text-white whitespace-pre">
@@ -1011,6 +1145,20 @@ export function VideoPlayer({
             <span ref={timeDurRef}>00:00</span>
           </span>
         </span>
+
+        {captionsSrc && (
+          <button
+            onClick={toggleCaptions}
+            aria-pressed={captionsOn}
+            className={`hidden min-[400px]:inline-flex p-2 coarse:p-3.5 shrink-0 transition-colors ${
+              captionsOn ? "text-brand" : "text-muted-foreground hover:text-foreground"
+            }`}
+            title={captionsOn ? "Captions on (C)" : "Captions off (C)"}
+            aria-label="Captions"
+          >
+            <Captions className="h-4 w-4" />
+          </button>
+        )}
 
         {/* Speed picker: a bottom sheet below lg (the player sits right under the sticky
             nav on phones, so an upward popover would hide behind it), a popover from lg up. */}
@@ -1173,6 +1321,22 @@ export function VideoPlayer({
                   <SkipForward className="h-4 w-4" />
                   <span>Next lesson</span>
                 </button>
+                {captionsSrc && (
+                  <button
+                    onClick={toggleCaptions}
+                    role="switch"
+                    aria-checked={captionsOn}
+                    className={`min-[400px]:hidden w-full flex items-center justify-between px-3 py-2 text-sm text-foreground hover:bg-surface-field transition-colors ${menuRow}`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <Captions className="h-4 w-4" />
+                      Captions
+                    </span>
+                    <span className={`text-xs font-semibold uppercase ${captionsOn ? "text-brand" : "text-muted-foreground"}`}>
+                      {captionsOn ? "On" : "Off"}
+                    </span>
+                  </button>
+                )}
                 <button
                   onClick={toggleAutoplayNext}
                   role="switch"

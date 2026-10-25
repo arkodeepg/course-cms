@@ -12,8 +12,10 @@ import {
   isDocumentLesson,
   isMissingLesson,
   resourceHref,
+  captionsHref,
   readLessonMarkdown,
 } from "@/lib/courses";
+import { detectCaptionSources } from "@/lib/caption-sources";
 import { courseTitle } from "@/lib/utils";
 import { parseTimestamp, resolveStartPosition } from "@/lib/timestamp";
 import { computeLessonNav } from "@/lib/lesson-nav";
@@ -52,6 +54,7 @@ import { VideoPlayer } from "@/components/video-player";
 import { LessonArticle } from "@/components/lesson-article";
 import { LessonToolbar } from "@/components/lesson-toolbar";
 import { PdfLesson } from "@/components/pdf-lesson";
+import { TranscriptPanel } from "@/components/transcript-panel";
 
 interface Props {
   params: { courseId: string; moduleIndex: string; lessonIndex: string };
@@ -110,6 +113,15 @@ export default async function PlayerPage({ params, searchParams }: Props) {
   const videoSrc = videoAbsPath
     ? '/api/video' + videoAbsPath.split('/').map(s => encodeURIComponent(s)).join('/')
     : "";
+
+  // Captions and transcripts are ordinary lesson resources; only video lessons use them.
+  const captionSources = videoAbsPath && !isUnplayable ? detectCaptionSources(lesson) : null;
+  const captionsSrc = captionSources?.timed
+    ? captionsHref(getResourceFilePath(courseId, category, lesson, captionSources.timed))
+    : null;
+  const transcriptTextSrc = captionSources?.text
+    ? resourceHref(getResourceFilePath(courseId, category, lesson, captionSources.text))
+    : null;
 
   const courseName = courseTitle(courseId, entry.index);
   // Prev / next run across module boundaries, not just within this module.
@@ -210,6 +222,14 @@ export default async function PlayerPage({ params, searchParams }: Props) {
               prevHref={nav.prevHref}
               nextHref={nav.nextHref}
               nextTitle={nav.nextTitle}
+              captionsSrc={captionsSrc}
+            />
+          )}
+          {(captionsSrc || transcriptTextSrc) && (
+            <TranscriptPanel
+              key={lesson.file}
+              timedSrc={captionsSrc}
+              textSrc={transcriptTextSrc}
             />
           )}
           {/* The divider spans the pane while the article stays at reading width. */}

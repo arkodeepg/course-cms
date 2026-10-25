@@ -277,6 +277,11 @@ export function resourceHref(absPath: string): string {
   return '/api/resource' + absPath.split('/').map((s) => encodeURIComponent(s)).join('/');
 }
 
+// Builds the /api/captions href (always text/vtt) for a .vtt or .srt on disk.
+export function captionsHref(absPath: string): string {
+  return '/api/captions' + absPath.split('/').map((s) => encodeURIComponent(s)).join('/');
+}
+
 export interface ResourceGroup {
   label: string;
   resources: Resource[];
