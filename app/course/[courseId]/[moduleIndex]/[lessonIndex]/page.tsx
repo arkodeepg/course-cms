@@ -14,6 +14,8 @@ import {
   resourceHref,
   captionsHref,
   readLessonMarkdown,
+  findCompanionMarkdown,
+  readCompanionMarkdown,
 } from "@/lib/courses";
 import { detectCaptionSources } from "@/lib/caption-sources";
 import { courseTitle } from "@/lib/utils";
@@ -122,6 +124,16 @@ export default async function PlayerPage({ params, searchParams }: Props) {
   const transcriptTextSrc = captionSources?.text
     ? resourceHref(getResourceFilePath(courseId, category, lesson, captionSources.text))
     : null;
+
+  // A video lesson's same-stem .md is its lesson text: shown inline under the
+  // title, so its "Lesson MD" chip is dropped. Unreadable or empty keeps the chip.
+  const companionMd = videoAbsPath ? findCompanionMarkdown(lesson) : null;
+  const companionMarkdown = companionMd
+    ? readCompanionMarkdown(courseId, category, lesson, companionMd, title)
+    : "";
+  const chipResources = (lesson.resources ?? []).filter(
+    (r) => !(companionMarkdown && r === companionMd)
+  );
 
   const courseName = courseTitle(courseId, entry.index);
   // Prev / next run across module boundaries, not just within this module.
@@ -248,9 +260,14 @@ export default async function PlayerPage({ params, searchParams }: Props) {
               </p>
             )}
             {isArticle && <LessonArticle markdown={markdown} />}
-            {lesson.resources && lesson.resources.length > 0 && (
+            {companionMarkdown && (
+              <div className="mt-3 max-w-3xl">
+                <LessonArticle markdown={companionMarkdown} />
+              </div>
+            )}
+            {chipResources.length > 0 && (
               <div className="mt-5 flex flex-wrap gap-2">
-                {lesson.resources.map((resource) => {
+                {chipResources.map((resource) => {
                   const resourceAbsPath = getResourceFilePath(courseId, category, lesson, resource);
                   const resourceHref = '/api/resource' + resourceAbsPath.split('/').map((s) => encodeURIComponent(s)).join('/');
                   return (

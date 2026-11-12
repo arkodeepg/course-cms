@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Category, CourseIndex, Lesson, Resource } from '@/types/course';
+import { resolveArchivePath } from '@/lib/file-serve';
 
 export function getCoursesPath(): string {
   return process.env.COURSES_PATH || '/courses';
@@ -239,6 +240,54 @@ export function readLessonMarkdown(courseId: string, category: Category, lesson:
     return '';
   }
   return raw.replace(/^\s*#\s+.*(\r?\n)+/, '').trim();
+}
+
+function fileStem(p: string): string {
+  const base = path.basename(p);
+  const ext = path.extname(base);
+  return (ext ? base.slice(0, -ext.length) : base).toLowerCase();
+}
+
+// A video lesson's companion lesson text: the .md resource with the video's own
+// file stem, which the indexer labels "Lesson MD". Pure, so it is unit tested.
+// Text, document and missing lessons have none: their page already shows the file.
+export function findCompanionMarkdown(lesson: Lesson): Resource | null {
+  const ext = path.extname(lesson.file).toLowerCase();
+  if (ext === '.md' || DOCUMENT_LESSON_EXTS.includes(ext)) return null;
+  const stem = fileStem(lesson.file);
+  return (
+    (lesson.resources ?? []).find((r) => {
+      const file = r.path ?? r.file;
+      if (path.extname(file).toLowerCase() !== '.md') return false;
+      return fileStem(file) === stem || r.name === 'Lesson MD';
+    }) ?? null
+  );
+}
+
+// Drops a leading H1 only when it repeats the lesson title the page already shows.
+export function stripTitleHeading(raw: string, title: string): string {
+  const norm = (s: string) => s.replace(/[*_`]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+  const m = raw.match(/^\s*#\s+(.*)(?:\r?\n|$)+/);
+  if (m && norm(m[1]) === norm(title)) return raw.slice(m[0].length).trim();
+  return raw.trim();
+}
+
+// Reads a companion .md off the archive. The path is resolved (symlinks too) and
+// must stay inside the courses root; anything else reads as empty.
+export function readCompanionMarkdown(
+  courseId: string,
+  category: Category,
+  lesson: Lesson,
+  resource: Resource,
+  title: string
+): string {
+  try {
+    const abs = resolveArchivePath(getResourceFilePath(courseId, category, lesson, resource));
+    if (!abs) return '';
+    return stripTitleHeading(fs.readFileSync(abs, 'utf-8'), title);
+  } catch {
+    return '';
+  }
 }
 
 export function getResourceFilePath(
