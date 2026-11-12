@@ -20,6 +20,7 @@ export function LessonArticle({ markdown }: LessonArticleProps) {
     <article
       className="prose prose-invert prose-sm max-w-none
         prose-headings:font-bold prose-headings:text-foreground
+        prose-h1:text-lg prose-h1:mt-7 prose-h1:mb-3
         prose-h2:text-base prose-h2:mt-7 prose-h2:mb-2
         prose-h3:text-sm prose-h3:mt-6 prose-h3:mb-2
         prose-h4:text-sm prose-h4:mt-5 prose-h4:mb-1.5 prose-h4:text-brand
