@@ -55,7 +55,11 @@ export async function GET(
   const forceDownload = req.nextUrl.searchParams.get('download') === '1';
   const disposition =
     forceDownload || !INLINE_EXTS.has(ext) ? 'attachment' : 'inline';
-  const dispositionHeader = `${disposition}; filename="${path.basename(filePath)}"`;
+  // Header values must be Latin-1: send an ASCII fallback plus the RFC 5987
+  // UTF-8 form, so emoji or other non-ASCII filenames no longer throw a 500.
+  const baseName = path.basename(filePath);
+  const asciiName = baseName.replace(/[^\x20-\x7e]/g, '_').replace(/["\\]/g, '_');
+  const dispositionHeader = `${disposition}; filename="${asciiName}"; filename*=UTF-8''${encodeURIComponent(baseName).replace(/['()*]/g, (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase())}`;
 
   const headers: Record<string, string> = {
     ...validatorHeaders(stat),
