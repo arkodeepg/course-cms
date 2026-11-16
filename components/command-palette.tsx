@@ -8,6 +8,7 @@ import {
   Compass,
   CornerDownLeft,
   Download,
+  ExternalLink,
   FileText,
   History,
   Keyboard,
@@ -311,7 +312,7 @@ export function CommandPalette() {
       return;
     }
     if (!item.href) return;
-    if (newTab) {
+    if (newTab || item.external) {
       window.open(item.href, "_blank", "noopener");
       close();
       return;
@@ -487,7 +488,9 @@ export function CommandPalette() {
                       ? Keyboard
                       : item.download
                         ? Download
-                        : ICONS[item.kind];
+                        : item.external
+                          ? ExternalLink
+                          : ICONS[item.kind];
                   return (
                     <div
                       key={`${g.id}:${item.key}`}

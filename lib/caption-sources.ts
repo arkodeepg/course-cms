@@ -37,7 +37,7 @@ function stemOf(name: string): string {
 }
 
 function resourceFileName(resource: Resource): string {
-  return baseName(resource.path ?? resource.file);
+  return baseName(resource.path ?? resource.file ?? "");
 }
 
 /**

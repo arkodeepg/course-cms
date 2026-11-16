@@ -127,6 +127,7 @@ Full details, including how to act on each report-only finding: [`docs/onboardin
 - `sections` — sub-groupings within a module. If a category has only one section, section headers are hidden in the sidebar.
 - `lessons[].file` — filename of the lesson's own file. Must match the actual file on disk exactly (case-sensitive).
 - `has_description: true` — tells the app the `name` field contains a description after the first `\n`. URLs in descriptions are automatically turned into clickable links.
+- `resources[]` (course, category or lesson): `{ "name", "file", "path"? }` for a file on disk, or `{ "name", "url" }` for an external link such as a Google Sheet. A link resource has no `file`; only `http`/`https` urls are rendered, as links that open in a new tab, on the lesson page, the Downloads & Resources page and in the command palette. The index generator adds them automatically from document links (Google Docs/Sheets/Slides/Drive/Forms, Notion, Airtable, Figma, Miro, Canva, ...) quoted in lesson and module descriptions.
 
 ### Video lessons and article lessons
 

@@ -9,6 +9,7 @@ import {
   resourceHref,
   collectResourceGroups,
 } from "@/lib/courses";
+import { isLinkResource, safeExternalUrl, LINK_EXT } from "@/lib/resource-kinds";
 import { courseTitle } from "@/lib/utils";
 import { Nav } from "@/components/nav";
 import type { Metadata } from "next";
@@ -54,6 +55,18 @@ export default async function ResourcesPage({ params }: Props) {
   const viewGroups: ResourceGroupView[] = groups.map((group) => ({
     label: group.label,
     items: group.resources.map((resource) => {
+      if (isLinkResource(resource)) {
+        const url = safeExternalUrl(resource.url);
+        return {
+          name: resource.name,
+          href: url ?? "",
+          downloadHref: "",
+          ext: LINK_EXT,
+          size: "",
+          exists: url !== null,
+          external: true,
+        };
+      }
       let size = "";
       let exists = true;
       let abs = "";

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { Category, CourseIndex, Lesson, Resource } from '@/types/course';
 import { resolveArchivePath } from '@/lib/file-serve';
+import { isLinkResource } from '@/lib/resource-kinds';
 
 export function getCoursesPath(): string {
   return process.env.COURSES_PATH || '/courses';
@@ -257,7 +258,8 @@ export function findCompanionMarkdown(lesson: Lesson): Resource | null {
   const stem = fileStem(lesson.file);
   return (
     (lesson.resources ?? []).find((r) => {
-      const file = r.path ?? r.file;
+      const file = r.path ?? r.file ?? '';
+      if (!file) return false;
       if (path.extname(file).toLowerCase() !== '.md') return false;
       return fileStem(file) === stem || r.name === 'Lesson MD';
     }) ?? null
@@ -298,6 +300,9 @@ export function getResourceFilePath(
 ): string {
   const entry = getCourseEntry(courseId);
   if (!entry) throw new Error(`Course not found: ${courseId}`);
+  if (!resource.path && !resource.file) {
+    throw new Error(`Resource has no file (external link?) in course ${courseId}: ${resource.name}`);
+  }
 
   // A resource may carry an explicit path relative to the course directory.
   if (resource.path) {
@@ -306,7 +311,7 @@ export function getResourceFilePath(
 
   for (const section of category.sections) {
     if (section.lessons.some((l) => l.file === lesson.file)) {
-      return path.join(getCoursesPath(), entry.dir, category.folder, section.folder, resource.file);
+      return path.join(getCoursesPath(), entry.dir, category.folder, section.folder, resource.file as string);
     }
   }
 
@@ -318,7 +323,9 @@ export function getResourceFilePath(
 export function getResourceAbsPath(courseId: string, resource: Resource): string {
   const entry = getCourseEntry(courseId);
   if (!entry) throw new Error(`Course not found: ${courseId}`);
-  return path.join(getCoursesPath(), entry.dir, resource.path ?? resource.file);
+  const rel = resource.path ?? resource.file;
+  if (!rel) throw new Error(`Resource has no file (external link?) in course ${courseId}: ${resource.name}`);
+  return path.join(getCoursesPath(), entry.dir, rel);
 }
 
 // Builds the /api/resource href for an absolute on-disk path.
@@ -350,10 +357,16 @@ export function collectResourceGroups(index: CourseIndex): ResourceGroup[] {
     for (const section of category.sections) {
       for (const lesson of section.lessons) {
         for (const resource of lesson.resources ?? []) {
+          const name = `${lesson.name.split('\n')[0]} · ${resource.name}`;
+          // An external link has no file to resolve: carry its url through.
+          if (isLinkResource(resource)) {
+            resources.push({ name, url: resource.url });
+            continue;
+          }
           // Lesson resources are stored relative to their section folder, so
           // give each one the course-relative path the downloads page resolves.
           resources.push({
-            name: `${lesson.name.split('\n')[0]} · ${resource.name}`,
+            name,
             file: resource.file,
             path: resource.path ?? [category.folder, section.folder, resource.file]
               .filter(Boolean)

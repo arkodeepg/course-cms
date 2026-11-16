@@ -11,6 +11,7 @@ import {
   getLessonsFlat,
 } from "@/lib/courses";
 import { courseTitle } from "@/lib/utils";
+import { isLinkResource } from "@/lib/resource-kinds";
 import {
   isViewableExt,
   type CourseRow,
@@ -66,7 +67,11 @@ export function buildPaletteIndex(
       const courseLevel = gi === 0 && (index.resources?.length ?? 0) > 0;
       const m = courseLevel ? 0 : index.categories.findIndex((c) => c.name === group.label) + 1;
       for (const r of group.resources) {
-        const rel = r.path ?? r.file;
+        if (isLinkResource(r)) {
+          resources.push([ci, m, r.name.trim(), r.url as string, 0, 1]);
+          continue;
+        }
+        const rel = r.path ?? r.file ?? "";
         const ext = path.extname(r.file || r.path || "").toLowerCase();
         resources.push([ci, m, r.name.trim(), rel, isViewableExt(ext) ? 1 : 0]);
       }

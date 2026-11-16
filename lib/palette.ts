@@ -2,7 +2,7 @@
 // Client safe (no fs, no Prisma). The server half lives in lib/palette-index.ts.
 
 import { normalize, rank, type Field, type RankOptions } from "@/lib/fuzzy";
-import { isViewable } from "@/lib/resource-kinds";
+import { isViewable, safeExternalUrl } from "@/lib/resource-kinds";
 
 // ---------------------------------------------------------------------------
 // Payload served by /api/palette. Indexed tuples keep it small.
@@ -10,8 +10,16 @@ import { isViewable } from "@/lib/resource-kinds";
 export type CourseRow = [id: string, title: string, hasResources: 0 | 1, dir: string];
 export type ModuleRow = [courseIdx: number, moduleIndex: number, name: string];
 export type LessonRow = [courseIdx: number, moduleIndex: number, lessonIndex: number, title: string];
-// moduleIndex 0 means a course-level download.
-export type ResourceRow = [courseIdx: number, moduleIndex: number, name: string, path: string, viewable: 0 | 1];
+// moduleIndex 0 means a course-level download. `link` 1 means `path` is an
+// external http(s) URL rather than a course-relative file path.
+export type ResourceRow = [
+  courseIdx: number,
+  moduleIndex: number,
+  name: string,
+  path: string,
+  viewable: 0 | 1,
+  link?: 0 | 1,
+];
 export type RecentRow = [courseIdx: number, moduleIndex: number, lessonIndex: number];
 
 export interface PaletteIndex {
@@ -137,6 +145,7 @@ export interface PaletteItem {
   subtitle?: string;
   href?: string;
   download?: boolean; // href is a file download, not a page
+  external?: boolean; // href is an external site: always opens in a new tab
   action?: string; // action id
   hint?: string;
   fields: Field[];
@@ -195,9 +204,23 @@ export function prepareIndex(raw: PaletteIndex): PreparedIndex {
     };
   });
 
-  const resources: PaletteItem[] = raw.resources.map(([ci, m, name, path, viewable]) => {
+  const resources: PaletteItem[] = raw.resources.map(([ci, m, name, path, viewable, link]) => {
     const [id, courseTitle, , dir] = raw.courses[ci];
     const group = m === 0 ? "Course downloads" : moduleName.get(`${ci}:${m}`) ?? "";
+    if (link) {
+      const url = safeExternalUrl(path);
+      return {
+        key: `r:${id}:${path}`,
+        kind: "resource",
+        title: name,
+        subtitle: group ? `${courseTitle} · ${group}` : courseTitle,
+        // An unsafe url falls back to the resources page, never a javascript: href.
+        href: url ?? `/course/${id}/resources`,
+        external: url !== null,
+        hint: url ? "Link" : undefined,
+        fields: [f(name, 1), f(courseTitle, 0.6), f(group, 0.4)],
+      };
+    }
     return {
       key: `r:${id}:${path}`,
       kind: "resource",

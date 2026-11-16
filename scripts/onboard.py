@@ -286,17 +286,29 @@ def scraper_built(j: dict) -> bool:
     return False
 
 
+def is_link(r: dict) -> bool:
+    """An external link resource ({name, url}): nothing on disk to check."""
+    return bool(r.get("url")) and not r.get("file") and not r.get("path")
+
+
 def all_resources(j: dict) -> list[tuple[str, str, str]]:
-    """(level, course-relative path, display name) the way the app resolves them."""
+    """(level, course-relative path, display name) the way the app resolves them.
+    External link resources have no file and are left out."""
     out = []
     for r in j.get("resources", []):
+        if is_link(r):
+            continue
         out.append(("course", r.get("path") or r["file"], r["name"]))
     for c in j.get("categories", []):
         for r in c.get("resources", []):
+            if is_link(r):
+                continue
             out.append((f"module {c.get('index')}", r.get("path") or r["file"], r["name"]))
         for s in c["sections"]:
             for l in s["lessons"]:
                 for r in l.get("resources", []):
+                    if is_link(r):
+                        continue
                     p = r.get("path") or "/".join(x for x in (c.get("folder", ""), s.get("folder", ""),
                                                               r["file"]) if x)
                     out.append((f"lesson {l.get('index')}", p, r["name"]))

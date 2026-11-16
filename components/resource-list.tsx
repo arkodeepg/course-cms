@@ -17,6 +17,8 @@ import {
   FileText,
   FileType,
   FileVideo,
+  ClipboardList,
+  Link2,
   Presentation,
   Search,
   X,
@@ -31,6 +33,9 @@ import {
   isViewable,
   kind,
   kindCounts,
+  linkFlavor,
+  LINK_EXT,
+  type LinkFlavor,
 } from "@/lib/resource-kinds";
 import { LessonArticle } from "@/components/lesson-article";
 import { plural } from "@/lib/format";
@@ -41,9 +46,12 @@ export interface ResourceItem {
   name: string;
   href: string; // inline view URL
   downloadHref: string; // forced-download URL
-  ext: string; // lowercase, with leading dot
+  ext: string; // lowercase, with leading dot; LINK_EXT for an external link
   size: string;
   exists: boolean;
+  // External link (href is an absolute http(s) URL): opens in a new tab, no
+  // viewer and no download.
+  external?: boolean;
 }
 
 export interface ResourceGroupView {
@@ -66,11 +74,22 @@ const KIND_ICON: Record<ResourceKind, { Icon: LucideIcon; color: string }> = {
   slides: { Icon: Presentation, color: "text-orange-400" },
   archive: { Icon: FileArchive, color: "text-amber-400" },
   ebook: { Icon: BookOpen, color: "text-indigo-300" },
+  link: { Icon: Link2, color: "text-sky-300" },
   none: { Icon: File, color: "text-muted-foreground" },
 };
 
-function KindIcon({ ext, className = "h-4 w-4" }: { ext: string; className?: string }) {
-  const { Icon, color } = KIND_ICON[kind(ext)];
+// External links borrow their file kind's look where the host says what it is.
+const LINK_ICON: Record<LinkFlavor, { Icon: LucideIcon; color: string }> = {
+  sheet: KIND_ICON.sheet,
+  doc: KIND_ICON.doc,
+  slides: KIND_ICON.slides,
+  form: { Icon: ClipboardList, color: "text-purple-300" },
+  generic: KIND_ICON.link,
+};
+
+function KindIcon({ ext, href, className = "h-4 w-4" }: { ext: string; href?: string; className?: string }) {
+  const { Icon, color } =
+    ext === LINK_EXT && href ? LINK_ICON[linkFlavor(href)] : KIND_ICON[kind(ext)];
   return <Icon className={cn(className, "shrink-0", color)} aria-hidden="true" />;
 }
 
@@ -529,7 +548,7 @@ export function ResourceList({ groups }: { groups: ResourceGroupView[] }) {
         )}
         {(kindFilter !== null || q) && (
           <p className="text-xs sm:fine:text-[0.68rem] text-muted-foreground" aria-live="polite">
-            {visibleCount} of {plural(totalItems, "file")}
+            {visibleCount} of {plural(totalItems, "resource")}
           </p>
         )}
       </div>
@@ -585,7 +604,7 @@ export function ResourceList({ groups }: { groups: ResourceGroupView[] }) {
                     !item.exists && "opacity-50"
                   )}
                 >
-                  <KindIcon ext={item.ext} />
+                  <KindIcon ext={item.ext} href={item.external ? item.href : undefined} />
                   <span className="flex-1 min-w-0 text-[0.78rem] coarse:text-[0.8125rem] font-medium text-foreground leading-snug [overflow-wrap:anywhere]">
                     {item.name}
                   </span>
@@ -598,7 +617,21 @@ export function ResourceList({ groups }: { groups: ResourceGroupView[] }) {
                     </span>
                   )}
                   {!item.exists ? (
-                    <span className="text-[0.65rem] coarse:text-xs text-muted-foreground shrink-0">missing</span>
+                    <span className="text-[0.65rem] coarse:text-xs text-muted-foreground shrink-0">
+                      {item.external ? "invalid link" : "missing"}
+                    </span>
+                  ) : item.external ? (
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={item.href}
+                      aria-label={`Open ${item.name} in a new tab`}
+                      className="inline-flex items-center justify-center gap-1 rounded-md px-2 py-1 coarse:h-10 coarse:min-w-11 coarse:px-2.5 text-[0.68rem] coarse:text-xs font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors shrink-0"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      Open
+                    </a>
                   ) : (
                     <>
                       {viewable && (

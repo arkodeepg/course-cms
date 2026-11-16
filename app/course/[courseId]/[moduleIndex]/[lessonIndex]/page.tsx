@@ -1,6 +1,17 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle2, Download, FileText, FileWarning, PlayCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  Download,
+  ExternalLink,
+  FileSpreadsheet,
+  FileText,
+  FileWarning,
+  Link2,
+  PlayCircle,
+  Presentation,
+} from "lucide-react";
+import { isLinkResource, linkFlavor, safeExternalUrl } from "@/lib/resource-kinds";
 import {
   getCourseEntry,
   getLesson,
@@ -268,6 +279,32 @@ export default async function PlayerPage({ params, searchParams }: Props) {
             {chipResources.length > 0 && (
               <div className="mt-5 flex flex-wrap gap-2">
                 {chipResources.map((resource) => {
+                  if (isLinkResource(resource)) {
+                    const url = safeExternalUrl(resource.url);
+                    if (!url) return null;
+                    const flavor = linkFlavor(url);
+                    const LinkIcon =
+                      flavor === "sheet" ? FileSpreadsheet
+                        : flavor === "slides" ? Presentation
+                        : flavor === "doc" ? FileText
+                        : Link2;
+                    return (
+                      <a
+                        key={`url:${url}`}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={url}
+                        data-resource-kind="link"
+                        className="inline-flex min-h-11 lg:min-h-0 items-center gap-1.5 rounded-md border border-border bg-secondary/30 px-3 lg:px-2.5 py-1.5 text-xs lg:text-[0.68rem] font-medium text-foreground hover:bg-secondary/60"
+                      >
+                        <LinkIcon className="h-3.5 w-3.5 text-brand" />
+                        {resource.name}
+                        <ExternalLink className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                        <span className="sr-only">(opens in a new tab)</span>
+                      </a>
+                    );
+                  }
                   const resourceAbsPath = getResourceFilePath(courseId, category, lesson, resource);
                   const resourceHref = '/api/resource' + resourceAbsPath.split('/').map((s) => encodeURIComponent(s)).join('/');
                   return (

@@ -15,7 +15,13 @@ export interface Lesson {
 
 export interface Resource {
   name: string;
-  file: string;
+  // On-disk file name, relative to the lesson's section folder. Absent on an
+  // external link resource, which carries `url` instead.
+  file?: string;
+  // External link (a Google Sheet, Notion page, ...). Only http(s) is honoured,
+  // see safeExternalUrl in lib/resource-kinds.ts. A resource with a `url` and no
+  // `file` renders as a link that opens in a new tab, never as a download.
+  url?: string;
   // Path relative to the course directory. Use for module-level or course-level
   // downloads that do not live inside a lesson's section folder. Falls back to `file`.
   path?: string;

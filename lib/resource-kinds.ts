@@ -16,6 +16,7 @@ export type ResourceKind =
   | "slides"
   | "archive"
   | "ebook"
+  | "link"
   | "none";
 
 const EXT_KIND: Record<string, ResourceKind> = {
@@ -49,9 +50,14 @@ const EXT_KIND: Record<string, ResourceKind> = {
   ".epub": "ebook",
 };
 
+// Pseudo extension the resources page gives an external link item, so the
+// ext-keyed kind helpers (filter chips, icons) classify it as "link".
+export const LINK_EXT = "link:";
+
 // `ext` is lowercase with a leading dot; anything else is normalised first.
 export function kind(ext: string): ResourceKind {
   const e = ext.trim().toLowerCase();
+  if (e === LINK_EXT) return "link";
   const withDot = e.startsWith(".") ? e : `.${e}`;
   return EXT_KIND[withDot] ?? "none";
 }
@@ -71,6 +77,7 @@ export const KIND_LABEL: Record<ResourceKind, string> = {
   slides: "PowerPoint",
   archive: "Archive",
   ebook: "eBook",
+  link: "Link",
   none: "Other",
 };
 
@@ -113,4 +120,46 @@ export function kindCounts(exts: readonly string[]): { kind: ResourceKind; count
     counts.set(k, (counts.get(k) ?? 0) + 1);
   }
   return [...counts.entries()].map(([k, count]) => ({ kind: k, count }));
+}
+
+// The URL of an external link resource, or null unless it is absolute http(s).
+// Anything else (javascript:, data:, relative paths) is never rendered as a link.
+export function safeExternalUrl(url: string | null | undefined): string | null {
+  if (!url || typeof url !== "string") return null;
+  try {
+    const u = new URL(url.trim());
+    return u.protocol === "http:" || u.protocol === "https:" ? u.href : null;
+  } catch {
+    return null;
+  }
+}
+
+// A resource that is an external link rather than a file on disk.
+export function isLinkResource(r: { url?: string; file?: string; path?: string }): boolean {
+  return !r.file && !r.path && !!r.url;
+}
+
+export type LinkFlavor = "sheet" | "doc" | "slides" | "form" | "generic";
+
+// Which icon an external link gets: Google Sheets, Docs, Slides and Forms look
+// like their file kinds, everything else is a plain link.
+export function linkFlavor(url: string): LinkFlavor {
+  let host = "";
+  let p = "";
+  try {
+    const u = new URL(url);
+    host = u.hostname.toLowerCase();
+    p = u.pathname;
+  } catch {
+    return "generic";
+  }
+  if (host === "docs.google.com") {
+    if (p.startsWith("/spreadsheets")) return "sheet";
+    if (p.startsWith("/document")) return "doc";
+    if (p.startsWith("/presentation")) return "slides";
+    if (p.startsWith("/forms")) return "form";
+  }
+  if (host === "forms.gle") return "form";
+  if (host === "airtable.com" || host.endsWith(".airtable.com")) return "sheet";
+  return "generic";
 }
