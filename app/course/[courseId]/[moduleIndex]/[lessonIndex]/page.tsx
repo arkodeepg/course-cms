@@ -104,11 +104,16 @@ export default async function PlayerPage({ params, searchParams }: Props) {
     where: { courseId_lessonFile: { courseId, lessonFile: lesson.file } },
   });
 
-  const completedRows = await prisma.progress.findMany({
-    where: { courseId, completed: true },
-    select: { lessonFile: true },
+  const progressRows = await prisma.progress.findMany({
+    where: { courseId, OR: [{ completed: true }, { positionSeconds: { gt: 0 } }] },
+    select: { lessonFile: true, completed: true, positionSeconds: true },
   });
-  const completedFiles = completedRows.map((r) => r.lessonFile);
+  const completedFiles = progressRows.filter((r) => r.completed).map((r) => r.lessonFile);
+  // Saved positions of started but unfinished lessons, for the sidebar's "left" figures.
+  const lessonPositions: Record<string, number> = {};
+  for (const r of progressRows) {
+    if (!r.completed && r.positionSeconds > 0) lessonPositions[r.lessonFile] = r.positionSeconds;
+  }
   const completedSet = new Set(completedFiles);
 
   const flatLessons = getLessonsFlat(category);
@@ -375,6 +380,7 @@ export default async function PlayerPage({ params, searchParams }: Props) {
           activeModuleIdx={moduleIdx}
           activeLessonIdx={lessonIdx}
           completedFiles={completedFiles}
+          lessonPositions={lessonPositions}
         />
       </div>
     </div>

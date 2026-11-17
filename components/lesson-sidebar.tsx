@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CheckIcon, ChevronDownIcon, ChevronRightIcon, X, BookOpen, Download } from "lucide-react";
 import { CourseIndex, Category } from "@/types/course";
+import { formatDuration } from "@/lib/format";
+import { isStarted, lessonSecondsLeft, PositionMap, timeTotals, watchedPercent } from "@/lib/time-left";
 
 function lessonsFlat(category: Category) {
   return category.sections.flatMap((s) => s.lessons);
@@ -15,7 +17,11 @@ interface LessonSidebarProps {
   activeModuleIdx: number;
   activeLessonIdx: number;
   completedFiles: string[];
+  // Saved playback position (seconds) of started but unfinished lessons.
+  lessonPositions?: PositionMap;
 }
+
+const NO_POSITIONS: PositionMap = {};
 
 export function LessonSidebar({
   courseId,
@@ -23,6 +29,7 @@ export function LessonSidebar({
   activeModuleIdx,
   activeLessonIdx,
   completedFiles,
+  lessonPositions = NO_POSITIONS,
 }: LessonSidebarProps) {
   const [openModule, setOpenModule] = useState<number>(activeModuleIdx);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -152,6 +159,12 @@ export function LessonSidebar({
   }, [activeModuleIdx, activeLessonIdx, openModule, mobileOpen]);
 
   const completedSet = new Set(completedFiles);
+  const courseTime = timeTotals(
+    courseIndex.categories.flatMap(lessonsFlat),
+    completedSet,
+    lessonPositions
+  );
+  const courseLeft = courseTime.total > 0 ? formatDuration(courseTime.left) : null;
 
   const hasResources =
     (courseIndex.resources?.length ?? 0) > 0 ||
@@ -198,12 +211,15 @@ export function LessonSidebar({
             : "hidden w-64 lg:flex"
         }`}
       >
-      <div className="flex items-center justify-between px-3 py-1 lg:py-2.5 border-b border-border shrink-0">
+      <div className="relative flex items-center gap-2 px-3 py-1 lg:py-2.5 border-b border-border shrink-0">
         <span
           id="lesson-contents-title"
           className="text-xs lg:text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground"
         >
           Course Content
+        </span>
+        <span className="ml-auto text-xs lg:text-[0.65rem] font-semibold tabular-nums text-foreground whitespace-nowrap">
+          {courseLeft && `${courseLeft} left`}
         </span>
         <button
           ref={closeRef}
@@ -213,6 +229,13 @@ export function LessonSidebar({
         >
           <X className="h-5 w-5" />
         </button>
+        {courseTime.total > 0 && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute left-0 -bottom-px h-0.5 bg-success"
+            style={{ width: `${watchedPercent(courseTime)}%` }}
+          />
+        )}
       </div>
       <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-contain">
         {hasResources && (
@@ -229,6 +252,13 @@ export function LessonSidebar({
         {courseIndex.categories.map((category) => {
           const lessons = lessonsFlat(category);
           const completedCount = lessons.filter((l) => completedSet.has(l.file)).length;
+          const allDone = lessons.length > 0 && completedCount === lessons.length;
+          const moduleTime = timeTotals(lessons, completedSet, lessonPositions);
+          const moduleTotal = moduleTime.total > 0 ? formatDuration(moduleTime.total) : null;
+          const moduleLeft = moduleTime.left > 0 ? formatDuration(moduleTime.left) : null;
+          const moduleStarted = !allDone && isStarted(lessons, completedSet, lessonPositions);
+          const modulePct = watchedPercent(moduleTime);
+          const moduleTitle = `${completedCount}/${lessons.length} lessons${moduleTotal ? ` · ${moduleTotal}` : ""}`;
           const isOpen = openModule === category.index;
           const showSectionHeaders = category.sections.length > 1;
           const moduleIdx = category.index;
@@ -240,7 +270,9 @@ export function LessonSidebar({
               {/* Module header: accordion toggle only */}
               <button
                 onClick={() => setOpenModule(isOpen ? -1 : category.index)}
-                className={`w-full flex items-center gap-2 px-3 py-3 lg:py-2.5 coarse:min-h-11 text-left transition-colors ${
+                title={moduleTitle}
+                aria-expanded={isOpen}
+                className={`relative w-full flex items-center gap-2 px-3 py-3 lg:py-2.5 coarse:min-h-11 text-left transition-colors ${
                   isOpen ? "bg-surface-toolbar" : "hover:bg-surface-toolbar"
                 }`}
               >
@@ -252,15 +284,30 @@ export function LessonSidebar({
                   )}
                 </span>
                 <span
-                  className={`flex-1 text-sm lg:text-[0.68rem] font-semibold leading-snug ${
+                  className={`flex-1 min-w-0 truncate text-sm lg:text-[0.68rem] font-semibold leading-snug ${
                     moduleIdx === activeModuleIdx ? "text-foreground" : "text-muted-foreground"
                   }`}
                 >
                   {category.name}
                 </span>
-                <span className="shrink-0 text-xs lg:text-[0.65rem] text-muted-foreground/50 tabular-nums">
-                  {completedCount}/{lessons.length}
-                </span>
+                {allDone ? (
+                  <CheckIcon className="h-3 w-3 shrink-0 text-success" aria-label="Completed" />
+                ) : moduleStarted && moduleLeft ? (
+                  <span className="shrink-0 whitespace-nowrap text-xs lg:text-[0.65rem] text-foreground/80 tabular-nums">
+                    {moduleLeft} left
+                  </span>
+                ) : !moduleStarted && moduleTotal ? (
+                  <span className="shrink-0 whitespace-nowrap text-xs lg:text-[0.65rem] text-muted-foreground/50 tabular-nums">
+                    {moduleTotal}
+                  </span>
+                ) : null}
+                {moduleStarted && modulePct > 0 && modulePct < 100 && (
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-0 bottom-0 h-0.5 bg-success/80"
+                    style={{ width: `${modulePct}%` }}
+                  />
+                )}
               </button>
 
               {/* Lesson list: shown when module is open */}
@@ -269,7 +316,7 @@ export function LessonSidebar({
                   {category.sections.map((section) => (
                     <div key={section.index}>
                       {showSectionHeaders && (
-                        <div className="px-4 py-1 text-xs lg:text-[0.65rem] uppercase tracking-widest text-muted-foreground/40 border-b border-border/30">
+                        <div className="px-4 pt-2.5 pb-1 text-xs lg:text-[0.65rem] uppercase tracking-widest text-muted-foreground/40 border-b border-border/30">
                           {section.name}
                         </div>
                       )}
@@ -281,6 +328,9 @@ export function LessonSidebar({
                         const isDone = completedSet.has(lesson.file);
                         const isMissing = lesson.status === "missing";
                         const label = lesson.name.split("\n")[0].trim();
+                        const secondsLeft = lessonSecondsLeft(lesson, completedSet, lessonPositions);
+                        const lengthLabel = formatDuration(lesson.duration_seconds);
+                        const leftLabel = isActive && secondsLeft ? formatDuration(secondsLeft) : null;
 
                         return (
                           <Link
@@ -289,39 +339,51 @@ export function LessonSidebar({
                             href={`/course/${courseId}/${moduleIdx}/${thisIdx}`}
                             title={label}
                             aria-current={isActive ? "page" : undefined}
-                            className={`flex items-start gap-2 px-4 py-3 lg:py-2 coarse:min-h-11 border-b border-surface-toolbar cursor-pointer transition-colors ${
-                              isActive ? "bg-surface-active" : "hover:bg-surface-toolbar"
+                            className={`flex items-center gap-2 px-4 py-3 lg:py-2 coarse:min-h-11 border-b border-surface-toolbar cursor-pointer transition-colors ${
+                              isActive
+                                ? "bg-surface-active shadow-[inset_2px_0_0_hsl(var(--foreground)/0.8)]"
+                                : "hover:bg-surface-toolbar"
                             }`}
                           >
                             <span
-                              className={`text-xs lg:text-[0.65rem] shrink-0 pt-0.5 tabular-nums ${
+                              className={`text-xs lg:text-[0.65rem] shrink-0 tabular-nums ${
                                 isDone ? "text-success" : "text-muted-foreground/40"
                               }`}
                             >
                               {thisIdx}
                             </span>
                             <span
-                              className={`text-sm lg:text-[0.65rem] leading-snug flex-1 min-w-0 line-clamp-2 ${
+                              className={`text-sm lg:text-[0.65rem] leading-snug flex-1 min-w-0 truncate ${
                                 isActive
                                   ? "text-foreground font-semibold"
-                                  : "text-muted-foreground"
+                                  : isDone
+                                    ? "text-muted-foreground/70"
+                                    : "text-muted-foreground"
                               }`}
                             >
                               {label}
                             </span>
                             {isMissing && (
-                              <span className="shrink-0 mt-0.5 text-xs lg:text-[0.65rem] uppercase tracking-wide text-muted-foreground/50">
+                              <span className="shrink-0 text-xs lg:text-[0.65rem] uppercase tracking-wide text-muted-foreground/50">
                                 missing
                               </span>
                             )}
                             {lesson.archived && (
-                              <span className="shrink-0 mt-0.5 text-xs lg:text-[0.65rem] uppercase tracking-wide text-amber-500/70">
+                              <span className="shrink-0 text-xs lg:text-[0.65rem] uppercase tracking-wide text-amber-500/70">
                                 archived
                               </span>
                             )}
-                            {isDone && (
-                              <CheckIcon className="h-3 w-3 shrink-0 text-success mt-0.5" />
-                            )}
+                            {isDone ? (
+                              <CheckIcon className="h-3 w-3 shrink-0 text-success" aria-label="Completed" />
+                            ) : leftLabel ? (
+                              <span className="shrink-0 whitespace-nowrap text-xs lg:text-[0.65rem] text-foreground/80 tabular-nums">
+                                {leftLabel} left
+                              </span>
+                            ) : lengthLabel ? (
+                              <span className="shrink-0 whitespace-nowrap text-xs lg:text-[0.65rem] text-muted-foreground/50 tabular-nums">
+                                {lengthLabel}
+                              </span>
+                            ) : null}
                           </Link>
                         );
                       })}
