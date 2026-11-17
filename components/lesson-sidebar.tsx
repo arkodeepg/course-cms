@@ -232,7 +232,7 @@ export function LessonSidebar({
         {courseTime.total > 0 && (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute left-0 -bottom-px h-0.5 bg-success"
+            className="pointer-events-none absolute left-0 -bottom-px h-0.5 bg-brand"
             style={{ width: `${watchedPercent(courseTime)}%` }}
           />
         )}
@@ -291,7 +291,7 @@ export function LessonSidebar({
                   {category.name}
                 </span>
                 {allDone ? (
-                  <CheckIcon className="h-3 w-3 shrink-0 text-success" aria-label="Completed" />
+                  <CheckIcon className="h-3 w-3 shrink-0 text-brand" aria-label="Completed" />
                 ) : moduleStarted && moduleLeft ? (
                   <span className="shrink-0 whitespace-nowrap text-xs lg:text-[0.65rem] text-foreground/80 tabular-nums">
                     {moduleLeft} left
@@ -304,7 +304,7 @@ export function LessonSidebar({
                 {moduleStarted && modulePct > 0 && modulePct < 100 && (
                   <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute left-0 bottom-0 h-0.5 bg-success/80"
+                    className="pointer-events-none absolute left-0 bottom-0 h-0.5 bg-brand/80"
                     style={{ width: `${modulePct}%` }}
                   />
                 )}
@@ -347,7 +347,7 @@ export function LessonSidebar({
                           >
                             <span
                               className={`text-xs lg:text-[0.65rem] shrink-0 tabular-nums ${
-                                isDone ? "text-success" : "text-muted-foreground/40"
+                                isDone ? "text-brand" : "text-muted-foreground/40"
                               }`}
                             >
                               {thisIdx}
@@ -374,7 +374,7 @@ export function LessonSidebar({
                               </span>
                             )}
                             {isDone ? (
-                              <CheckIcon className="h-3 w-3 shrink-0 text-success" aria-label="Completed" />
+                              <CheckIcon className="h-3 w-3 shrink-0 text-brand" aria-label="Completed" />
                             ) : leftLabel ? (
                               <span className="shrink-0 whitespace-nowrap text-xs lg:text-[0.65rem] text-foreground/80 tabular-nums">
                                 {leftLabel} left
